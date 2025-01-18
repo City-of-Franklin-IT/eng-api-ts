@@ -45,7 +45,7 @@ export interface ConstructionViolationInterface extends BaseInterface {
   paymentReceived: Date | string | null
   swoDate: Date | string | null
   swoLiftedDate: Date | string | null
-  complaintId: string
+  complaintId: string | null
   compliance: boolean | null
   closed: boolean | null
 }

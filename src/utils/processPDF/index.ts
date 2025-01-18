@@ -5,7 +5,7 @@ import { NextFunction } from 'express'
 import { ModelStatic, Model } from 'sequelize'
 import { FileInterface } from '@models/stormwater/types'
 
-export default async (file: FileInterface, parentId: string, model: ModelStatic<Model>, email: string | undefined, next: NextFunction) => { // Handle PDF upload
+export default async (file: FileInterface, parentId: string, model: ModelStatic<Model>, email: string | undefined, next: NextFunction): Promise<void> => { // Handle PDF upload
   const attachment = await model.create({
     parentId,
     fileType: 'pdf',

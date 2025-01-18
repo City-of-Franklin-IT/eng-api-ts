@@ -1,6 +1,6 @@
 // Types
 import { Model } from "sequelize"
-import { AttachmentInterface, AttachmentCreationAttributes, ComplaintInterface } from "@models/stormwater/types"
+import { AttachmentInterface, AttachmentCreationAttributes, ComplaintInterface, ConstructionViolationInterface } from "@models/stormwater/types"
 import { ControllerResponse } from "@controllers/types"
 
 export interface CreateAttachmentRequest {
@@ -68,4 +68,25 @@ export interface UpdateComplaintRequest {
 
 export interface UpdateComplaintResponse extends ControllerResponse {
   data: Model<ComplaintInterface>[] & ComplaintInterface
+}
+
+export interface CreateConstructionViolationRequest {
+  date: string
+  siteId: string
+  details: string
+  complaintId: string | null
+}
+
+export interface CreateConstructionViolationResponse extends ControllerResponse {
+  data: Model<ConstructionViolationInterface> & ConstructionViolationInterface
+}
+
+export interface GetConstructionViolationsResponse {
+  success: boolean
+  data: Model<ConstructionViolationInterface>[] & ConstructionViolationInterface
+}
+
+export interface GetConstructionViolationResponse {
+  success: boolean
+  data: Model<ConstructionViolationInterface> & ConstructionViolationInterface
 }

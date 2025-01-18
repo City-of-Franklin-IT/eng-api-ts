@@ -18,7 +18,7 @@ export default (sequelize: Sequelize, dataTypes: typeof DataTypes) => {
     declare paymentReceived: Date | string | null
     declare swoDate: Date | string | null
     declare swoLiftedDate: Date | string | null
-    declare complaintId: string
+    declare complaintId: string | null
     declare compliance: boolean | null
     declare closed: boolean | null
     declare uuid: string

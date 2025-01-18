@@ -4,7 +4,7 @@ import { Inspector } from "@models/stormwater"
 import { ComplaintInterface, GreenInfrastructureInterface, IllicitDischargeInterface, InspectorInterface, SiteInterface } from "@models/stormwater/types"
 import sendEmail from "./sendEmail"
 
-export const emailInspector = async (email: string | undefined, data: { uuid: string, siteId?: string | null, name?: string, complaintId?: string, greenId?: string, illicitId?: string, details?: string }) => { // Email inspector
+export const emailInspector = async (email: string | undefined, data: { uuid: string, siteId?: string | null, name?: string, complaintId?: string, greenId?: string, illicitId?: string, details?: string }): Promise<void> => { // Email inspector
   const obj = setMsg(data)
 
   if(obj) {
@@ -40,26 +40,34 @@ export const inspectorLookup = async (uuid: string, model: ModelStatic<Model>, i
   return null
 }
 
-const setMsg = (data: { siteId?: string | null, name?: string, complaintId?: string, greenId?: string, illicitId?: string, details?: string, uuid: string } ) => {
+const setMsg = (data: { siteId?: string | null, name?: string, complaintId?: string, greenId?: string, illicitId?: string, details?: string, uuid: string }): { subject: string, msg: string } | null => {
   if(data.siteId) { // Site
     return {
       subject: "A site has been assigned to you",
       msg: `Site "${ data.name }" has been assigned to you.\n\nPlease visit https://dev.franklintn.gov/stormwater/sites/${ data.uuid } to view.`
     } 
-  } else if(data.complaintId) { // Complaint
+  } 
+  
+  if(data.complaintId) { // Complaint
     return {
       subject: "A complaint has been assigned to you",
       msg: `A complaint has been assigned to you:\n\n"${ data.details }"\n\nPlease visit https://dev.franklintn.gov/stormwater to view.`
     } 
-  } else if(data.greenId) { // Green infrastructure violation
+  }
+  
+  if(data.greenId) { // Green infrastructure violation
     return {
       subject: "A green infrastructure violation has been assigned to you",
       msg: `A green infrastructure violation has been assigned to you:\n\n"${ data.details }"\n\nPlease visit https://dev.franklintn.gov/storwmater to view.`
     }
-  } else if(data.illicitId) { // Illicit discharge violation
+  }
+  
+  if(data.illicitId) { // Illicit discharge violation
     return {
       subject: "An illicit discharge violation has been assigned to you",
       msg: `An illicit discharge violation has been assigned to you:\n\n"${ data.details }"\n\nPlease visit https://dev.franklintn.gov/stormwater to view.`
     }
   }
+
+  return null
 }

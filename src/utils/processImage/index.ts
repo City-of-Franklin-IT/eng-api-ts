@@ -6,7 +6,7 @@ import { NextFunction } from 'express'
 import { ModelStatic, Model } from 'sequelize'
 import { FileInterface } from '@models/stormwater/types'
 
-export default async (file: FileInterface, parentId: string, model: ModelStatic<Model>, email: string | undefined, next: NextFunction) => { // Handle image upload
+export default async (file: FileInterface, parentId: string, model: ModelStatic<Model>, email: string | undefined, next: NextFunction): Promise<void> => { // Handle image upload
 
   sharp(file.buffer)
     .resize(960, 640, {

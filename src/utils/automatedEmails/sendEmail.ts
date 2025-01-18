@@ -3,7 +3,7 @@ import { createTransport } from 'nodemailer'
 // Types
 import { TransportOptions } from 'nodemailer';
 
-export default async (options: { email: string | undefined, subject: string, msg: string }) => {
+export default async (options: { email: string | undefined, subject: string, msg: string }): Promise<void> => {
   const transporter = createTransport({
     service: 'smtp',
     host: process.env.SMTP_HOST,
