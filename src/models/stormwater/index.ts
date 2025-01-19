@@ -70,4 +70,4 @@ export const IllicitDischarge = db.IllicitDischarge
 export const Inspector = db.Inspector
 export const Log = db.Log
 export const Site = db.Site
-export const SiteConact = db.SiteContact
+export const SiteContact = db.SiteContact

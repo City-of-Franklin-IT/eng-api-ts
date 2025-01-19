@@ -7,8 +7,8 @@ import { ConstructionViolation, Site, FollowUpDate } from '@models/stormwater'
 import { Request, Response, NextFunction } from 'express'
 import { Model } from 'sequelize'
 import { ControllerResponse } from '@controllers/types'
-import { CreateConstructionViolationRequest, CreateConstructionViolationResponse, GetConstructionViolationsResponse, GetConstructionViolationResponse } from './types'
 import { ConstructionViolationInterface } from '@models/stormwater/types'
+import { CreateConstructionViolationRequest, CreateConstructionViolationResponse, GetConstructionViolationsResponse, GetConstructionViolationResponse, UpdateConstructionViolationRequest, UpdateConstructionViolationResponse } from './types'
 
 // @desc    Create construction violation
 // @route   POST /api/v1/stormwater/violations
@@ -84,14 +84,12 @@ export const getViolation = asyncHandler(async (req: Request<{ uuid: string }>, 
 // @desc    Update violation
 // @route   PUT /api/v1/stormwater/violations/:uuid
 // @access  Private
-exports.updateViolation = asyncHandler(async (req, res, next) => {
-  const { date, siteId, details, enforcementAction, penaltyDate, penaltyAmount, penaltyDueDate, paymentReceived, swoDate, swoLiftedDate, compliance, closed, updatedAt } = req.body
+export const updateViolation = asyncHandler(async (req: Request<{ uuid: string }, {}, UpdateConstructionViolationRequest>, res: Response<UpdateConstructionViolationResponse>, next: NextFunction) => {
+  const { date, siteId, details, enforcementAction, penaltyDate, penaltyAmount, penaltyDueDate, paymentReceived, swoDate, swoLiftedDate, compliance, closed } = req.body
 
-  const production = process.env.NODE_ENV === 'production'
+  const email = req.user?.email
 
-  const email = handleUserEmail(production, req)
-
-  const violation = await ConstructionViolations.update({
+  const violation = await ConstructionViolation.update({
     date,
     siteId,
     details,
@@ -105,50 +103,36 @@ exports.updateViolation = asyncHandler(async (req, res, next) => {
     compliance,
     closed,
     updatedBy: email,
-    updatedAt
   },
   {
     where: {
       uuid: req.params.uuid
     },
-    returning: true,
-    plain: true
+    returning: true
   })
   
   if(!violation) {
     return next(new ErrorResponse(`Could not update construction violation with uuid ${ req.params.uuid }`, 500))
   }
 
-  await Complaints.update({
-    closed
-  },{
-    where: {
-      complaintId: violation[1].complaintId
-    }
-  })
-
-  production && req.log.info(`ACTION - ${ email } updated a construction violation`)
+  const data = violation[1] as Model<ConstructionViolationInterface>[] & ConstructionViolationInterface
 
   res.status(200).json({
     success: true,
     msg: "Violation Updated",
-    data: violation[1]
+    data
   })
 })
 
 // @desc    Delete violation
 // @route   DELETE /api/v1/stormwater/violations/:uuid
 // @access  Private
-exports.deleteViolation = asyncHandler(async (req, res, next) => {
-  await ConstructionViolations.destroy({
+export const deleteViolation = asyncHandler(async (req: Request<{ uuid: string }>, res: Response<ControllerResponse>, next: NextFunction) => {
+  await ConstructionViolation.destroy({
     where: {
       uuid: req.params.uuid
     }
   })
-
-  const production = process.env.NODE_ENV === 'production'
-
-  production && req.log.info(`ACTION - ${ req.user.email } deleted a construction violation`)
 
   res.status(200).json({
     success: true,

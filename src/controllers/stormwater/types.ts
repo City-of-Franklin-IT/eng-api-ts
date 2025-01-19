@@ -1,6 +1,6 @@
 // Types
 import { Model } from "sequelize"
-import { AttachmentInterface, AttachmentCreationAttributes, ComplaintInterface, ConstructionViolationInterface } from "@models/stormwater/types"
+import { AttachmentInterface, AttachmentCreationAttributes, ComplaintInterface, ConstructionViolationInterface, ContactInterface } from "@models/stormwater/types"
 import { ControllerResponse } from "@controllers/types"
 
 export interface CreateAttachmentRequest {
@@ -89,4 +89,57 @@ export interface GetConstructionViolationsResponse {
 export interface GetConstructionViolationResponse {
   success: boolean
   data: Model<ConstructionViolationInterface> & ConstructionViolationInterface
+}
+
+export interface UpdateConstructionViolationRequest {
+  date: string
+  siteId: string
+  details: string
+  enforcementAction: string | null
+  penaltyDate: string | null
+  penaltyAmount: number | null
+  penaltyDueDate: string | null
+  paymentReceived: string | null
+  swoDate: string | null
+  swoLiftedDate: string | null
+  compliance: boolean | null
+  closed: boolean | null
+}
+
+export interface UpdateConstructionViolationResponse extends ControllerResponse {
+  data: Model<ConstructionViolationInterface>[]
+}
+
+export interface CreateContactRequest {
+  name: string
+  phone: string | null
+  company: string | null
+  email: string | null
+}
+
+export interface CreateContactResponse extends ControllerResponse {
+  data: Model<ContactInterface>
+}
+
+export interface GetContactsResponse {
+  success: boolean
+  data: Model<ContactInterface>[]
+}
+
+export interface GetContactResponse {
+  success: boolean
+  data: Model<ContactInterface>
+}
+
+export interface UpdateContactRequest {
+  name: string
+  phone: string | null
+  company: string | null
+  email: string | null
+  inactive: boolean | null
+  readonly uuid: string
+}
+
+export interface UpdateContactResponse extends ControllerResponse {
+  data: Model<ContactInterface>[]
 }
