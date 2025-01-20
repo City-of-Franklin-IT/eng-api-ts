@@ -46,7 +46,10 @@ export const getViolations = asyncHandler(async (req: Request, res: Response<Get
 
   const violations = await ConstructionViolation.findAll({
     order: [[Site, 'name', 'asc'], [FollowUpDate, 'followUpDate', 'desc']],
-    include: [{ model: Site }, { model: FollowUpDate }]
+    include: [
+      { model: Site }, 
+      { model: FollowUpDate }
+    ]
   }) as Model<ConstructionViolationInterface>[] & ConstructionViolationInterface
 
   if(!violations) {

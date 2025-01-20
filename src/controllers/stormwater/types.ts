@@ -1,6 +1,6 @@
 // Types
 import { Model } from "sequelize"
-import { AttachmentInterface, AttachmentCreationAttributes, ComplaintInterface, ConstructionViolationInterface, ContactInterface } from "@models/stormwater/types"
+import { AttachmentInterface, ComplaintInterface, ConstructionViolationInterface, ContactInterface, FollowUpDateInterface, GreenInfrastructureInterface } from "@models/stormwater/types"
 import { ControllerResponse } from "@controllers/types"
 
 export interface CreateAttachmentRequest {
@@ -63,7 +63,6 @@ export interface UpdateComplaintRequest {
   comments: string | null
   compliance: boolean | null
   closed: boolean | null
-  readonly uuid: string
 }
 
 export interface UpdateComplaintResponse extends ControllerResponse {
@@ -137,9 +136,78 @@ export interface UpdateContactRequest {
   company: string | null
   email: string | null
   inactive: boolean | null
-  readonly uuid: string
 }
 
 export interface UpdateContactResponse extends ControllerResponse {
   data: Model<ContactInterface>[]
+}
+
+export interface CreateFollowUpDateRequest {
+  parentId: string
+  followUpDate: string
+}
+
+export interface CreateFollowUpDateResponse extends ControllerResponse {
+  data: Model<FollowUpDateInterface>
+}
+
+export interface UpdateFollowUpDateRequest {
+  followUpDate: string
+}
+
+export interface UpdateFollowUpDateResponse extends ControllerResponse {
+  data: Model<FollowUpDateInterface>[]
+}
+
+export interface CreateGreenInfrastructureRequest {
+  date: string
+  xCoordinate: string
+  yCoordinate: string
+  locationDescription: string | null
+  inspectorId: string | null
+  details: string
+  comments: string | null
+  responsibleParty: string | null
+  enforcementAction: string | null
+  penaltyDate: string | null
+  penaltyAmount: number | null
+  penaltyDueDate: string | null
+  paymentReceived: string | null
+}
+
+export interface CreateGreenInfrastructureResponse extends ControllerResponse {
+  data: Model<GreenInfrastructureInterface>
+}
+
+export interface GetGreenInfrasturcturesResponse {
+  success: boolean
+  data: Model<GreenInfrastructureInterface>[]
+}
+
+export interface GetGreenInfrasturctureResponse {
+  success: boolean
+  data: Model<GreenInfrastructureInterface>
+}
+
+export interface UpdateGreenInfrastructureRequest {
+  date: string
+  xCoordinate: string
+  yCoordinate: string
+  locationDescription: string | null
+  inspectorId: string | null
+  details: string
+  comments: string | null
+  responsibleParty: string | null
+  enforcementAction: string | null
+  penaltyDate: string | null
+  penaltyAmount: number | null
+  penaltyDueDate: string | null
+  paymentReceived: string | null
+  bondReleased: boolean | null
+  compliance: boolean | null
+  closed: boolean | null
+}
+
+export interface UpdateGreenInfrastructureResponse extends ControllerResponse {
+  data: Model<GreenInfrastructureInterface>[]
 }

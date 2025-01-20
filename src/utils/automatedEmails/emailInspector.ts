@@ -1,7 +1,7 @@
 // Types
 import { ModelStatic, Model } from "sequelize"
 import { Inspector } from "@models/stormwater"
-import { ComplaintInterface, GreenInfrastructureInterface, IllicitDischargeInterface, InspectorInterface, SiteInterface } from "@models/stormwater/types"
+import { InspectorInterface } from "@models/stormwater/types"
 import sendEmail from "./sendEmail"
 
 export const emailInspector = async (email: string | undefined, data: { uuid: string, siteId?: string | null, name?: string, complaintId?: string, greenId?: string, illicitId?: string, details?: string }): Promise<void> => { // Email inspector

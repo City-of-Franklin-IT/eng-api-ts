@@ -5,7 +5,7 @@ import { Contact, SiteContact, Site } from '@models/stormwater'
 
 // Types
 import { Request, Response, NextFunction } from 'express'
-import { Model, ModelStatic } from 'sequelize'
+import { Model } from 'sequelize'
 import { ControllerResponse } from '@controllers/types'
 import { ContactInterface } from '@models/stormwater/types'
 import { CreateContactRequest, CreateContactResponse, GetContactsResponse, GetContactResponse, UpdateContactRequest, UpdateContactResponse } from './types'
@@ -45,7 +45,9 @@ export const createContact = asyncHandler(async (req: Request<{}, {}, CreateCont
 export const getContacts = asyncHandler(async (req: Request, res: Response<GetContactsResponse>, next: NextFunction) => {
   const contacts = await Contact.findAll({
     order: [['name', 'asc']],
-    include: [{ model: SiteContact, include: [{ model: Site }] }]
+    include: [
+      { model: SiteContact, 
+        include: [{ model: Site }] }]
   }) as Model<ContactInterface>[]
 
   if(!contacts.length) {
