@@ -161,6 +161,16 @@ export interface SiteInterface extends BaseInterface {
   tnq: string | null
   greenInfrastructure: number | null
   inactive: number
+  hasOpenViolation?: boolean
+  hasOpenComplaint?: boolean
+  hasOpenIllicitDischarge?: boolean
+  Logs?: LogInterface[]
+  ConstructionViolations?: ConstructionViolationInterface[]
+  Complaints?: ComplaintInterface[]
+  IllicitDischarges?: IllicitDischargeInterface[]
+  SiteContacts?: SiteContactInterface[]
+  Inspector?: InspectorInterface
+  Attachments?: AttachmentInterface[]
 }
 
 export interface SiteCreationAttributes extends Optional<SiteInterface, 'siteId' | 'uuid' | 'createdAt' | 'createdBy' | 'updatedAt' | 'updatedBy'>{}

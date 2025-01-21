@@ -1,6 +1,6 @@
 // Types
 import { Model } from "sequelize"
-import { AttachmentInterface, ComplaintInterface, ConstructionViolationInterface, ContactInterface, FollowUpDateInterface, GreenInfrastructureInterface } from "@models/stormwater/types"
+import { AttachmentInterface, ComplaintInterface, ConstructionViolationInterface, ContactInterface, FollowUpDateInterface, GreenInfrastructureInterface, InspectorInterface, LogInterface, SiteInterface } from "@models/stormwater/types"
 import { ControllerResponse } from "@controllers/types"
 
 export interface CreateAttachmentRequest {
@@ -210,4 +210,60 @@ export interface UpdateGreenInfrastructureRequest {
 
 export interface UpdateGreenInfrastructureResponse extends ControllerResponse {
   data: Model<GreenInfrastructureInterface>[]
+}
+
+export interface CreateInspectorRequest {
+  name: string
+  email: string
+}
+
+export interface CreateInspectorResponse extends ControllerResponse {
+  data: Model<InspectorInterface>
+}
+
+export interface GetInspectorsResponse {
+  success: boolean
+  data: Model<InspectorInterface>[]
+}
+
+export interface GetInspectorResponse {
+  success: boolean
+  data: { sites: Model<SiteInterface>[], inspector: Model<InspectorInterface> }
+}
+
+export interface UpdateInspectorRequest {
+  name: string
+  email: string
+  inactive: boolean
+}
+
+export interface UpdateInspectorResponse extends ControllerResponse {
+  data: Model<InspectorInterface>[]
+}
+
+export interface CreateLogRequest {
+  siteId: string
+  inspectionDate: string
+}
+
+export interface CreateLogResponse extends ControllerResponse {
+  data: Model<LogInterface>
+}
+
+export interface GetLogResponse {
+  success: boolean
+  data: Model<LogInterface>
+}
+
+export interface GetLogsResponse {
+  success: boolean
+  data: Model<LogInterface>[]
+}
+
+export interface UpdateLogRequest {
+  inspectionDate: string
+}
+
+export interface UpdateLogResponse extends ControllerResponse {
+  data: Model<LogInterface>[]
 }
