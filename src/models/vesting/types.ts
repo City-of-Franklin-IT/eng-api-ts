@@ -81,20 +81,21 @@ export interface VestingStatusInterface extends BaseInterface {
   parentId: string
 }
 
-export interface VestingStatusCreationAttributes extends Optional<VestingExtensionInterface, 'uuid' | 'createdAt' | 'createdBy' | 'updatedAt' | 'updatedBy'>{}
+export interface VestingStatusCreationAttributes extends Optional<VestingStatusInterface, 'uuid' | 'createdAt' | 'createdBy' | 'updatedAt' | 'updatedBy'>{}
 
 export interface DatabaseInterface {
   sequelize: Sequelize
   Approval: ModelStatic<Model<ApprovalInterface, ApprovalCreationAttributes>>
   MilestoneExtension: ModelStatic<Model<MilestoneExtensionInterface, MilestoneExtensionCreationAttributes>>
   MilestoneStatus: ModelStatic<Model<MilestoneStatusInterface, MilestoneStatusCreationAttributes>>
-  Notification: ModelStatic<Model<VestingNotificationInterface, VestingNotificationCreationAttributes>>
   Project: ModelStatic<Model<ProjectInterface, ProjectCreationAttributes>>
   Resolution: ModelStatic<Model<ResolutionInterface, ResolutionCreationAttributes>>
   VestingExtension: ModelStatic<Model<VestingExtensionInterface, VestingExtensionCreationAttributes>>
+  VestingNotification: ModelStatic<Model<VestingNotificationInterface, VestingNotificationCreationAttributes>>
   Milestone: ModelStatic<Model<MilestoneInterface, MilestoneCreationAttributes>>
   VestingPeriod: ModelStatic<Model<VestingPeriodInterface, VestingPeriodCreationAttributes>>
   VestingStatus: ModelStatic<Model<VestingStatusInterface, VestingStatusCreationAttributes>>
+  [key: string]: ModelStatic<Model> | Sequelize
 }
 
 export interface ModelWithAssociate extends ModelStatic<Model> {
