@@ -1,3 +1,4 @@
+import { v4 as uuidv4 } from 'uuid'
 import asyncHandler from '@middleware/async'
 import { ErrorResponse } from '@utils/errorResponse'
 import { IllicitDischarge, Inspector, FollowUpDate } from '@models/stormwater'
@@ -20,10 +21,8 @@ export const createIllicitDischarge = asyncHandler(async (req: Request<{}, {}, C
 
   const email = req.user?.email
 
-  const { nanoid } = await import('nanoid')
-
   const illicit = await IllicitDischarge.create({
-    illicitId: `illicit-${ nanoid() }`,
+    illicitId: `illicit-${ uuidv4() }`,
     complaintId,
     siteId,
     date: new Date(date),

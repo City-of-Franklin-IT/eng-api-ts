@@ -6,7 +6,7 @@ import { RespondentInterface, RespondentCreationAttributes, PetitionInterface, P
 
 export default (sequelize: Sequelize, dataTypes: typeof DataTypes) => {
   class Respondent extends Model<RespondentInterface, RespondentCreationAttributes>{
-    declare name: string
+    declare name: string | null
     declare address: string
     declare ownerAddress: string | null
     declare ownerCity: string | null
@@ -32,8 +32,7 @@ export default (sequelize: Sequelize, dataTypes: typeof DataTypes) => {
 
   Respondent.init({
     name: {
-      type: DataTypes.STRING,
-      allowNull: false
+      type: DataTypes.STRING
     },
     address: {
       type: DataTypes.STRING,

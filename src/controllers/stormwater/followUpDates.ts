@@ -1,3 +1,4 @@
+import { v4 as uuidv4 } from 'uuid'
 import asyncHandler from '@middleware/async'
 import { ErrorResponse } from '@utils/errorResponse'
 import { FollowUpDate } from '@models/stormwater'
@@ -19,10 +20,8 @@ export const createFollowUpDate = asyncHandler(async (req: Request<{}, {}, Creat
 
   const type = parentId.split('-')[0]
 
-  const { nanoid } = await import('nanoid')
-
   const date = await FollowUpDate.create({
-    followUpId: `follow-${ nanoid() }`,
+    followUpId: `follow-${ uuidv4() }`,
     violationId: type === 'violation' ? parentId : null,
     complaintId: type === 'complaint' ? parentId : null,
     illicitId: type === 'illicit' ? parentId : null,

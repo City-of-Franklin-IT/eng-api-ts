@@ -1,3 +1,4 @@
+import { v4 as uuidv4 } from 'uuid'
 import asyncHandler from '@middleware/async'
 import { ErrorResponse } from '@utils/errorResponse'
 import { Complaint, Inspector, FollowUpDate, Site } from '@models/stormwater'
@@ -20,10 +21,8 @@ export const createComplaint = asyncHandler(async (req: Request<{}, {}, CreateCo
 
   const userEmail = req.user?.email
 
-  const { nanoid } = await import('nanoid')
-
   const complaint = await Complaint.create({
-    complaintId: `complaint-${ nanoid() }`,
+    complaintId: `complaint-${ uuidv4() }`,
     date, 
     siteId, 
     inspectorId, 

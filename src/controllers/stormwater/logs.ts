@@ -1,3 +1,4 @@
+import { v4 as uuidv4 } from 'uuid'
 import asyncHandler from '@middleware/async'
 import { ErrorResponse } from '@utils/errorResponse'
 import { Log } from '@models/stormwater'
@@ -16,10 +17,8 @@ export const createLog = asyncHandler(async (req: Request<{}, {}, CreateLogReque
 
   const email = req.user?.email
 
-  const { nanoid } = await import('nanoid')
-
   const log = await Log.create({
-    logId: `log-${ nanoid() }`,
+    logId: `log-${ uuidv4() }`,
     siteId,
     inspectionDate,
     createdBy: email,

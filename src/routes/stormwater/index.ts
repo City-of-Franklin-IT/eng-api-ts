@@ -1,3 +1,4 @@
+import path from 'path'
 import attachments from './attachments'
 import complaints from './complaints'
 import contacts from './contacts'
@@ -14,7 +15,7 @@ import violations from './violations'
 import { Express, Router } from 'express'
 
 export default (app: Express) => {
-  const baseURL = '/api/v1/eng/stormwater'
+  const baseURL = `${ process.env.BASE_URL }${ path.basename(__dirname) }`
 
   const setURL = (path: string, router: Router) => {
     return app.use(`${ baseURL }${ path }`, router)
@@ -30,5 +31,5 @@ export default (app: Express) => {
   setURL('/logs', logs)
   setURL('/sitecontacts', siteContacts)
   setURL('/sites', sites)
-  setURL('/violatons', violations)
+  setURL('/violations', violations)
 }

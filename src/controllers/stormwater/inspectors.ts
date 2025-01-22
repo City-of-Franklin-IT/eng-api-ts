@@ -1,3 +1,4 @@
+import { v4 as uuidv4 } from 'uuid'
 import asyncHandler from '@middleware/async'
 import { ErrorResponse } from '@utils/errorResponse'
 import { Inspector, Site, Complaint, SiteContact, Contact, Log, ConstructionViolation, FollowUpDate, IllicitDischarge } from '@models/stormwater'
@@ -17,10 +18,8 @@ export const createInspector = asyncHandler(async (req: Request<{}, {}, CreateIn
 
   const userEmail = req.user?.email
 
-  const { nanoid } = await import('nanoid')
-
   const inspector = await Inspector.create({
-    inspectorId: `inspector-${ nanoid() }`,
+    inspectorId: `inspector-${ uuidv4() }`,
     name,
     email,
     slug: name.split(' ')[0].toLowerCase() + '-' + name.split(' ')[1].toLowerCase(),

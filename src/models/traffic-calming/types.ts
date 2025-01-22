@@ -21,7 +21,7 @@ export interface AttachmentInterface extends BaseInterface {
 export interface AttachmentCreationAttributes extends Optional<AttachmentInterface, 'uuid' | 'createdAt' | 'createdBy' | 'updatedAt' | 'updatedBy'>{}
 
 export interface RespondentInterface extends BaseInterface {
-  name: string
+  name: string | null
   address: string
   ownerAddress: string | null
   ownerCity: string | null
@@ -29,6 +29,7 @@ export interface RespondentInterface extends BaseInterface {
   ownerZIP: string | null
   shortId: string
   parentId: string
+  Response?: ResponseInterface
 }
 
 export interface RespondentCreationAttributes extends Optional<RespondentInterface, 'shortId' | 'uuid' | 'createdAt' | 'createdBy' | 'updatedAt' | 'updatedBy'>{}

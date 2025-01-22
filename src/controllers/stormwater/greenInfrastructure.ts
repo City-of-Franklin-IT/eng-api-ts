@@ -1,3 +1,4 @@
+import { v4 as uuidv4 } from 'uuid'
 import asyncHandler from '@middleware/async'
 import { ErrorResponse } from '@utils/errorResponse'
 import { GreenInfrastructure, Inspector, FollowUpDate } from '@models/stormwater'
@@ -20,10 +21,8 @@ export const createGreenInfrastructure = asyncHandler(async (req: Request<{}, {}
 
   const email = req.user?.email
 
-  const { nanoid } = await import('nanoid')
-
   const green = await GreenInfrastructure.create({
-    greenId: `green-${ nanoid() }`,
+    greenId: `green-${ uuidv4() }`,
     date,
     xCoordinate,
     yCoordinate,

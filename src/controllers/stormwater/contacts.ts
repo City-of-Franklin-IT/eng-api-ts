@@ -1,4 +1,4 @@
-import { nanoid } from 'nanoid'
+import { v4 as uuidv4 } from 'uuid'
 import asyncHandler from '@middleware/async'
 import { ErrorResponse } from '@utils/errorResponse'
 import { Contact, SiteContact, Site } from '@models/stormwater'
@@ -18,10 +18,8 @@ export const createContact = asyncHandler(async (req: Request<{}, {}, CreateCont
 
   const userEmail = req.user?.email
 
-  const { nanoid } = await import('nanoid')
-
   const contact = await Contact.create({
-    contactId: `contact-${ nanoid() }`,
+    contactId: `contact-${ uuidv4() }`,
     name,
     phone,
     company,

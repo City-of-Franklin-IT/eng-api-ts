@@ -22,11 +22,13 @@ app.use(cors({ origin: ['https://dev.franklintn.gov', 'https://apps.franklintn.g
 import cipRoutes from '@routes/cip'
 import stormwaterRoutes from '@routes/stormwater'
 import publicRoutes from '@routes/public'
+import trafficCalmingRoutes from '@routes/traffic-calming'
 
 // Mount routes
 cipRoutes(app)
 stormwaterRoutes(app)
-app.use('/api/v1/eng/public', publicRoutes)
+app.use(`${ process.env.BASE_URL }/public`, publicRoutes)
+trafficCalmingRoutes(app)
 
 app.use(errorHandler)
 

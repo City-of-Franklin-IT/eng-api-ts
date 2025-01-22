@@ -1,3 +1,4 @@
+import { v4 as uuidv4 } from 'uuid'
 import asyncHandler from '@middleware/async'
 import { ErrorResponse } from '@utils/errorResponse'
 import { ConstructionViolation, Site, FollowUpDate } from '@models/stormwater'
@@ -17,10 +18,8 @@ export const createViolation = asyncHandler(async (req: Request<{}, {}, CreateCo
 
   const email = req.user?.email
 
-  const { nanoid } = await import('nanoid')
-
   const violation = await ConstructionViolation.create({
-    violationId: `violation-${ nanoid() }`,
+    violationId: `violation-${ uuidv4() }`,
     date,
     siteId,
     details,

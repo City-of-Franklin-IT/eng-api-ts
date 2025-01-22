@@ -1,3 +1,4 @@
+import { v4 as uuidv4 } from 'uuid'
 import { Op } from 'sequelize'
 import asyncHandler from '@middleware/async'
 import { ErrorResponse } from '@utils/errorResponse'
@@ -21,10 +22,8 @@ export const createSite = asyncHandler(async (req: Request<{}, {}, CreateSiteReq
 
   const email = req.user?.email
 
-  const { nanoid } = await import('nanoid')
-
   const site = await Site.create({
-    siteId: `site-${ nanoid() }`,
+    siteId: `site-${ uuidv4() }`,
     inspectorId,
     name,
     preconDate,

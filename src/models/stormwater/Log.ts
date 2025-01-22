@@ -52,7 +52,8 @@ export default (sequelize: Sequelize, dataTypes: typeof DataTypes) => {
     },
     createdAt: {
       type: dataTypes.DATE,
-      allowNull: false
+      allowNull: false,
+      defaultValue: Sequelize.fn('getdate')
     },
     updatedBy: {
       type: dataTypes.STRING,
@@ -60,7 +61,8 @@ export default (sequelize: Sequelize, dataTypes: typeof DataTypes) => {
     },
     updatedAt: {
       type: dataTypes.DATE,
-      allowNull: false
+      allowNull: false,
+      defaultValue: Sequelize.fn('getdate')
     }
   }, {
     sequelize,
