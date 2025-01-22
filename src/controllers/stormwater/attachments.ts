@@ -7,7 +7,9 @@ import processPDF from '@utils/processPDF'
 // Types
 import { Request, Response, NextFunction } from 'express'
 import { ControllerResponse } from '@controllers/types'
+import { Model } from 'sequelize'
 import { CreateAttachmentRequest, DownloadAttachmentResponse } from './types'
+import { AttachmentInterface, FileInterface } from '@models/stormwater/types'
 
 // @desc    Create attachment
 // @route   POST /api/v1/eng/stormwater/attachments
@@ -22,13 +24,13 @@ export const createAttachment = asyncHandler(async (req: Request<{}, {}, CreateA
     return next(new ErrorResponse('No files found', 500))
   }
 
-  await Promise.all(
+  if(files instanceof Array) {
     files.map(async file => {
       if(file.mimetype.split('/')[0] === 'image') {
-        await processImage(file, parentId, Attachment, email, next)
-      } else await processPDF(file, parentId, Attachment, email, next)
+        await processImage(file as unknown as FileInterface, parentId, Attachment, email, next)
+      } else await processPDF(file as unknown as FileInterface, parentId, Attachment, email, next)
     })
-  )
+  }
 
   res.status(201).json({
     success: true,
@@ -44,10 +46,10 @@ export const getAttachment = asyncHandler(async (req: Request<{ uuid: string }>,
     where: {
       uuid: req.params.uuid
     }
-  })
+  }) as Model<AttachmentInterface> & AttachmentInterface
 
   if(!attachment) {
-    return next(new ErrorResponse("Unable to download attachment", 500))
+    return next(new ErrorResponse(`Unable to download attachment by uuid ${ req.params.uuid }`, 500))
   }
 
   return res.status(200).json({
@@ -59,12 +61,16 @@ export const getAttachment = asyncHandler(async (req: Request<{ uuid: string }>,
 // @desc    Delete attachment
 // @route   DELETE /api/v1/eng/stormwater/attachments/:uuid
 // @access  Private
-exports.deleteAttachment = asyncHandler(async (req: Request<{ uuid: string }>, res: Response<ControllerResponse>, next: NextFunction) => {
-  await Attachment.destroy({
+export const deleteAttachment = asyncHandler(async (req: Request<{ uuid: string }>, res: Response<ControllerResponse>, next: NextFunction) => {
+  const result = await Attachment.destroy({
     where: {
       uuid: req.params.uuid
     }
   })
+
+  if(result === 0) {
+    return next(new ErrorResponse(`Unable to delete attachment by uuid ${ req.params.uuid }`, 500))
+  }
 
   res.status(200).json({
     success: true,

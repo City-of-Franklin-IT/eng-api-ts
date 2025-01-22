@@ -1,4 +1,3 @@
-import { nanoid } from 'nanoid'
 import asyncHandler from '@middleware/async'
 import { ErrorResponse } from '@utils/errorResponse'
 import { GreenInfrastructure, Inspector, FollowUpDate } from '@models/stormwater'
@@ -20,6 +19,8 @@ export const createGreenInfrastructure = asyncHandler(async (req: Request<{}, {}
   const production = process.env.NODE_ENV === 'production'
 
   const email = req.user?.email
+
+  const { nanoid } = await import('nanoid')
 
   const green = await GreenInfrastructure.create({
     greenId: `green-${ nanoid() }`,
@@ -71,11 +72,7 @@ export const getGreenInfrastructures = asyncHandler(async (req: Request, res: Re
   const greenViolations = await GreenInfrastructure.findAll({
     order: [['date', 'desc'], [FollowUpDate, 'followUpDate', 'desc']],
     include: { model: FollowUpDate }
-  }) as Model<GreenInfrastructureInterface>[]
-
-  if(!greenViolations) {
-    return next(new ErrorResponse('Could not return green infrastructure violations', 500))
-  }
+  }) as Model<GreenInfrastructureInterface>[] & GreenInfrastructureInterface
 
   res.status(200).json({
     success: true,
@@ -93,10 +90,10 @@ export const getGreenInfrastructure = asyncHandler(async (req: Request<{ uuid: s
     },
     order: [[FollowUpDate, 'followUpDate', 'desc']],
     include: { model: FollowUpDate }
-  }) as Model<GreenInfrastructureInterface>
+  }) as Model<GreenInfrastructureInterface> & GreenInfrastructureInterface
 
   if(!green) {
-    return next(new ErrorResponse(`Could not return green infrastructure with uuid ${ req.params.uuid }`, 500))
+    return next(new ErrorResponse(`Unable to return green infrastructure violation by uuid ${ req.params.uuid }`, 500))
   }
 
   res.status(200).json({
@@ -143,15 +140,16 @@ export const updateGreenInfrastructure = asyncHandler(async (req: Request<{ uuid
     returning: true
   })
 
-  if(green[0] === 0) {
+  const [affectedCount, affectedRows] = green
+
+  if(affectedCount === 0) {
     return next(new ErrorResponse(`Could not update green infrastructure with uuid ${ req.params.uuid }`, 500))
   }
 
-  const data = green[1] as Model<GreenInfrastructureInterface>[] & GreenInfrastructureInterface
+  const data = (affectedRows as (Model<GreenInfrastructureInterface> & GreenInfrastructureInterface)[])[0]
 
   if(inspectorEmail && inspectorId && production) { // If inspector assigned - email inspector
-    const obj = data[0] as Model<GreenInfrastructureInterface> & GreenInfrastructureInterface
-    await emailInspector(inspectorEmail.email, { uuid: obj.uuid, greenId: obj.greenId, details: obj.details })
+    await emailInspector(inspectorEmail.email, { uuid: data.uuid, greenId: data.greenId, details: data.details })
   }
 
   res.status(200).json({
@@ -165,11 +163,15 @@ export const updateGreenInfrastructure = asyncHandler(async (req: Request<{ uuid
 // @route   DELETE /api/v1/stormwater/greeninfrastructure/:uuid
 // @access  Private
 export const deleteGreenInfrastructure = asyncHandler(async (req: Request<{ uuid: string }>, res: Response<ControllerResponse>, next: NextFunction) => {
-  await GreenInfrastructure.destroy({
+  const result = await GreenInfrastructure.destroy({
     where: {
       uuid: req.params.uuid
     }
   })
+
+  if(result === 0) {
+    return next(new ErrorResponse(`Unable to delete green infrastructure by uuid ${ req.params.uuid }`, 500))
+  }
 
   res.status(200).json({
     success: true,

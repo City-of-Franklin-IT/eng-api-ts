@@ -18,23 +18,23 @@ export const emailInspector = async (email: string | undefined, data: { uuid: st
 
 export const inspectorLookup = async (uuid: string, model: ModelStatic<Model>, inspectorId: string | null): Promise<{ email: string } | null> => { // Check if site / violation / complaint has an inspector assigned
   if(inspectorId) {
-    const result = await model.findOne({
+    const result = await model.findOne({ // Check if inspector is already assigned
       where: {
         uuid
       },
       attributes: ['inspectorId']
     }) as unknown as { inspectorId: string | null }
-    
-    if(!result.inspectorId) {
-      const newInspectorEmail = await Inspector.findOne({
+
+    if(!result.inspectorId) { // New inspector assignment
+      const inspector = await Inspector.findOne({
         where: {
           inspectorId
         },
         attributes: ['email']
       }) as Model<InspectorInterface> & InspectorInterface
 
-      return newInspectorEmail
-    } else return null
+      return inspector
+    } else return null // Inspector already assigned
   }
 
   return null

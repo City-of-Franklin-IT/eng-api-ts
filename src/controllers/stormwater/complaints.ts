@@ -1,4 +1,3 @@
-import { nanoid } from 'nanoid'
 import asyncHandler from '@middleware/async'
 import { ErrorResponse } from '@utils/errorResponse'
 import { Complaint, Inspector, FollowUpDate, Site } from '@models/stormwater'
@@ -20,6 +19,8 @@ export const createComplaint = asyncHandler(async (req: Request<{}, {}, CreateCo
   const production = process.env.NODE_ENV === 'production'
 
   const userEmail = req.user?.email
+
+  const { nanoid } = await import('nanoid')
 
   const complaint = await Complaint.create({
     complaintId: `complaint-${ nanoid() }`,
@@ -43,7 +44,7 @@ export const createComplaint = asyncHandler(async (req: Request<{}, {}, CreateCo
   }) as Model<ComplaintInterface> & ComplaintInterface
 
   if(!complaint) {
-    return next(new ErrorResponse("Could not create complaint", 500))
+    return next(new ErrorResponse("Unable to create complaint", 500))
   }
 
   if(inspectorId && production) { // If inspector assigned - email inspector
@@ -74,11 +75,7 @@ export const getComplaints = asyncHandler(async (req: Request, res: Response<Get
     },
     order: [['date', 'desc'], [FollowUpDate, 'followUpDate', 'desc']],
     include: [ { model: FollowUpDate } ]
-  }) as Model<ComplaintInterface>[]
-
-  if(!complaints) {
-    return next(new ErrorResponse('Could not return complaints', 500))
-  }
+  }) as Model<ComplaintInterface>[] & ComplaintInterface
 
   res.status(200).json({
     success: true,
@@ -102,7 +99,7 @@ export const getComplaint = asyncHandler(async (req: Request<{ uuid: string }>, 
   }) as Model<ComplaintInterface> & ComplaintInterface
 
   if(!complaint) {
-    return next(new ErrorResponse(`Could not return complaint with uuid ${ req.params.uuid }`, 500))
+    return next(new ErrorResponse(`Unable to return complaint by uuid ${ req.params.uuid }`, 500))
   }
 
   res.status(200).json({
@@ -150,11 +147,13 @@ export const updateComplaint = asyncHandler(async (req: Request<{ uuid: string }
     returning: true
   })
 
-  if(!complaint) {
-    return next(new ErrorResponse(`Could not update complaint with uuid ${ req.params.uuid }`, 500))
+  const [affectedCount, affectedRows] = complaint
+
+  if(affectedCount === 0) {
+    return next(new ErrorResponse(`Unable to update complaint by uuid ${ req.params.uuid }`, 500))
   }
 
-  const data = complaint[1] as Model<ComplaintInterface>[] & ComplaintInterface
+  const data = (affectedRows as (Model<ComplaintInterface> & ComplaintInterface)[])[0]
 
   if(inspectorEmail && inspectorId && production) { // If inspector assigned - email inspector
     const obj = { siteId: data.siteId, complaintId: data.complaintId, details: data.details, uuid: data.uuid }
@@ -172,11 +171,15 @@ export const updateComplaint = asyncHandler(async (req: Request<{ uuid: string }
 // @route   DELETE /api/v1/stormwater/complaints/:uuid
 // @access  Private
 export const deleteComplaint = asyncHandler(async (req: Request<{ uuid: string }>, res: Response<ControllerResponse>, next: NextFunction) => {
-  await Complaint.destroy({
+  const result = await Complaint.destroy({
     where: {
       uuid: req.params.uuid
     }
   })
+
+  if(result === 0) {
+    return next(new ErrorResponse(`Unable to delete complaint by uuid ${ req.params.uuid }`, 500))
+  }
 
   res.status(200).json({
     success: true,

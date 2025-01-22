@@ -1,4 +1,3 @@
-import { nanoid } from 'nanoid'
 import asyncHandler from '@middleware/async'
 import { ErrorResponse } from '@utils/errorResponse'
 import { FollowUpDate } from '@models/stormwater'
@@ -20,6 +19,8 @@ export const createFollowUpDate = asyncHandler(async (req: Request<{}, {}, Creat
 
   const type = parentId.split('-')[0]
 
+  const { nanoid } = await import('nanoid')
+
   const date = await FollowUpDate.create({
     followUpId: `follow-${ nanoid() }`,
     violationId: type === 'violation' ? parentId : null,
@@ -29,10 +30,10 @@ export const createFollowUpDate = asyncHandler(async (req: Request<{}, {}, Creat
     followUpDate,
     createdBy: email,
     updatedBy: email,
-  }) as Model<FollowUpDateInterface>
+  }) as Model<FollowUpDateInterface> & FollowUpDateInterface
 
   if(!date) {
-    return next(new ErrorResponse("Could not create follow up date", 500))
+    return next(new ErrorResponse("Unable to create follow up date", 500))
   }
 
   res.status(201).json({
@@ -60,11 +61,13 @@ export const updateFollowUpDate = asyncHandler(async (req: Request<{ uuid: strin
     returning: true
   })
 
-  if(!date) {
-    return next(new ErrorResponse("Could not updated follow up date", 500))
+  const [affectedCount, affectedRows] = date
+
+  if(affectedCount === 0) {
+    return next(new ErrorResponse(`Unable to update follow up date by uuid ${ req.params.uuid }`, 500))
   }
 
-  const data = date[1] as Model<FollowUpDateInterface>[]
+  const data = (affectedRows as (Model<FollowUpDateInterface> & FollowUpDateInterface)[])[0]
 
   res.status(200).json({
     success: true,
@@ -77,11 +80,15 @@ export const updateFollowUpDate = asyncHandler(async (req: Request<{ uuid: strin
 // @route   DELETE /api/v1/stormwater/followup/:uuid
 // @access  Private
 export const deleteFollowUpDate = asyncHandler(async (req: Request<{ uuid: string }>, res: Response<ControllerResponse>, next: NextFunction) => {
-  await FollowUpDate.destroy({
+  const result = await FollowUpDate.destroy({
     where: {
       uuid: req.params.uuid
     }
   })
+
+  if(result === 0) {
+    return next(new ErrorResponse(`Unable to delete follow up date by uuid ${ req.params.uuid }`, 500))
+  }
 
   res.status(200).json({
     success: true,

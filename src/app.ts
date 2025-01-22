@@ -19,20 +19,14 @@ app.use(inputSanitation) // Input sanitation
 app.use(cors({ origin: ['https://dev.franklintn.gov', 'https://apps.franklintn.gov', 'http://cofasv38'] })) // CORS
 
 // Route files
-import milestone from '@routes/cip/milestone'
-import phase from '@routes/cip/phase'
-import project from '@routes/cip/project'
-import spending from '@routes/cip/spending'
-import update from '@routes/cip/update'
+import cipRoutes from '@routes/cip'
+import stormwaterRoutes from '@routes/stormwater'
 import publicRoutes from '@routes/public'
 
 // Mount routes
-app.use('/api/v1/eng/cip/milestone', milestone)
-app.use('/api/v1/eng/cip/phase', phase)
-app.use('/api/v1/eng/cip/project', project)
-app.use('/api/v1/eng/cip/spending', spending)
-app.use('/api/v1/eng/cip/update', update)
-app.use('/api/v1/eng/cip/public', publicRoutes)
+cipRoutes(app)
+stormwaterRoutes(app)
+app.use('/api/v1/eng/public', publicRoutes)
 
 app.use(errorHandler)
 

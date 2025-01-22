@@ -1,4 +1,3 @@
-import { nanoid } from 'nanoid'
 import asyncHandler from '@middleware/async'
 import { ErrorResponse } from '@utils/errorResponse'
 import { ConstructionViolation, Site, FollowUpDate } from '@models/stormwater'
@@ -18,6 +17,8 @@ export const createViolation = asyncHandler(async (req: Request<{}, {}, CreateCo
 
   const email = req.user?.email
 
+  const { nanoid } = await import('nanoid')
+
   const violation = await ConstructionViolation.create({
     violationId: `violation-${ nanoid() }`,
     date,
@@ -29,9 +30,9 @@ export const createViolation = asyncHandler(async (req: Request<{}, {}, CreateCo
   }) as Model<ConstructionViolationInterface> & ConstructionViolationInterface
   
   if(!violation) {
-    return next(new ErrorResponse("Could not create construction violation", 500))
+    return next(new ErrorResponse("Unable to create construction violation", 500))
   }
-  
+
   res.status(201).json({
     success: true,
     msg: "Violation Created",
@@ -52,10 +53,6 @@ export const getViolations = asyncHandler(async (req: Request, res: Response<Get
     ]
   }) as Model<ConstructionViolationInterface>[] & ConstructionViolationInterface
 
-  if(!violations) {
-    return next(new ErrorResponse("Could not return construction vioaltions", 500))
-  }
-
   res.status(200).json({
     success: true,
     data: violations
@@ -75,7 +72,7 @@ export const getViolation = asyncHandler(async (req: Request<{ uuid: string }>, 
   }) as Model<ConstructionViolationInterface> & ConstructionViolationInterface
 
   if(!violation) {
-    return next(new ErrorResponse(`Could not return construction violation with uuid ${ req.params.uuid }`, 500))
+    return next(new ErrorResponse(`Unable to return construction violation by uuid ${ req.params.uuid }`, 500))
   }
 
   res.status(200).json({
@@ -113,12 +110,14 @@ export const updateViolation = asyncHandler(async (req: Request<{ uuid: string }
     },
     returning: true
   })
+
+  const [affectedCount, affectedRows] = violation
   
-  if(!violation) {
-    return next(new ErrorResponse(`Could not update construction violation with uuid ${ req.params.uuid }`, 500))
+  if(affectedCount === 0) {
+    return next(new ErrorResponse(`Unable to update construction violation by uuid ${ req.params.uuid }`, 500))
   }
 
-  const data = violation[1] as Model<ConstructionViolationInterface>[] & ConstructionViolationInterface
+  const data = (affectedRows as (Model<ConstructionViolationInterface> & ConstructionViolationInterface)[])[0]
 
   res.status(200).json({
     success: true,
@@ -131,11 +130,15 @@ export const updateViolation = asyncHandler(async (req: Request<{ uuid: string }
 // @route   DELETE /api/v1/stormwater/violations/:uuid
 // @access  Private
 export const deleteViolation = asyncHandler(async (req: Request<{ uuid: string }>, res: Response<ControllerResponse>, next: NextFunction) => {
-  await ConstructionViolation.destroy({
+  const result = await ConstructionViolation.destroy({
     where: {
       uuid: req.params.uuid
     }
   })
+
+  if(result === 0) {
+    return next(new ErrorResponse(`Unable to delete violation by uuid ${ req.params.uuid }`, 500))
+  }
 
   res.status(200).json({
     success: true,

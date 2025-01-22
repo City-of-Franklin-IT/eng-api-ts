@@ -17,8 +17,8 @@ export default (sequelize: Sequelize, dataTypes: typeof DataTypes) => {
     declare permit: string | null
     declare cof: string | null
     declare tnq: string | null
-    declare greenInfrastructure: number | null
-    declare inactive: number
+    declare greenInfrastructure: boolean | null
+    declare inactive: boolean
     declare uuid: string
     declare createdBy: string
     declare createdAt: Date

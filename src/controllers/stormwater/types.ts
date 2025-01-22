@@ -1,6 +1,6 @@
 // Types
 import { Model } from "sequelize"
-import { AttachmentInterface, ComplaintInterface, ConstructionViolationInterface, ContactInterface, FollowUpDateInterface, GreenInfrastructureInterface, InspectorInterface, LogInterface, SiteInterface } from "@models/stormwater/types"
+import { AttachmentInterface, ComplaintInterface, ConstructionViolationInterface, ContactInterface, FollowUpDateInterface, GreenInfrastructureInterface, IllicitDischargeInterface, InspectorInterface, LogInterface, SiteContactInterface, SiteInterface } from "@models/stormwater/types"
 import { ControllerResponse } from "@controllers/types"
 
 export interface CreateAttachmentRequest {
@@ -10,7 +10,7 @@ export interface CreateAttachmentRequest {
 
 export interface DownloadAttachmentResponse {
   success: boolean
-  data: Model<AttachmentInterface>
+  data: Model<AttachmentInterface> & AttachmentInterface
 }
 
 export interface CreateComplaintRequest {
@@ -37,12 +37,12 @@ export interface CreateComplaintResponse extends ControllerResponse {
 
 export interface GetComplaintsResponse {
   success: boolean
-  data: Model<ComplaintInterface>[]
+  data: Model<ComplaintInterface>[] & ComplaintInterface
 }
 
 export interface GetComplaintResponse {
   success: boolean
-  data: Model<ComplaintInterface>
+  data: Model<ComplaintInterface> & ComplaintInterface
 }
 
 export interface UpdateComplaintRequest {
@@ -66,7 +66,7 @@ export interface UpdateComplaintRequest {
 }
 
 export interface UpdateComplaintResponse extends ControllerResponse {
-  data: Model<ComplaintInterface>[] & ComplaintInterface
+  data: Model<ComplaintInterface> & ComplaintInterface
 }
 
 export interface CreateConstructionViolationRequest {
@@ -106,7 +106,7 @@ export interface UpdateConstructionViolationRequest {
 }
 
 export interface UpdateConstructionViolationResponse extends ControllerResponse {
-  data: Model<ConstructionViolationInterface>[]
+  data: Model<ConstructionViolationInterface> & ConstructionViolationInterface
 }
 
 export interface CreateContactRequest {
@@ -117,17 +117,17 @@ export interface CreateContactRequest {
 }
 
 export interface CreateContactResponse extends ControllerResponse {
-  data: Model<ContactInterface>
+  data: Model<ContactInterface> & ContactInterface
 }
 
 export interface GetContactsResponse {
   success: boolean
-  data: Model<ContactInterface>[]
+  data: Model<ContactInterface>[] & ContactInterface
 }
 
 export interface GetContactResponse {
   success: boolean
-  data: Model<ContactInterface>
+  data: Model<ContactInterface> & ContactInterface
 }
 
 export interface UpdateContactRequest {
@@ -139,7 +139,7 @@ export interface UpdateContactRequest {
 }
 
 export interface UpdateContactResponse extends ControllerResponse {
-  data: Model<ContactInterface>[]
+  data: Model<ContactInterface> & ContactInterface
 }
 
 export interface CreateFollowUpDateRequest {
@@ -148,7 +148,7 @@ export interface CreateFollowUpDateRequest {
 }
 
 export interface CreateFollowUpDateResponse extends ControllerResponse {
-  data: Model<FollowUpDateInterface>
+  data: Model<FollowUpDateInterface> & FollowUpDateInterface
 }
 
 export interface UpdateFollowUpDateRequest {
@@ -156,7 +156,67 @@ export interface UpdateFollowUpDateRequest {
 }
 
 export interface UpdateFollowUpDateResponse extends ControllerResponse {
-  data: Model<FollowUpDateInterface>[]
+  data: Model<FollowUpDateInterface> & FollowUpDateInterface
+}
+
+export interface CreateIllicitDischargeRequest {
+  complaintId: string | null
+  siteId: string | null
+  date: string
+  xCoordinate: string
+  yCoordinate: string
+  locationDescription: string | null
+  inspectorId: string | null
+  details: string
+  responsibleParty: string | null
+  volumeLost: string | null
+  streamWatershed: string
+  otherStreamWatershed: string | null
+  enforcementAction: string | null
+  penaltyDate: string | null
+  penaltyAmount: number | null
+  penaltyDueDate: string | null
+  paymentReceived: string | null
+}
+
+export interface CreateIllicitDischargeResponse extends ControllerResponse {
+  data: Model<IllicitDischargeInterface>
+}
+
+export interface GetIllicitDischargesResponse {
+  success: boolean
+  data: (Model<IllicitDischargeInterface> & IllicitDischargeInterface)[]
+}
+
+export interface GetIllicitDischargeResponse {
+  success: boolean
+  data: Model<IllicitDischargeInterface>
+}
+
+export interface UpdateIllicitDischargeRequest {
+  complaintId: string | null
+  siteId: string | null
+  date: string
+  xCoordinate: string
+  yCoordinate: string
+  locationDescription: string | null
+  inspectorId: string | null
+  details: string
+  responsibleParty: string | null
+  volumeLost: string | null
+  streamWatershed: string
+  otherStreamWatershed: string | null
+  enforcementAction: string | null
+  penaltyDate: string | null
+  penaltyAmount: number | null
+  penaltyDueDate: string | null
+  paymentReceived: string | null
+  compliance: boolean | null
+  closed: boolean | null
+}
+
+export interface UpdateIllicitDischargeResponse extends ControllerResponse {
+  data: Model<IllicitDischargeInterface>
 }
 
 export interface CreateGreenInfrastructureRequest {
@@ -176,17 +236,17 @@ export interface CreateGreenInfrastructureRequest {
 }
 
 export interface CreateGreenInfrastructureResponse extends ControllerResponse {
-  data: Model<GreenInfrastructureInterface>
+  data: Model<GreenInfrastructureInterface> & GreenInfrastructureInterface
 }
 
 export interface GetGreenInfrasturcturesResponse {
   success: boolean
-  data: Model<GreenInfrastructureInterface>[]
+  data: Model<GreenInfrastructureInterface>[] & GreenInfrastructureInterface
 }
 
 export interface GetGreenInfrasturctureResponse {
   success: boolean
-  data: Model<GreenInfrastructureInterface>
+  data: Model<GreenInfrastructureInterface> & GreenInfrastructureInterface
 }
 
 export interface UpdateGreenInfrastructureRequest {
@@ -209,7 +269,7 @@ export interface UpdateGreenInfrastructureRequest {
 }
 
 export interface UpdateGreenInfrastructureResponse extends ControllerResponse {
-  data: Model<GreenInfrastructureInterface>[]
+  data: Model<GreenInfrastructureInterface> & GreenInfrastructureInterface
 }
 
 export interface CreateInspectorRequest {
@@ -218,17 +278,17 @@ export interface CreateInspectorRequest {
 }
 
 export interface CreateInspectorResponse extends ControllerResponse {
-  data: Model<InspectorInterface>
+  data: Model<InspectorInterface> & InspectorInterface
 }
 
 export interface GetInspectorsResponse {
   success: boolean
-  data: Model<InspectorInterface>[]
+  data: Model<InspectorInterface>[] & InspectorInterface
 }
 
 export interface GetInspectorResponse {
   success: boolean
-  data: { sites: Model<SiteInterface>[], inspector: Model<InspectorInterface> }
+  data: { sites: (Model<SiteInterface> & SiteInterface)[], inspector: Model<InspectorInterface> & InspectorInterface }
 }
 
 export interface UpdateInspectorRequest {
@@ -238,7 +298,7 @@ export interface UpdateInspectorRequest {
 }
 
 export interface UpdateInspectorResponse extends ControllerResponse {
-  data: Model<InspectorInterface>[]
+  data: Model<InspectorInterface> & InspectorInterface
 }
 
 export interface CreateLogRequest {
@@ -247,17 +307,12 @@ export interface CreateLogRequest {
 }
 
 export interface CreateLogResponse extends ControllerResponse {
-  data: Model<LogInterface>
+  data: Model<LogInterface> & LogInterface
 }
 
 export interface GetLogResponse {
   success: boolean
-  data: Model<LogInterface>
-}
-
-export interface GetLogsResponse {
-  success: boolean
-  data: Model<LogInterface>[]
+  data: Model<LogInterface> & LogInterface
 }
 
 export interface UpdateLogRequest {
@@ -265,5 +320,67 @@ export interface UpdateLogRequest {
 }
 
 export interface UpdateLogResponse extends ControllerResponse {
-  data: Model<LogInterface>[]
+  data: Model<LogInterface> & LogInterface
+}
+
+export interface CreateSiteContactRequest {
+  siteId: string
+  contactId: string
+  isPrimary: boolean
+  isContractor: boolean
+  isInspector: boolean
+}
+
+export interface CreateSiteContactResponse extends ControllerResponse {
+  data: Model<SiteContactInterface> & SiteContactInterface
+}
+
+export interface CreateSiteRequest {
+  inspectorId: string | null
+  name: string
+  preconDate: string
+  location: string
+  xCoordinate: string
+  yCoordinate: string
+  permit: string
+  cof: string
+  tnq: string
+  greenInfrastructure: boolean
+}
+
+export interface CreateSiteResponse extends ControllerResponse {
+  data: Model<SiteInterface> & SiteInterface
+}
+
+export interface GetSitesResponse {
+  success: boolean
+  data: (Model<SiteInterface> & SiteInterface)[]
+}
+
+export interface GetSiteResponse {
+  success: boolean
+  data: Model<SiteInterface> & SiteInterface
+}
+
+export interface UpdateSiteRequest {
+  inspectorId: string | null
+  name: string
+  location: string
+  preconDate: string
+  xCoordinate: string
+  yCoordinate: string
+  permit: string | null
+  cof: string | null
+  tnq: string | null
+  greenInfrastructure: boolean
+  inactive: boolean
+}
+
+export interface UpdateSiteResponse extends ControllerResponse {
+  data: Model<SiteInterface> & SiteInterface
+}
+
+export interface GetActiveSitesResponse {
+  success: boolean
+  data: Model<SiteInterface>[] & SiteInterface
 }

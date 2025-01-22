@@ -29,9 +29,11 @@ export interface ComplaintInterface extends BaseInterface {
   comments: string | null
   compliance: boolean | null
   closed: boolean | null
+  Inspector?: InspectorInterface
+  FollowUpDates?: FollowUpDateInterface[]
 }
 
-export interface ComplaintCreationAttributes extends Optional<ComplaintInterface, 'complaintId' | 'uuid' | 'createdAt' | 'createdBy' | 'updatedAt' | 'updatedBy'>{}
+export interface ComplaintCreationAttributes extends Optional<ComplaintInterface, 'complaintId' | 'Inspector' | 'uuid' | 'createdAt' | 'createdBy' | 'updatedAt' | 'updatedBy'>{}
 
 export interface ConstructionViolationInterface extends BaseInterface {
   violationId: string
@@ -48,6 +50,7 @@ export interface ConstructionViolationInterface extends BaseInterface {
   complaintId: string | null
   compliance: boolean | null
   closed: boolean | null
+  FollowUpDates?: FollowUpDateInterface[]
 }
 
 export interface ConstructionViolationCreationAttributes extends Optional<ConstructionViolationInterface, 'violationId' | 'uuid' | 'createdAt' | 'createdBy' | 'updatedAt' | 'updatedBy'>{}
@@ -59,6 +62,7 @@ export interface ContactInterface extends BaseInterface {
   company: string | null
   email: string | null
   inactive: boolean | null
+  SiteContacts?: SiteContactInterface[]
 }
 
 export interface ContactCreationAttributes extends Optional<ContactInterface, 'contactId' | 'uuid' | 'createdAt' | 'createdBy' | 'updatedAt' | 'updatedBy'>{}
@@ -92,6 +96,8 @@ export interface GreenInfrastructureInterface extends BaseInterface {
   bondReleased: boolean | null
   compliance: boolean | null
   closed: boolean | null
+  Inspector?: InspectorInterface
+  FollowUpDates?: FollowUpDateInterface[]
 }
 
 export interface GreenInfrastructureCreationAttributes extends Optional<GreenInfrastructureInterface, 'greenId' | 'uuid' | 'createdAt' | 'createdBy' | 'updatedAt' | 'updatedBy'>{}
@@ -116,6 +122,8 @@ export interface IllicitDischargeInterface extends BaseInterface {
   paymentReceived: Date | string | null
   compliance: boolean | null
   closed: boolean | null
+  Inspector?: Model<InspectorInterface>
+  FollowUpDates?: Model<FollowUpDateInterface>[]
 }
 
 export interface IllicitDischargeCreationAttributes extends Optional<IllicitDischargeInterface, 'illicitId' | 'uuid' | 'createdAt' | 'createdBy' | 'updatedAt' | 'updatedBy'>{}
@@ -126,6 +134,10 @@ export interface InspectorInterface extends BaseInterface {
   email: string
   slug: string
   inactive: boolean | null
+  Sites?: Model<SiteInterface>[]
+  Complaints?: Model<ComplaintInterface>[]
+  IllicitDischarges?: Model<IllicitDischargeInterface>[]
+  GreenInfrastructures?: Model<GreenInfrastructureInterface>[]
 }
 
 export interface InspectorCreationAttributes extends Optional<InspectorInterface, 'inspectorId' | 'slug' | 'uuid' | 'createdAt' | 'createdBy' | 'updatedAt' | 'updatedBy'>{}
@@ -159,8 +171,8 @@ export interface SiteInterface extends BaseInterface {
   permit: string | null
   cof: string | null
   tnq: string | null
-  greenInfrastructure: number | null
-  inactive: number
+  greenInfrastructure: boolean | null
+  inactive: boolean
   hasOpenViolation?: boolean
   hasOpenComplaint?: boolean
   hasOpenIllicitDischarge?: boolean
@@ -173,7 +185,7 @@ export interface SiteInterface extends BaseInterface {
   Attachments?: AttachmentInterface[]
 }
 
-export interface SiteCreationAttributes extends Optional<SiteInterface, 'siteId' | 'uuid' | 'createdAt' | 'createdBy' | 'updatedAt' | 'updatedBy'>{}
+export interface SiteCreationAttributes extends Optional<SiteInterface, 'siteId' | 'inactive' | 'uuid' | 'createdAt' | 'createdBy' | 'updatedAt' | 'updatedBy'>{}
 
 export interface DatabaseInterface {
   sequelize: Sequelize

@@ -1,4 +1,3 @@
-import { nanoid } from 'nanoid'
 import asyncHandler from '@middleware/async'
 import { ErrorResponse } from '@utils/errorResponse'
 import { Inspector, Site, Complaint, SiteContact, Contact, Log, ConstructionViolation, FollowUpDate, IllicitDischarge } from '@models/stormwater'
@@ -18,6 +17,8 @@ export const createInspector = asyncHandler(async (req: Request<{}, {}, CreateIn
 
   const userEmail = req.user?.email
 
+  const { nanoid } = await import('nanoid')
+
   const inspector = await Inspector.create({
     inspectorId: `inspector-${ nanoid() }`,
     name,
@@ -25,10 +26,10 @@ export const createInspector = asyncHandler(async (req: Request<{}, {}, CreateIn
     slug: name.split(' ')[0].toLowerCase() + '-' + name.split(' ')[1].toLowerCase(),
     createdBy: userEmail,
     updatedBy: userEmail,
-  }) as Model<InspectorInterface>
+  }) as Model<InspectorInterface> & InspectorInterface
 
   if(!inspector) {
-    return next(new ErrorResponse("Could not create inspector", 500))
+    return next(new ErrorResponse("Unable to create inspector", 500))
   }
 
   res.status(201).json({
@@ -47,11 +48,7 @@ export const getInspectors = asyncHandler(async (req: Request, res: Response<Get
     include: [
       { model: Site },
       { model: Complaint }]
-  }) as Model<InspectorInterface>[]
-
-  if(!inspectors.length) {
-    return next(new ErrorResponse("No inspectors returned", 500))
-  }
+  }) as Model<InspectorInterface>[] & InspectorInterface
 
   res.status(200).json({
     success: true,
@@ -85,11 +82,7 @@ export const getInspector = asyncHandler(async (req: Request<{ inspectorId: stri
         include: [{ model: FollowUpDate }]
       }
     ]
-  }) as Model<SiteInterface>[]
-
-  if(!results.length) {
-    return next(new ErrorResponse(`Could not return sites for ${ req.params.inspectorId }`, 500))
-  }
+  }) as Model<SiteInterface>[] & SiteInterface
 
   const sites = results.map(result => {
     const site = result.toJSON()
@@ -110,7 +103,7 @@ export const getInspector = asyncHandler(async (req: Request<{ inspectorId: stri
     where: {
       inspectorId: req.params.inspectorId
     }
-  }) as Model<InspectorInterface>
+  }) as Model<InspectorInterface> & InspectorInterface
 
   res.status(200).json({
     success: true,
@@ -139,11 +132,13 @@ export const updateInspector = asyncHandler(async (req: Request<{ slug: string }
     returning: true
   })
 
-  if(!inspector) {
-    return next(new ErrorResponse(`Could not update by slug ${ req.params.slug }`, 500))
+  const [affectedCount, affectedRows] = inspector
+
+  if(affectedCount === 0) {
+    return next(new ErrorResponse(`Unable to update inspector by slug ${ req.params.slug }`, 500))
   }
 
-  const data = inspector[1] as Model<InspectorInterface>[] & InspectorInterface
+  const data = (affectedRows as (Model<InspectorInterface> & InspectorInterface)[])[0]
 
   res.status(200).json({
     success: true,
@@ -156,11 +151,15 @@ export const updateInspector = asyncHandler(async (req: Request<{ slug: string }
 // @route   DELETE /api/v1/stormwater/inspectors/:slug
 // @access  Private
 export const deleteInspector = asyncHandler(async (req:  Request<{ slug: string }>, res: Response<ControllerResponse>, next: NextFunction) => {
-  await Inspector.destroy({
+  const result = await Inspector.destroy({
     where: {
       slug: req.params.slug
     }
   })
+
+  if(result === 0) {
+    return next(new ErrorResponse(`Unable to delete inspector by slug ${ req.params.slug }`, 500))
+  }
 
   res.status(200).json({
     success: true,

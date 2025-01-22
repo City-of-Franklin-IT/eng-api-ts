@@ -3,7 +3,7 @@ import moment from "moment"
 
 // Types
 import { Sequelize, Model, DataTypes, ModelStatic } from "sequelize"
-import { IllicitDischargeInterface, IllicitDischargeCreationAttributes, FollowUpDateInterface, FollowUpDateCreationAttributes, SiteInterface, SiteCreationAttributes } from './types'
+import { IllicitDischargeInterface, IllicitDischargeCreationAttributes, FollowUpDateInterface, FollowUpDateCreationAttributes, SiteInterface, SiteCreationAttributes, InspectorInterface } from './types'
 
 export default (sequelize: Sequelize, dataTypes: typeof DataTypes) => {
   class IllicitDischarge extends Model<IllicitDischargeInterface, IllicitDischargeCreationAttributes>{
@@ -32,8 +32,9 @@ export default (sequelize: Sequelize, dataTypes: typeof DataTypes) => {
     declare updatedBy: string
     declare updatedAt: Date
 
-    static associate({ Site, FollowUpDate }: { Site: ModelStatic<Model<SiteInterface, SiteCreationAttributes>>, FollowUpDate: ModelStatic<Model<FollowUpDateInterface, FollowUpDateCreationAttributes>> }) {
+    static associate({ Site, Inspector, FollowUpDate }: { Site: ModelStatic<Model<SiteInterface, SiteCreationAttributes>>, Inspector: ModelStatic<Model<InspectorInterface>>, FollowUpDate: ModelStatic<Model<FollowUpDateInterface, FollowUpDateCreationAttributes>> }) {
       this.belongsTo(Site, { targetKey: 'siteId', foreignKey: 'siteId' })
+      this.hasOne(Inspector, { sourceKey: 'inspectorId', foreignKey: 'inspectorId' })
       this.hasMany(FollowUpDate, { sourceKey: 'illicitId', foreignKey: 'illicitId' })
     }
 

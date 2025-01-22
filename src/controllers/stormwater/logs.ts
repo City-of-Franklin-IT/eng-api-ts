@@ -1,4 +1,3 @@
-import { nanoid } from 'nanoid'
 import asyncHandler from '@middleware/async'
 import { ErrorResponse } from '@utils/errorResponse'
 import { Log } from '@models/stormwater'
@@ -7,7 +6,7 @@ import { Log } from '@models/stormwater'
 import { Request, Response, NextFunction } from 'express'
 import { Model } from 'sequelize'
 import { LogInterface } from '@models/stormwater/types'
-import { CreateLogRequest, CreateLogResponse, GetLogResponse, GetLogsResponse, UpdateLogRequest, UpdateLogResponse } from './types'
+import { CreateLogRequest, CreateLogResponse, GetLogResponse, UpdateLogRequest, UpdateLogResponse } from './types'
 
 // @desc    Create log
 // @route   POST /api/v1/stormwater/logs
@@ -17,16 +16,18 @@ export const createLog = asyncHandler(async (req: Request<{}, {}, CreateLogReque
 
   const email = req.user?.email
 
+  const { nanoid } = await import('nanoid')
+
   const log = await Log.create({
     logId: `log-${ nanoid() }`,
     siteId,
     inspectionDate,
     createdBy: email,
     updatedBy: email,
-  }) as Model<LogInterface>
+  }) as Model<LogInterface> & LogInterface
 
   if(!log) {
-    return next(new ErrorResponse("Could not create new log", 500))
+    return next(new ErrorResponse("Unable to create new site log", 500))
   }
 
   res.status(201).json({
@@ -44,35 +45,15 @@ export const getLog = asyncHandler(async (req: Request<{ uuid: string }>, res: R
     where: {
       uuid: req.params.uuid
     }
-  }) as Model<LogInterface>
+  }) as Model<LogInterface> & LogInterface
 
   if(!log) {
-    return next(new ErrorResponse(`Could not return log by uuid ${ req.params.uuid }`, 500))
+    return next(new ErrorResponse(`Unable to return site log by uuid ${ req.params.uuid }`, 500))
   }
 
   res.status(200).json({
     success: true,
     data: log
-  })
-})
-
-// @desc    Get logs
-// @route   GET /api/v1/stormwater/logs/:siteid
-// @access  Private
-export const getLogs = asyncHandler(async (req: Request<{ siteid: string }>, res: Response<GetLogsResponse>, next: NextFunction) => {
-  const logs = await Log.findAll({
-    where: {
-      siteId: req.params.siteid
-    }
-  }) as Model<LogInterface>[]
-
-  if(!logs) {
-    return next(new ErrorResponse(`Could not return logs for siteId ${ req.params.siteid }`, 500))
-  }
-
-  res.status(200).json({
-    success: true,
-    data: logs
   })
 })
 
@@ -94,11 +75,13 @@ export const updateLog = asyncHandler(async (req: Request<{ uuid: string }, {}, 
     returning: true
   })
 
-  if(!log[1].length) {
+  const [affectedCount, affectedRows] = log
+
+  if(affectedCount === 0) {
     return next(new ErrorResponse(`Unable to update log by uuid ${ req.params.uuid }`, 500))
   }
 
-  const data = log[1] as Model<LogInterface>[] & LogInterface
+  const data = (affectedRows as (Model<LogInterface> & LogInterface)[])[0]
 
   res.status(200).json({
     success: true,
@@ -111,11 +94,15 @@ export const updateLog = asyncHandler(async (req: Request<{ uuid: string }, {}, 
 // @route   DELETE /api/v1/stormwater/logs/:uuid
 // @access  Private
 export const deleteLog = asyncHandler(async (req: Request<{ uuid: string }>, res: Response, next: NextFunction) => {
-  await Log.destroy({
+  const result = await Log.destroy({
     where: {
       uuid: req.params.uuid
     }
   })
+
+  if(result === 0) {
+    return next(new ErrorResponse(`Unable to delete site log by uuid ${ req.params.uuid }`, 500))
+  }
 
   res.status(200).json({
     success: true,
