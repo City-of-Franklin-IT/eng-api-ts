@@ -2,6 +2,7 @@
 import { Model } from "sequelize"
 import { ControllerResponse } from "@controllers/types"
 import { MilestoneExtensionInterface } from "@models/vesting/types"
+import { ProjectInterface } from "@models/vesting/types"
 
 export interface CreateApprovalRequest {
   date: string
@@ -66,4 +67,34 @@ export interface UpdateVestingPeriodRequest {
 export interface UpdateVestingStatusRequest {
   achieved: boolean | null
   expired: boolean | null
+}
+
+export interface GetProjectsResponse {
+  success: boolean
+  data: (Model<ProjectInterface> & ProjectInterface)[]
+}
+
+export interface GetProjectResponse {
+  success: boolean
+  data: Model<ProjectInterface> & ProjectInterface
+}
+
+export interface CreateProjectRequest {
+  type: "Development Plan" | "Preliminary Plat" | "Site Plan"
+  name: string
+  cof: number
+  ordinance: string
+  notes: string
+}
+
+export interface CreateProjectResponse extends ControllerResponse {
+  data: Model<ProjectInterface> & ProjectInterface
+}
+
+export interface UpdateProjectRequest {
+  name: string
+  cof: number
+  ordinance: string
+  expired: boolean | null
+  notes: string
 }
