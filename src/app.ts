@@ -23,12 +23,14 @@ import cipRoutes from '@routes/cip'
 import stormwaterRoutes from '@routes/stormwater'
 import publicRoutes from '@routes/public'
 import trafficCalmingRoutes from '@routes/traffic-calming'
+import vesting from '@routes/vesting'
 
 // Mount routes
 cipRoutes(app)
 stormwaterRoutes(app)
 app.use(`${ process.env.BASE_URL }/public`, publicRoutes)
 trafficCalmingRoutes(app)
+vesting(app)
 
 app.use(errorHandler)
 

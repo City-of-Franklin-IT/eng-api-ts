@@ -1,7 +1,7 @@
 // Types
 import { Model } from "sequelize"
 import { ControllerResponse } from "@controllers/types"
-import { MilestoneExtensionInterface } from "@models/vesting/types"
+import { MilestoneExtensionInterface, VestingExtensionInterface } from "@models/vesting/types"
 import { ProjectInterface } from "@models/vesting/types"
 
 export interface CreateApprovalRequest {
@@ -97,4 +97,26 @@ export interface UpdateProjectRequest {
   ordinance: string
   expired: boolean | null
   notes: string
+}
+
+export interface CreateResolutionRequest {
+  resolution: string
+  parentId: string
+}
+
+export interface UpdateResolutionRequest {
+  resolution: string
+}
+
+export interface CreateVestingExtensionRequest {
+  date: string
+  parentId: string
+}
+
+export interface UpdateVestingExtensionRequest {
+  date: string
+}
+
+export interface UpdateVestingExtensionResponse extends ControllerResponse {
+  data: Model<VestingExtensionInterface> & VestingExtensionInterface
 }
