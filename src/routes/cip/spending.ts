@@ -1,8 +1,8 @@
-import express from 'express'
+import { Router } from 'express'
 import { createSpending, deleteSpending } from '@controllers/cip/spending'
 import { protect } from '@middleware/auth'
 
-const router = express.Router()
+const router = Router()
 
 router.use(protect)
 

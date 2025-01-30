@@ -1,8 +1,8 @@
-import express from 'express'
+import { Router } from 'express'
 import { createVestingExtension, updateVestingExtension, deleteVestingExtension } from '@controllers/vesting/vestingExtension'
 import { protect } from '@middleware/auth'
 
-const router = express.Router()
+const router = Router()
 
 router.use(protect)
 

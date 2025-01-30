@@ -1,7 +1,7 @@
-import express from 'express'
+import { Router } from 'express'
 import { createResponse } from '@controllers/traffic-calming/response'
 
-const router = express.Router()
+const router = Router()
 
 router
   .route('/')

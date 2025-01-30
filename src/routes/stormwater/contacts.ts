@@ -1,8 +1,8 @@
-import express from 'express'
+import { Router } from 'express'
 import { createContact, getContacts, getContact, updateContact, deleteContact } from '@controllers/stormwater/contacts'
 import { protect } from '@middleware/auth'
 
-const router = express.Router()
+const router = Router()
 
 router.use(protect)
 

@@ -1,3 +1,4 @@
+import moment from 'moment'
 import dotenv from 'dotenv'
 dotenv.config({ path: 'config/config.env' })
 
@@ -31,6 +32,14 @@ const db = {
 const dbPath: DBPathInterface = cfg[env].databases['cip']
 
 db.sequelize = new Sequelize(dbPath.database, dbPath.username, dbPath.password, dbPath)
+
+DataTypes.DATE.prototype._stringify = function _stringify(date: Date) { // Format DATE for MSSQL
+  if(!date) return date
+  
+  const momentDate = moment.isMoment(date) ? date : moment(date)
+  
+  return momentDate.format('YYYY-MM-DD HH:mm:ss.SSS')
+}
 
 db.Project = ProjectModel(db.sequelize, DataTypes)
 db.Milestone = MilestoneModel(db.sequelize, DataTypes)

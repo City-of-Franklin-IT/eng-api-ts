@@ -1,7 +1,7 @@
-import express from 'express'
+import { Router } from 'express'
 import { getProjects } from '@controllers/cip/public'
 
-const router = express.Router()
+const router = Router()
 
 router
   .route('/active-projects')

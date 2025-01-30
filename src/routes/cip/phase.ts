@@ -1,8 +1,8 @@
-import express from 'express'
+import { Router } from 'express'
 import { createPhase, deletePhase } from '@controllers/cip/phase'
 import { protect } from '@middleware/auth'
 
-const router = express.Router()
+const router = Router()
 
 router.use(protect)
 

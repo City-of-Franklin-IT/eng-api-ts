@@ -1,9 +1,9 @@
-import express from 'express'
+import { Router } from 'express'
 import multer from 'multer'
 import { createAttachment, getAttachment, deleteAttachment } from '@controllers/stormwater/attachments'
 import { protect } from '@middleware/auth'
 
-const router = express.Router()
+const router = Router()
 
 router.use(protect)
 

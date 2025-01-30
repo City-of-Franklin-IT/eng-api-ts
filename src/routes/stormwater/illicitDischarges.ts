@@ -1,8 +1,8 @@
-import express from 'express'
+import { Router } from 'express'
 import { createIllicitDischarge, getIllicitDischarges, getIllicitDischarge, updateIllicitDischarge, deleteIllicitDischarge } from '@controllers/stormwater/illicitDischarges'
 import { protect } from '@middleware/auth'
 
-const router = express.Router()
+const router = Router()
 
 router.use(protect)
 
