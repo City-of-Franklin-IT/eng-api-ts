@@ -31,6 +31,9 @@ stormwaterRoutes(app)
 app.use(`${ process.env.BASE_URL }/public`, publicRoutes)
 trafficCalmingRoutes(app)
 vesting(app)
+app.use(`${ process.env.BASE_URL }/api-docs`, (req, res, next) => {
+  res.redirect(process.env.API_DOCUMENTATION_URL as string)
+})
 
 app.use(errorHandler)
 

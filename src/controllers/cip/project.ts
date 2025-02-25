@@ -38,8 +38,17 @@ export const getProject = asyncHandler(async (req: Request<{ uuid: string }>, re
     where: {
       uuid: req.params.uuid
     },
-    include: [{ model: Milestone }, { model: Phase }, { model: Spending }, { model: Update }],
-    order:  [['name', 'asc'], [Milestone, 'milestoneEst', 'asc'], [Phase, 'createdAt', 'desc'], [Update, 'createdAt', 'desc'], [{ model: Spending, as: 'Spending'}, 'createdAt', 'desc']]
+    include: [
+      { model: Milestone }, 
+      { model: Phase }, 
+      { model: Spending, as: 'Spending' }, 
+      { model: Update }],
+    order:  [
+      ['name', 'asc'], 
+      [Milestone, 'milestoneEst', 'asc'], 
+      [Phase, 'createdAt', 'desc'], 
+      [Update, 'createdAt', 'desc'], 
+      [{ model: Spending, as: 'Spending'}, 'createdAt', 'desc']]
   }) as (Model<ProjectInterface> & ProjectInterface)
 
   if(!project) {
