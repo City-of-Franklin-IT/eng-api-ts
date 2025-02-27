@@ -41,6 +41,7 @@ export default (sequelize: Sequelize, dataTypes: typeof DataTypes) => {
   }, {
     sequelize,
     freezeTableName: true,
+    timestamps: false,
     modelName: 'InforAddress',
     tableName: 'surveyData'
   })

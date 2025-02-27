@@ -20,7 +20,7 @@ router
   .get(protect, getRespondents)
 
 router
-  .route('/id/:shortId')
+  .route('/id/:shortid')
   .get(verifyRespondent)
 
 router

@@ -11,9 +11,6 @@ router
   .post(createSiteContact)
 
 router
-  .route('/:uuid')
-
-router
   .route('/site/:siteid')
   .delete(deleteSiteContacts)
 

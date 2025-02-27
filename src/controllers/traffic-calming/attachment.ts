@@ -3,6 +3,7 @@ import { ErrorResponse } from '@utils/errorResponse'
 import processImage from '@utils/processImage'
 import processPDF from '@utils/processPDF'
 import { Attachment } from '@models/traffic-calming'
+import determineFileType from '@utils/determineFileType'
 
 // Types
 import { Request, Response, NextFunction } from 'express'
@@ -10,6 +11,7 @@ import { ControllerResponse } from '@controllers/types'
 import { Model } from 'sequelize'
 import { AttachmentInterface } from '@models/traffic-calming/types'
 import { CreateAttachmentRequest, DownloadAttachmentResponse } from './types'
+import { FileInterface } from '@models/stormwater/types'
 
 //@desc    Upload attachment
 //@route   POST /api/v1/eng/traffic-calming/attachment
@@ -20,11 +22,11 @@ export const createAttachment = asyncHandler(async (req: Request<{}, {}, CreateA
 
   const email = req.user?.email
 
-  if(file instanceof File) {
-    if(file.mimetype.split('/')[0] === 'image') {
-      await processImage(file, parentId, Attachment, email, next)
-    } else await processPDF(file, parentId, Attachment, email, next)
-  } else return next(new ErrorResponse('No file found', 500))
+  const fileType = determineFileType(file?.buffer)
+
+  if(fileType.type === 'image') { 
+    await processImage(file as unknown as FileInterface, parentId, Attachment, email, next) // Image
+  } else await processPDF(file as unknown as FileInterface, parentId, Attachment, email, next) // PDF
 
   res.status(201).json({
     success: true,

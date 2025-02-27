@@ -131,8 +131,11 @@ export const verifyRespondent = asyncHandler(async (req: Request<{ shortid: stri
     },
     include: [
       { model: Petition, 
-        include: [{ model: Attachment }], 
-          attributes: ['parentId', 'fileType', 'uuid'] }, 
+        include: [
+          { model: Attachment,
+            attributes: ['parentId', 'fileType', 'uuid']
+          }
+        ]}, 
       { model: PetitionResponse }
     ]
   }) as Model<RespondentInterface> & RespondentInterface
@@ -181,18 +184,22 @@ export const downloadTemplate = asyncHandler(async (req: Request, res: Response<
 //@route   POST /api/v1/eng/traffic-calming/respondent/search
 //@access  Private
 export const getRespondentsByADDRKEY = asyncHandler(async (req: Request<{}, {}, GetRespondentsByADDRKEYRequest>, res: Response<GetRespondentsByADDRKEYResponse>, next: NextFunction) => {
-  const { addrkeys } = req.body
+  try {
+    const { addrkeys } = req.body
 
-  const results = await InforAddress.findAll({ // Query Infor db
-    where: {
-      addrkey: {
-        [Op.in]: addrkeys
+    const results = await InforAddress.findAll({ // Query Infor db
+      where: {
+        addrkey: {
+          [Op.in]: addrkeys
+        }
       }
-    }
-  }) as (Model<InforAddressInterface> & InforAddressInterface)[]
-
-  res.status(200).json({
-    success: true,
-    data: results
-  })
+    }) as (Model<InforAddressInterface> & InforAddressInterface)[]
+  
+    res.status(200).json({
+      success: true,
+      data: results
+    })
+  } catch(err) {
+    console.log(err)
+  }
 })
