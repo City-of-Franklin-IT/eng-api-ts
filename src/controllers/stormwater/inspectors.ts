@@ -55,13 +55,13 @@ export const getInspectors = asyncHandler(async (req: Request, res: Response<Get
   })
 })
 
-// @desc    Get inspector sites by inspectorId
-// @route   GET /api/v1/stormwater/inspectors/:uuid
+// @desc    Get inspector sites
+// @route   GET /api/v1/stormwater/inspectors/:inspectorid
 // @access  Private
-export const getInspector = asyncHandler(async (req: Request<{ uuid: string }>, res: Response<GetInspectorResponse>, next: NextFunction) => {
+export const getInspector = asyncHandler(async (req: Request<{ inspectorid: string }>, res: Response<GetInspectorResponse>, next: NextFunction) => {
   const results = await Site.findAll({
     where: {
-      uuid: req.params.uuid
+      inspectorId: req.params.inspectorid
     },
     order: [['name', 'asc']],
     include: [
@@ -100,7 +100,7 @@ export const getInspector = asyncHandler(async (req: Request<{ uuid: string }>, 
 
   const inspector = await Inspector.findOne({
     where: {
-      uuid: req.params.uuid
+      inspectorId: req.params.inspectorid
     }
   }) as Model<InspectorInterface> & InspectorInterface
 
@@ -111,9 +111,9 @@ export const getInspector = asyncHandler(async (req: Request<{ uuid: string }>, 
 })
 
 // @desc    Update inspector
-// @route   PUT /api/v1/stormwater/inspectors/:uuid
+// @route   PUT /api/v1/stormwater/inspectors/:inspectorid
 // @access  Private
-export const updateInspector = asyncHandler(async (req: Request<{ uuid: string }, {}, UpdateInspectorRequest>, res: Response<UpdateInspectorResponse>, next: NextFunction) => {
+export const updateInspector = asyncHandler(async (req: Request<{ inspectorid: string }, {}, UpdateInspectorRequest>, res: Response<UpdateInspectorResponse>, next: NextFunction) => {
   const { name, email, inactive } = req.body
 
   const userEmail = req.user?.email
@@ -126,7 +126,7 @@ export const updateInspector = asyncHandler(async (req: Request<{ uuid: string }
   },
   {
     where: {
-      uuid: req.params.uuid
+      inspectorId: req.params.inspectorid
     },
     returning: true
   })
@@ -134,7 +134,7 @@ export const updateInspector = asyncHandler(async (req: Request<{ uuid: string }
   const [affectedCount, affectedRows] = inspector
 
   if(affectedCount === 0) {
-    return next(new ErrorResponse(`Unable to update inspector by uuid ${ req.params.uuid }`, 500))
+    return next(new ErrorResponse(`Unable to update inspector by inspectorId ${ req.params.inspectorid }`, 500))
   }
 
   const data = (affectedRows as (Model<InspectorInterface> & InspectorInterface)[])[0]
@@ -147,17 +147,17 @@ export const updateInspector = asyncHandler(async (req: Request<{ uuid: string }
 })
 
 // @desc    Delete inspector
-// @route   DELETE /api/v1/stormwater/inspectors/:uuid
+// @route   DELETE /api/v1/stormwater/inspectors/:inspectorid
 // @access  Private
-export const deleteInspector = asyncHandler(async (req:  Request<{ uuid: string }>, res: Response<ControllerResponse>, next: NextFunction) => {
+export const deleteInspector = asyncHandler(async (req:  Request<{ inspectorid: string }>, res: Response<ControllerResponse>, next: NextFunction) => {
   const result = await Inspector.destroy({
     where: {
-      uuid: req.params.uuid
+      inspectorId: req.params.inspectorid
     }
   })
 
   if(result === 0) {
-    return next(new ErrorResponse(`Unable to delete inspector by uuid ${ req.params.uuid }`, 500))
+    return next(new ErrorResponse(`Unable to delete inspector by inspectorId ${ req.params.inspectorid }`, 500))
   }
 
   res.status(200).json({

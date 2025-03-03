@@ -12,7 +12,7 @@ router
   .post(createInspector)
 
 router
-  .route('/:uuid')
+  .route('/:inspectorid')
   .get(getInspector)
   .put(updateInspector)
   .delete(deleteInspector)
