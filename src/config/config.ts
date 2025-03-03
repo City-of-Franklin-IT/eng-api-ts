@@ -116,7 +116,19 @@ export default {
         },
         "timezone": "US/Chicago",
         "logging": false
-      }
+      },
+      "infor": {
+        "username": process.env.DB_USERNAME,
+        "password": process.env.DB_PASSWORD,
+        "database": process.env.INFOR_DB_DATABASE,
+        "host": process.env.INFOR_DB_HOST,
+        "dialect": "mssql",
+        "dialectOptions": {
+          useUTC: true
+        },
+        "timezone": "US/Chicago",
+        "logging": false
+      },
     }
   }
 }

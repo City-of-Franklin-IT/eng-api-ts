@@ -1,5 +1,5 @@
 import { Router } from 'express'
-import { createSite, getSites, getSite, updateSite, deleteSite, getActiveSites } from '@controllers/stormwater/sites'
+import { createSite, getSites, getSite, updateSite, deleteSite } from '@controllers/stormwater/sites'
 import { protect } from '@middleware/auth'
 
 const router = Router()
@@ -16,9 +16,5 @@ router
   .get(getSite)
   .put(updateSite)
   .delete(deleteSite)
-
-router
-  .route('/active/get')
-  .get(getActiveSites)
 
 export default router
