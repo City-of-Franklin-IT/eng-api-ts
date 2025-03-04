@@ -53,8 +53,10 @@ export const createComplaint = asyncHandler(async (req: Request<{}, {}, CreateCo
       }
     }) as Model<InspectorInterface> & InspectorInterface
 
-    const data = { complaintId: complaint.complaintId, details: complaint.details, uuid: complaint.uuid }
-    await emailInspector(inspector.email, data)
+    if(inspector) {
+      const data = { complaintId: complaint.complaintId, details: complaint.details, uuid: complaint.uuid }
+      await emailInspector(inspector.email, data)
+    }
   }
 
   res.status(201).json({
