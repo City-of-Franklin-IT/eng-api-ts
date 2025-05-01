@@ -40,18 +40,18 @@ export const createSite = asyncHandler(async (req: Request<{}, {}, CreateSiteReq
     return next(new ErrorResponse("Unable to create site", 500))
   }
 
-  if(inspectorId && production) { // If inspector assigned and in production - email inspector
-    const inspector = await Inspector.findOne({
-      where: {
-        inspectorId
-      },
-      attributes: ['email']
-    }) as Model<InspectorInterface> & InspectorInterface
+  // if(inspectorId && production) { // If inspector assigned and in production - email inspector
+  //   const inspector = await Inspector.findOne({
+  //     where: {
+  //       inspectorId
+  //     },
+  //     attributes: ['email']
+  //   }) as Model<InspectorInterface> & InspectorInterface
 
-    if(inspector) {
-      await emailInspector(inspector.email, { uuid: site.uuid, name: site.name })
-    }
-  }
+  //   if(inspector) {
+  //     await emailInspector(inspector.email, { uuid: site.uuid, name: site.name })
+  //   }
+  // }
 
   res.status(201).json({
     success: true,
