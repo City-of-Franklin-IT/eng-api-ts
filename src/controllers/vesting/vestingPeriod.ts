@@ -1,5 +1,6 @@
 import asyncHandler from '@middleware/async'
 import { ErrorResponse } from '@utils/errorResponse'
+import editorTracking from '@utils/editorTracking'
 import { VestingPeriod, VestingStatus } from '@models/vesting'
 
 // Types
@@ -15,14 +16,11 @@ import { CreateVestingPeriodRequest, UpdateVestingPeriodRequest, UpdateVestingSt
 export const createVestingPeriod = asyncHandler(async (req: Request<{}, {}, CreateVestingPeriodRequest>, res: Response<ControllerResponse>, next: NextFunction) => {
   const { type, date, parentId } = req.body
 
-  const email = req.user?.email
-
   const result = await VestingPeriod.create({
     type,
     date,
     parentId,
-    createdBy: email,
-    updatedBy: email
+    ...editorTracking(req)
   }) as Model<VestingPeriodInterface> & VestingPeriodInterface
 
   if(!result) {
@@ -33,8 +31,7 @@ export const createVestingPeriod = asyncHandler(async (req: Request<{}, {}, Crea
 
   const newStatus = await VestingStatus.create({ // Create empty vesting status entry
     parentId: uuid,
-    createdBy: email,
-    updatedBy: email
+    ...editorTracking(req)
   })
 
   if(!newStatus) {
@@ -73,12 +70,10 @@ export const deleteVestingPeriod = asyncHandler(async (req: Request<{ uuid: stri
 export const updatePeriod = asyncHandler(async (req: Request<{ uuid: string }, {}, UpdateVestingPeriodRequest>, res: Response<ControllerResponse>, next: NextFunction) => {
   const { type, date } = req.body
 
-  const email = req.user?.email
-
   const result = await VestingPeriod.update({
     type,
     date,
-    updatedBy: email
+    ...editorTracking(req)
   },{
     where: {
       uuid: req.params.uuid
@@ -103,12 +98,10 @@ export const updatePeriod = asyncHandler(async (req: Request<{ uuid: string }, {
 export const updateVestingStatus = asyncHandler(async (req: Request<{ uuid: string }, {}, UpdateVestingStatusRequest>, res: Response<ControllerResponse>, next: NextFunction) => {
   const { achieved, expired } = req.body
 
-  const email = req.user?.email
-
   const status = await VestingStatus.update({
     achieved,
     expired,
-    updatedBy: email
+    ...editorTracking(req)
   },{
     where: {
       uuid: req.params.uuid

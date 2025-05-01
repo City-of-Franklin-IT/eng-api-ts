@@ -1,6 +1,7 @@
 import { Op } from 'sequelize'
 import asyncHandler from '@middleware/async'
 import { ErrorResponse } from '@utils/errorResponse'
+import editorTracking from '@utils/editorTracking'
 import { Project, Milestone, Phase, Spending, Update } from '@models/cip'
 
 // Types
@@ -18,15 +19,11 @@ export const getProjects = asyncHandler(async (req: Request, res: Response<GetPr
     where: {
       name: { [Op.ne]: '' }
     }
-  })
-
-  if(!projects.length) {
-    return next(new ErrorResponse('Could not return projects', 500))
-  }
+  }) as (Model<ProjectInterface> & ProjectInterface)[]
 
   res.status(200).json({
     success: true,
-    data: projects as unknown as ProjectInterface[]
+    data: projects
   })
 })
 
@@ -52,7 +49,7 @@ export const getProject = asyncHandler(async (req: Request<{ uuid: string }>, re
   }) as (Model<ProjectInterface> & ProjectInterface)
 
   if(!project) {
-    return next(new ErrorResponse(`Could not return project by uuid ${ req.params.uuid }`, 500))
+    return next(new ErrorResponse(`Unable to return project by uuid ${ req.params.uuid }`, 500))
   }
 
   res.status(200).json({
@@ -67,8 +64,6 @@ export const getProject = asyncHandler(async (req: Request<{ uuid: string }>, re
 export const createProject = asyncHandler(async (req: Request<{}, {}, CreateProjectRequest>, res: Response<CreateProjectResponse>, next: NextFunction) => {
   const { name, projectDescription, type, manager, managerEmail, link, approvedBudget, archived, xCoordinate, yCoordinate } = req.body
 
-  const email = req.user?.email
-
   const project = await Project.create({
     name,
     projectDescription,
@@ -80,19 +75,17 @@ export const createProject = asyncHandler(async (req: Request<{}, {}, CreateProj
     archived,
     xCoordinate,
     yCoordinate,
-    createdBy: email,
-    updatedBy: email
+    ...editorTracking(req)
   }) as (Model<ProjectInterface> & ProjectInterface)
 
   if(!project) {
-    return next(new ErrorResponse('Could not create new project', 500))
+    return next(new ErrorResponse('Unable to create new project', 500))
   }
 
   await Phase.create({ // Create phase for new project
     phase: 'Design',
     parentId: project.uuid,
-    createdBy: email,
-    updatedBy: email
+    ...editorTracking(req)
   })
 
   res.status(201).json({
@@ -105,10 +98,8 @@ export const createProject = asyncHandler(async (req: Request<{}, {}, CreateProj
 //@desc    Update project
 //@route   PUT /api/v1/end/cip/project/:uuid
 //@access  Private
-export const updateProject = asyncHandler(async (req: Request, res: Response<ControllerResponse>, next: NextFunction) => {
+export const updateProject = asyncHandler(async (req: Request<{ uuid: string }, {}, CreateProjectRequest>, res: Response<ControllerResponse>, next: NextFunction) => {
   const { name, projectDescription, type, manager, managerEmail, link, approvedBudget, archived, xCoordinate, yCoordinate } = req.body
-
-  const email = req.user?.email
 
   const project = await Project.update({
     name,
@@ -121,7 +112,7 @@ export const updateProject = asyncHandler(async (req: Request, res: Response<Con
     archived,
     xCoordinate,
     yCoordinate,
-    updatedBy: email
+    ...editorTracking(req)
   },{
     where: {
       uuid: req.params.uuid
@@ -129,7 +120,7 @@ export const updateProject = asyncHandler(async (req: Request, res: Response<Con
   })
 
   if(!project) {
-    return next(new ErrorResponse(`Could not update project by uuid ${ req.params.uuid }`, 500))
+    return next(new ErrorResponse(`Unable to update project by uuid ${ req.params.uuid }`, 500))
   }
 
   res.status(200).json({
@@ -141,12 +132,16 @@ export const updateProject = asyncHandler(async (req: Request, res: Response<Con
 //@desc    Delete project
 //@route   DELETE /api/v1/eng/cip/project/:uuid
 //@access  Private
-export const deleteProject = asyncHandler(async (req: Request, res: Response<ControllerResponse>, next: NextFunction) => {
-  await Project.destroy({
+export const deleteProject = asyncHandler(async (req: Request<{ uuid: string }>, res: Response<ControllerResponse>, next: NextFunction) => {
+  const result = await Project.destroy({
     where: {
       uuid: req.params.uuid
     }
   })
+
+  if(result === 0) {
+    return next(new ErrorResponse(`Unable to delete project by uuid ${ req.params.uuid }`, 500))
+  }
 
   res.status(200).json({
     success: true,

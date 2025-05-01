@@ -1,6 +1,7 @@
 import { v4 as uuidv4 } from 'uuid'
 import asyncHandler from '@middleware/async'
 import { ErrorResponse } from '@utils/errorResponse'
+import editorTracking from '@utils/editorTracking'
 import { Inspector, Site, Complaint, SiteContact, Contact, Log, ConstructionViolation, FollowUpDate, IllicitDischarge } from '@models/stormwater'
 
 // Types
@@ -16,15 +17,12 @@ import { CreateInspectorRequest, CreateInspectorResponse, GetInspectorsResponse,
 export const createInspector = asyncHandler(async (req: Request<{}, {}, CreateInspectorRequest>, res: Response<CreateInspectorResponse>, next: NextFunction) => {
   const { name, email } = req.body
 
-  const userEmail = req.user?.email
-
   const inspector = await Inspector.create({
     inspectorId: `inspector-${ uuidv4() }`,
     name,
     email,
     slug: name.split(' ')[0].toLowerCase() + '-' + name.split(' ')[1].toLowerCase(),
-    createdBy: userEmail,
-    updatedBy: userEmail,
+    ...editorTracking(req)
   }) as Model<InspectorInterface> & InspectorInterface
 
   if(!inspector) {
@@ -116,13 +114,11 @@ export const getInspector = asyncHandler(async (req: Request<{ inspectorid: stri
 export const updateInspector = asyncHandler(async (req: Request<{ inspectorid: string }, {}, UpdateInspectorRequest>, res: Response<UpdateInspectorResponse>, next: NextFunction) => {
   const { name, email, inactive } = req.body
 
-  const userEmail = req.user?.email
-
   const inspector = await Inspector.update({
     name,
     email,
     inactive,
-    updatedBy: userEmail
+    ...editorTracking(req)
   },
   {
     where: {

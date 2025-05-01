@@ -5,8 +5,8 @@ import { BaseInterface } from "../types"
 
 export interface MilestoneInterface extends BaseInterface {
   milestoneDesc: string
-  milestoneEst: Date | null
-  milestoneRealized: Date | null
+  milestoneEst: string | null
+  milestoneRealized: string | null
   parentId: string
 }
 
@@ -37,7 +37,7 @@ export interface PhaseCreationAttributes extends Optional<PhaseInterface, 'uuid'
 
 export interface SpendingInterface extends BaseInterface {
   dollarsSpent: number
-  dollarsSpentDate: Date
+  dollarsSpentDate: string
   parentId: string
 }
 

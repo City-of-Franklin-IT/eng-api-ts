@@ -1,6 +1,7 @@
 import asyncHandler from '@middleware/async'
 import { ErrorResponse } from '@utils/errorResponse'
 import { Milestone } from '@models/cip'
+import editorTracking from '@utils/editorTracking'
 
 // Types
 import { Request, Response, NextFunction } from 'express'
@@ -13,19 +14,16 @@ import { CreateMilestoneRequest, UpdateProjectMilestoneRequest } from './types'
 export const createMilestone = asyncHandler(async (req: Request<{}, {}, CreateMilestoneRequest>, res: Response<ControllerResponse>, next: NextFunction) => {
   const { milestoneDesc, milestoneEst, milestoneRealized, parentId } = req.body
 
-  const email = req.user?.email
-
   const milestone = await Milestone.create({
     milestoneDesc,
-    milestoneEst: milestoneEst ? new Date(milestoneEst) : null,
-    milestoneRealized: milestoneRealized ? new Date(milestoneRealized) : null,
+    milestoneEst: milestoneEst,
+    milestoneRealized: milestoneRealized,
     parentId,
-    createdBy: email,
-    updatedBy: email
+    ...editorTracking(req)
   })
 
   if(!milestone) {
-    return next(new ErrorResponse('Could not create new milestone', 500))
+    return next(new ErrorResponse('Unable to create new milestone', 500))
   }
 
   res.status(201).json({
@@ -42,9 +40,9 @@ export const updateMilestone = asyncHandler(async (req: Request<{ uuid: string }
 
   const milestone = await Milestone.update({
     milestoneDesc,
-    milestoneEst: milestoneEst ? new Date(milestoneEst) : null,
-    milestoneRealized: milestoneRealized ? new Date(milestoneRealized) : null,
-    updatedBy: req.user?.email
+    milestoneEst: milestoneEst,
+    milestoneRealized: milestoneRealized,
+    ...editorTracking(req)
   },{
     where: {
       uuid: req.params.uuid
@@ -52,7 +50,7 @@ export const updateMilestone = asyncHandler(async (req: Request<{ uuid: string }
   })
 
   if(!milestone) {
-    return next(new ErrorResponse(`Could not update milestone with uuid ${ req.params.uuid }`, 500))
+    return next(new ErrorResponse(`Unable to update milestone with uuid ${ req.params.uuid }`, 500))
   }
 
   res.status(200).json({
@@ -65,11 +63,15 @@ export const updateMilestone = asyncHandler(async (req: Request<{ uuid: string }
 //@route   DELETE /api/v1/eng/cip/milestones/:uuid
 //@access  Private
 export const deleteMilestone = asyncHandler(async (req: Request<{ uuid: string }, {}>, res: Response<ControllerResponse>, next: NextFunction) => {
-  await Milestone.destroy({
+  const result = await Milestone.destroy({
     where: {
       uuid: req.params.uuid
     }
   })
+
+  if(result === 0) {
+    return next(new ErrorResponse(`Unable to delete project milestone by uuid ${ req.params.uuid }`, 500))
+  }
 
   res.status(200).json({
     success: true,

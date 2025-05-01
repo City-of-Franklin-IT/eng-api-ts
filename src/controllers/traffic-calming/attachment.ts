@@ -20,7 +20,7 @@ export const createAttachment = asyncHandler(async (req: Request<{}, {}, CreateA
   const { file } = req
   const { parentId } = req.body
 
-  const email = req.user?.email
+  const email = req.entra?.preferred_username
 
   const fileType = determineFileType(file?.buffer)
 

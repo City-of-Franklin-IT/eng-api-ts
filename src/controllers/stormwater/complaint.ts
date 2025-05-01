@@ -1,6 +1,7 @@
 import { v4 as uuidv4 } from 'uuid'
 import asyncHandler from '@middleware/async'
 import { ErrorResponse } from '@utils/errorResponse'
+import editorTracking from '@utils/editorTracking'
 import { Complaint, Inspector, FollowUpDate, Site } from '@models/stormwater'
 import { emailInspector, inspectorLookup } from '@utils/automatedEmails/emailInspector'
 
@@ -19,8 +20,6 @@ export const createComplaint = asyncHandler(async (req: Request<{}, {}, CreateCo
 
   const production = process.env.NODE_ENV === 'production'
 
-  const userEmail = req.user?.email
-
   const complaint = await Complaint.create({
     complaintId: `complaint-${ uuidv4() }`,
     date, 
@@ -38,8 +37,7 @@ export const createComplaint = asyncHandler(async (req: Request<{}, {}, CreateCo
     details, 
     responsibleParty,
     comments,
-    createdBy: userEmail,
-    updatedBy: userEmail,
+    ...editorTracking(req)
   }) as Model<ComplaintInterface> & ComplaintInterface
 
   if(!complaint) {
@@ -115,8 +113,6 @@ export const updateComplaint = asyncHandler(async (req: Request<{ uuid: string }
 
   const production = process.env.NODE_ENV === 'production'
 
-  const userEmail = req.user?.email
-
   const inspectorEmail = await inspectorLookup(req.params.uuid, Complaint, inspectorId)
 
   const complaint = await Complaint.update({
@@ -137,7 +133,7 @@ export const updateComplaint = asyncHandler(async (req: Request<{ uuid: string }
     comments, 
     compliance,
     closed,
-    updatedBy: userEmail,
+    ...editorTracking(req)
   },
   {
     where: {

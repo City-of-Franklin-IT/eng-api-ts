@@ -82,7 +82,7 @@ export interface CreateConstructionViolationResponse extends ControllerResponse 
 
 export interface GetConstructionViolationsResponse {
   success: boolean
-  data: Model<ConstructionViolationInterface>[] & ConstructionViolationInterface
+  data: (Model<ConstructionViolationInterface> & ConstructionViolationInterface)[]
 }
 
 export interface GetConstructionViolationResponse {
@@ -241,7 +241,7 @@ export interface CreateGreenInfrastructureResponse extends ControllerResponse {
 
 export interface GetGreenInfrasturcturesResponse {
   success: boolean
-  data: Model<GreenInfrastructureInterface>[] & GreenInfrastructureInterface
+  data: (Model<GreenInfrastructureInterface> & GreenInfrastructureInterface)[]
 }
 
 export interface GetGreenInfrasturctureResponse {

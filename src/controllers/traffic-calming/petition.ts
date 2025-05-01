@@ -1,5 +1,6 @@
 import asyncHandler from '@middleware/async'
 import { ErrorResponse } from '@utils/errorResponse'
+import editorTracking from '@utils/editorTracking'
 import { Petition, Respondent, Response as PetitionResponse, Attachment } from '@models/traffic-calming'
 import createPetitionId from '@utils/createPetitionId'
 
@@ -62,15 +63,12 @@ export const getPetition = asyncHandler(async (req: Request<{ uuid: string }>, r
 export const createPetition = asyncHandler(async (req: Request<{}, {}, CreatePetitionRequest>, res: Response<CreatePetitionResponse>, next: NextFunction) => {
   const { description, startDate, endDate } = req.body
 
-  const email = req.user?.email
-
   const petition = await Petition.create({
     petitionId: await createPetitionId(),
     description,
     startDate,
     endDate,
-    createdBy: email,
-    updatedBy: email
+    ...editorTracking(req)
   }) as Model<PetitionInterface> & PetitionInterface
 
   if(!petition) {
@@ -90,13 +88,11 @@ export const createPetition = asyncHandler(async (req: Request<{}, {}, CreatePet
 export const updatePetition = asyncHandler(async (req: Request<{ uuid: string }, {}, UpdatePetititonRequest>, res: Response<ControllerResponse>, next: NextFunction) => {
   const { description, startDate, endDate } = req.body
 
-  const email = req.user?.email
-
   const petition = await Petition.update({
     description,
     startDate,
     endDate,
-    updatedBy: email
+    ...editorTracking(req)
   },{
     where: {
       uuid: req.params.uuid

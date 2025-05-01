@@ -1,5 +1,6 @@
 import asyncHandler from '@middleware/async'
 import { ErrorResponse } from '@utils/errorResponse'
+import editorTracking from '@utils/editorTracking'
 import { MilestoneExtension } from '@models/vesting' 
 
 // Types
@@ -15,13 +16,10 @@ import { CreateMilestoneExtensionRequest } from './types'
 export const createMilestoneExtension = asyncHandler(async (req: Request<{}, {}, CreateMilestoneExtensionRequest>, res: Response, next: NextFunction) => {
   const { date, parentId } = req.body
 
-  const email = req.user?.email
-
   const extension = await MilestoneExtension.create({ // Create milestone extension
     date,
     parentId,
-    createdBy: email,
-    updatedBy: email
+    ...editorTracking(req)
   })
 
   if(!extension) {
@@ -40,11 +38,9 @@ export const createMilestoneExtension = asyncHandler(async (req: Request<{}, {},
 export const updateMilestoneExtension = asyncHandler(async (req: Request<{ uuid: string }>, res: Response, next: NextFunction) => {
   const { date } = req.body
 
-  const email = req.user?.email
-
   const extension = await MilestoneExtension.update({
     date,
-    updatedBy: email
+    ...editorTracking(req)
   },{
     where: {
       uuid: req.params.uuid

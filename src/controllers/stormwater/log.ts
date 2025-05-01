@@ -1,6 +1,7 @@
 import { v4 as uuidv4 } from 'uuid'
 import asyncHandler from '@middleware/async'
 import { ErrorResponse } from '@utils/errorResponse'
+import editorTracking from '@utils/editorTracking'
 import { Log } from '@models/stormwater'
 
 // Types
@@ -15,14 +16,11 @@ import { CreateLogRequest, CreateLogResponse, GetLogResponse, UpdateLogRequest, 
 export const createLog = asyncHandler(async (req: Request<{}, {}, CreateLogRequest>, res: Response<CreateLogResponse>, next: NextFunction) => {
   const { siteId, inspectionDate } = req.body
 
-  const email = req.user?.email
-
   const log = await Log.create({
     logId: `log-${ uuidv4() }`,
     siteId,
     inspectionDate,
-    createdBy: email,
-    updatedBy: email,
+    ...editorTracking(req)
   }) as Model<LogInterface> & LogInterface
 
   if(!log) {
@@ -62,11 +60,9 @@ export const getLog = asyncHandler(async (req: Request<{ uuid: string }>, res: R
 export const updateLog = asyncHandler(async (req: Request<{ uuid: string }, {}, UpdateLogRequest>, res: Response<UpdateLogResponse>, next: NextFunction) => {
   const { inspectionDate } = req.body
 
-  const email = req.user?.email
-
   const log = await Log.update({
     inspectionDate,
-    updatedBy: email
+    ...editorTracking(req)
   },{
     where: {
       uuid: req.params.uuid

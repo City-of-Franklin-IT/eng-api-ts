@@ -3,6 +3,7 @@ import asyncHandler from '@middleware/async'
 import { ErrorResponse } from '@utils/errorResponse'
 import { IllicitDischarge, Inspector, FollowUpDate } from '@models/stormwater'
 import { emailInspector, inspectorLookup } from '@utils/automatedEmails/emailInspector'
+import editorTracking from '@utils/editorTracking'
 
 // Types
 import { Request, Response, NextFunction } from 'express'
@@ -18,8 +19,6 @@ export const createIllicitDischarge = asyncHandler(async (req: Request<{}, {}, C
   const { complaintId, siteId, date, xCoordinate, yCoordinate, locationDescription, inspectorId, details, responsibleParty, volumeLost, streamWatershed, otherStreamWatershed, enforcementAction, penaltyDate, penaltyAmount, penaltyDueDate, paymentReceived } = req.body
 
   const production = process.env.NODE_ENV === 'production'
-
-  const email = req.user?.email
 
   const illicit = await IllicitDischarge.create({
     illicitId: `illicit-${ uuidv4() }`,
@@ -39,8 +38,7 @@ export const createIllicitDischarge = asyncHandler(async (req: Request<{}, {}, C
     penaltyAmount,
     penaltyDueDate,
     paymentReceived,
-    createdBy: email,
-    updatedBy: email
+    ...editorTracking(req)
   }) as Model<IllicitDischargeInterface> & IllicitDischargeInterface
     
   if(!illicit) {
@@ -119,8 +117,6 @@ export const updateIllicitDischarge = asyncHandler(async (req: Request<{ uuid: s
 
   const production = process.env.NODE_ENV === 'production'
 
-  const email = req.user?.email
-
   const inspectorEmail = await inspectorLookup(req.params.uuid, IllicitDischarge, inspectorId)
 
   const illicit = await IllicitDischarge.update({
@@ -140,7 +136,7 @@ export const updateIllicitDischarge = asyncHandler(async (req: Request<{ uuid: s
     paymentReceived: paymentReceived,
     compliance,
     closed,
-    updatedBy: email,
+    ...editorTracking(req)
   },
   {
     where: {

@@ -25,10 +25,6 @@ export const getProjects = asyncHandler(async (req: Request, res: Response, next
     }]
   }) as (Model<ProjectInterface> & ProjectInterface)[]
 
-  if(!projects) {
-    return next(new ErrorResponse("Could not return CIP projects", 500))
-  }
-
   res.status(200).json({
     success: true,
     data: projects

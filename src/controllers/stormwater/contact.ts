@@ -1,6 +1,7 @@
 import { v4 as uuidv4 } from 'uuid'
 import asyncHandler from '@middleware/async'
 import { ErrorResponse } from '@utils/errorResponse'
+import editorTracking from '@utils/editorTracking'
 import { Contact, SiteContact, Site } from '@models/stormwater'
 
 // Types
@@ -16,16 +17,13 @@ import { CreateContactRequest, CreateContactResponse, GetContactsResponse, GetCo
 export const createContact = asyncHandler(async (req: Request<{}, {}, CreateContactRequest>, res: Response<CreateContactResponse>, next: NextFunction) => {
   const { name, phone, company, email } = req.body
 
-  const userEmail = req.user?.email
-
   const contact = await Contact.create({
     contactId: `contact-${ uuidv4() }`,
     name,
     phone,
     company,
     email,
-    createdBy: userEmail,
-    updatedBy: userEmail,
+    ...editorTracking(req)
   }) as Model<ContactInterface> & ContactInterface
 
   if(!contact) {
@@ -86,15 +84,13 @@ export const getContact = asyncHandler(async (req: Request<{ uuid: string }>, re
 export const updateContact = asyncHandler(async (req: Request<{ uuid: string }, {}, UpdateContactRequest>, res: Response<UpdateContactResponse>, next: NextFunction) => {
   const { name, phone, company, email, inactive } = req.body
 
-  const userEmail = req.user?.email
-
   const contact = await Contact.update({
     name,
     phone,
     company,
     email,
     inactive,
-    updatedBy: userEmail,
+    ...editorTracking(req)
   },{
     where: {
       uuid: req.params.uuid

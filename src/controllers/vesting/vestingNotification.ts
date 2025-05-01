@@ -1,5 +1,6 @@
 import asyncHandler from '@middleware/async'
 import { ErrorResponse } from '@utils/errorResponse'
+import editorTracking from '@utils/editorTracking'
 import { VestingNotification } from '@models/vesting'
 
 // Types
@@ -13,14 +14,11 @@ import { CreateNotificationRequest, UpdateNotificationRequest } from './types'
 export const createNotification = asyncHandler(async (req: Request<{}, {}, CreateNotificationRequest>, res: Response<ControllerResponse>, next: NextFunction) => {
   const { date, type, parentId } = req.body
 
-  const email = req.user?.email
-
   const notification = await VestingNotification.create({
     date,
     type,
     parentId,
-    createdBy: email,
-    updatedBy: email
+    ...editorTracking(req)
   })
 
   if(!notification) {
@@ -39,11 +37,9 @@ export const createNotification = asyncHandler(async (req: Request<{}, {}, Creat
 export const updateNotification = asyncHandler(async (req: Request<{ uuid: string }, {}, UpdateNotificationRequest>, res: Response<ControllerResponse>, next: NextFunction) => {
   const { date } = req.body
 
-  const email = req.user?.email
-
   const notification = await VestingNotification.update({
     date,
-    updatedBy: email
+    ...editorTracking(req)
   },{
     where: {
       uuid: req.params.uuid

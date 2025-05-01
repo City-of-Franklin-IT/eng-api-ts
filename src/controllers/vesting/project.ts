@@ -1,5 +1,6 @@
 import asyncHandler from '@middleware/async'
 import { ErrorResponse } from '@utils/errorResponse'
+import editorTracking from '@utils/editorTracking'
 import { Project, Approval, Resolution, VestingNotification, Milestone, MilestoneExtension, MilestoneStatus, VestingPeriod, VestingExtension, VestingStatus } from '@models/vesting' 
 
 // Types
@@ -94,20 +95,17 @@ export const getProject = asyncHandler(async (req: Request<{ uuid: string }>, re
 export const createProject = asyncHandler(async (req: Request<{}, {}, CreateProjectRequest>, res: Response<CreateProjectResponse>, next: NextFunction) => {
   const { type, name, cof, ordinance, notes } = req.body
 
-  const email = req.user?.email
-
   const project = await Project.create({
     type,
     name,
     cof,
     ordinance,
     notes,
-    createdBy: email,
-    updatedBy: email
+    ...editorTracking(req)
   }) as Model<ProjectInterface> & ProjectInterface
 
   if(!project) {
-    return next(new ErrorResponse('Could not create new project', 500))
+    return next(new ErrorResponse('Unable to create new project', 500))
   }
 
   res.status(201).json({
@@ -123,15 +121,13 @@ export const createProject = asyncHandler(async (req: Request<{}, {}, CreateProj
 export const updateProject = asyncHandler(async (req: Request<{ uuid: string }, {}, UpdateProjectRequest>, res: Response<ControllerResponse>, next: NextFunction) => {
   const { name, cof, ordinance, expired, notes } = req.body
 
-  const email = req.user?.email
-
   const project = await Project.update({
     name,
     cof,
     ordinance,
     expired,
     notes,
-    updatedBy: email
+    ...editorTracking(req)
   },{
     where: {
       uuid: req.params.uuid
@@ -161,7 +157,7 @@ export const deleteProject = asyncHandler(async (req: Request<{ uuid: string }>,
   })
 
   if(result === 0) {
-    return next(new ErrorResponse(`Could not delete project by uuid ${ req.params.uuid }`, 500))
+    return next(new ErrorResponse(`Unable to delete project by uuid ${ req.params.uuid }`, 500))
   }
 
   res.status(200).json({

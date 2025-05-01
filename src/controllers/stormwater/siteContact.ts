@@ -1,5 +1,6 @@
 import asyncHandler from '@middleware/async'
 import { ErrorResponse } from '@utils/errorResponse'
+import editorTracking from '@utils/editorTracking'
 import { SiteContact } from '@models/stormwater'
 
 // Types
@@ -15,16 +16,13 @@ import { ControllerResponse } from '@controllers/types'
 export const createSiteContact = asyncHandler(async (req: Request<{}, {}, CreateSiteContactRequest>, res: Response<CreateSiteContactResponse>, next: NextFunction) => {
   const { siteId, contactId, isPrimary, isContractor, isInspector } = req.body
 
-  const email = req.user?.email
-
   const siteContact = await SiteContact.create({
     siteId,
     contactId,
     isPrimary,
     isContractor,
     isInspector,
-    createdBy: email,
-    updatedBy: email
+    ...editorTracking(req)
   }) as Model<SiteContactInterface> & SiteContactInterface
 
   if(!siteContact) {

@@ -1,6 +1,7 @@
 import { v4 as uuidv4 } from 'uuid'
 import asyncHandler from '@middleware/async'
 import { ErrorResponse } from '@utils/errorResponse'
+import editorTracking from '@utils/editorTracking'
 import { GreenInfrastructure, Inspector, FollowUpDate } from '@models/stormwater'
 import { emailInspector, inspectorLookup } from '@utils/automatedEmails/emailInspector'
 
@@ -19,8 +20,6 @@ export const createGreenInfrastructure = asyncHandler(async (req: Request<{}, {}
 
   const production = process.env.NODE_ENV === 'production'
 
-  const email = req.user?.email
-
   const green = await GreenInfrastructure.create({
     greenId: `green-${ uuidv4() }`,
     date,
@@ -36,8 +35,7 @@ export const createGreenInfrastructure = asyncHandler(async (req: Request<{}, {}
     penaltyAmount,
     penaltyDueDate,
     paymentReceived,
-    createdBy: email,
-    updatedBy: email,
+    ...editorTracking(req)
   }) as Model<GreenInfrastructureInterface> & GreenInfrastructureInterface
 
   if(!green) {
@@ -71,7 +69,7 @@ export const getGreenInfrastructures = asyncHandler(async (req: Request, res: Re
   const greenViolations = await GreenInfrastructure.findAll({
     order: [['date', 'desc'], [FollowUpDate, 'followUpDate', 'desc']],
     include: { model: FollowUpDate }
-  }) as Model<GreenInfrastructureInterface>[] & GreenInfrastructureInterface
+  }) as (Model<GreenInfrastructureInterface> & GreenInfrastructureInterface)[]
 
   res.status(200).json({
     success: true,
@@ -109,8 +107,6 @@ export const updateGreenInfrastructure = asyncHandler(async (req: Request<{ uuid
 
   const production = process.env.NODE_ENV === 'production'
 
-  const email = req.user?.email
-
   const inspectorEmail = await inspectorLookup(req.params.uuid, GreenInfrastructure, inspectorId)
 
   const green = await GreenInfrastructure.update({
@@ -130,7 +126,7 @@ export const updateGreenInfrastructure = asyncHandler(async (req: Request<{ uuid
     bondReleased,
     compliance,
     closed,
-    updatedBy: email,
+    ...editorTracking(req)
   },
   {
     where: {
@@ -142,7 +138,7 @@ export const updateGreenInfrastructure = asyncHandler(async (req: Request<{ uuid
   const [affectedCount, affectedRows] = green
 
   if(affectedCount === 0) {
-    return next(new ErrorResponse(`Could not update green infrastructure with uuid ${ req.params.uuid }`, 500))
+    return next(new ErrorResponse(`Unable to update green infrastructure with uuid ${ req.params.uuid }`, 500))
   }
 
   const data = (affectedRows as (Model<GreenInfrastructureInterface> & GreenInfrastructureInterface)[])[0]

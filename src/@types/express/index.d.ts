@@ -1,13 +1,12 @@
 // Types
-import { UserInterface } from '../../middleware/auth/types'
 import { FileInterface } from '@models/stormwater/types'
+import { EntraUserInterface } from '@middleware/auth/types'
 
 declare global {
   namespace Express {
     interface Request {
-      user?: UserInterface
+      entra?: EntraUserInterface
       file?: FileInterface
-      files?: FileInterface[]
     }
   }
 }

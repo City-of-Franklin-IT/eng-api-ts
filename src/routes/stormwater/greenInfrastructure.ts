@@ -1,10 +1,10 @@
 import { Router } from 'express'
 import { createGreenInfrastructure, getGreenInfrastructures, getGreenInfrastructure, updateGreenInfrastructure, deleteGreenInfrastructure } from '@controllers/stormwater/greenInfrastructure'
-import { protect } from '@middleware/auth'
+import { entra } from '@middleware/auth'
 
 const router = Router()
 
-router.use(protect)
+router.use(entra)
 
 router
   .route('/')

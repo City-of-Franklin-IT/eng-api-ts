@@ -1,5 +1,6 @@
 import asyncHandler from '@middleware/async'
 import { ErrorResponse } from '@utils/errorResponse'
+import editorTracking from '@utils/editorTracking'
 import { Spending } from '@models/cip'
 
 // Types
@@ -15,14 +16,11 @@ import { CreateSpendingRequest } from './types'
 export const createSpending = asyncHandler(async (req: Request<{}, {}, CreateSpendingRequest>, res: Response<ControllerResponse>, next: NextFunction) => {
   const { dollarsSpent, parentId } = req.body
 
-  const email = req.user?.email
-
   const spending = await Spending.create({
     dollarsSpent,
-    dollarsSpentDate: new Date(),
+    dollarsSpentDate: new Date().toString(),
     parentId,
-    createdBy: email,
-    updatedBy: email
+    ...editorTracking(req)
   }) as Model<SpendingInterface>
 
   if(!spending) {
@@ -39,11 +37,15 @@ export const createSpending = asyncHandler(async (req: Request<{}, {}, CreateSpe
 //@route   DELETE /api/v1/eng/cip/spending/:uuid
 //@access  Private
 export const deleteSpending = asyncHandler(async (req: Request<{ uuid: string }>, res: Response<ControllerResponse>, next: NextFunction) => {
-  await Spending.destroy({
+  const result = await Spending.destroy({
     where: {
       uuid: req.params.uuid
     }
   })
+
+  if(result === 0) {
+    return next(new ErrorResponse(`Unable to delete spending by uuid ${ req.params.uuid }`, 500))
+  }
 
   res.status(200).json({
     success: true,

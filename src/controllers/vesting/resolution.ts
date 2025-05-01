@@ -1,5 +1,6 @@
 import asyncHandler from '@middleware/async'
 import { ErrorResponse } from '@utils/errorResponse'
+import editorTracking from '@utils/editorTracking'
 import { Resolution } from '@models/vesting' 
 
 // Types
@@ -13,17 +14,14 @@ import { CreateResolutionRequest, UpdateResolutionRequest } from './types'
 export const createResolution = asyncHandler(async (req: Request<{}, {}, CreateResolutionRequest>, res: Response<ControllerResponse>, next: NextFunction) => {
   const { resolution, parentId } = req.body
 
-  const email = req.user?.email
-
   const result = await Resolution.create({
     resolution,
     parentId,
-    createdBy: email,
-    updatedBy: email
+    ...editorTracking(req)
   })
 
   if(!result) {
-    return next(new ErrorResponse('Could not create resolution', 500))
+    return next(new ErrorResponse('Unable to create resolution', 500))
   }
 
   res.status(201).json({
@@ -38,11 +36,9 @@ export const createResolution = asyncHandler(async (req: Request<{}, {}, CreateR
 export const updateResolution = asyncHandler(async (req: Request<{ uuid: string }, {}, UpdateResolutionRequest>, res: Response<ControllerResponse>, next: NextFunction) => {
   const { resolution } = req.body
 
-  const email = req.user?.email
-
   const result = await Resolution.update({
     resolution,
-    updatedBy: email
+    ...editorTracking(req)
   },{
     where: {
       uuid: req.params.uuid
@@ -52,7 +48,7 @@ export const updateResolution = asyncHandler(async (req: Request<{ uuid: string 
   const [affectedCount] = result
 
   if(affectedCount === 0) {
-    return next(new ErrorResponse(`Could not update resolution by uuid ${ req.params.uuid }`, 500))
+    return next(new ErrorResponse(`Unable to update resolution by uuid ${ req.params.uuid }`, 500))
   }
 
   res.status(200).json({

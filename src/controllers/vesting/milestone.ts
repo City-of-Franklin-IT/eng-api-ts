@@ -1,5 +1,6 @@
 import asyncHandler from '@middleware/async'
 import { ErrorResponse } from '@utils/errorResponse'
+import editorTracking from '@utils/editorTracking'
 import { Milestone, MilestoneStatus } from '@models/vesting'
 
 // Types
@@ -15,14 +16,11 @@ import { CreateMilestoneRequest, UpdateMilestoneRequest, UpdateMilestoneStatusRe
 export const createMilestone = asyncHandler(async (req: Request<{}, {}, CreateMilestoneRequest>, res: Response<ControllerResponse>, next: NextFunction) => {
   const { number, date, parentId } = req.body
 
-  const email = req.user?.email
-
   const milestone = await Milestone.create({
     number,
     date,
     parentId,
-    createdBy: email,
-    updatedBy: email
+    ...editorTracking(req)
   }) as Model<MilestoneInterface> & MilestoneInterface
 
   if(!milestone) {
@@ -33,8 +31,7 @@ export const createMilestone = asyncHandler(async (req: Request<{}, {}, CreateMi
 
   await MilestoneStatus.create({ // Create milestone status
     parentId: uuid,
-    createdBy: email,
-    updatedBy: email
+    ...editorTracking(req)
   })
 
   res.status(201).json({
@@ -49,11 +46,9 @@ export const createMilestone = asyncHandler(async (req: Request<{}, {}, CreateMi
 export const updateMilestone = asyncHandler(async (req: Request<{ uuid: string }, {}, UpdateMilestoneRequest>, res: Response<ControllerResponse>, next: NextFunction) => {
   const { date } = req.body
 
-  const email = req.user?.email
-
   const milestone = await Milestone.update({
     date,
-    updatedBy: email
+    ...editorTracking(req)
   },{
     where: {
       uuid: req.params.uuid
@@ -78,12 +73,10 @@ export const updateMilestone = asyncHandler(async (req: Request<{ uuid: string }
 export const updateMilestoneStatus = asyncHandler(async (req: Request<{ uuid: string }, {}, UpdateMilestoneStatusRequest>, res: Response<ControllerResponse>, next: NextFunction) => {
   const { achieved, expired } = req.body
 
-  const email = req.user?.email
-
   const status = await MilestoneStatus.update({
     achieved,
     expired,
-    updatedBy: email
+    ...editorTracking(req)
   },{
     where: {
       uuid: req.params.uuid

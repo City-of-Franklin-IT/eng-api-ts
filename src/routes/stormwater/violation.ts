@@ -1,10 +1,10 @@
 import { Router } from 'express'
-import { createViolation, getViolations, getViolation, updateViolation, deleteViolation } from '@controllers/stormwater/constructionViolations'
-import { protect } from '@middleware/auth'
+import { createViolation, getViolations, getViolation, updateViolation, deleteViolation } from '@controllers/stormwater/constructionViolation'
+import { entra } from '@middleware/auth'
 
 const router = Router()
 
-router.use(protect)
+router.use(entra)
 
 router
   .route('/')

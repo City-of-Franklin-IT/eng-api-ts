@@ -1,5 +1,6 @@
 import asyncHandler from '@middleware/async'
 import { ErrorResponse } from '@utils/errorResponse'
+import editorTracking from '@utils/editorTracking'
 import { Update } from '@models/cip'
 
 // Types
@@ -15,17 +16,14 @@ import { CreateProjectUpdateRequest, UpdateProjectUpdateRequest } from './types'
 export const createUpdate = asyncHandler(async (req: Request<{}, {}, CreateProjectUpdateRequest>, res: Response<ControllerResponse>, next: NextFunction) => {
   const { projectUpdate, parentId } = req.body
 
-  const email = req.user?.email
-
   const update = await Update.create({
     projectUpdate,
     parentId,
-    createdBy: email,
-    updatedBy: email
+    ...editorTracking(req)
   }) as Model<UpdateInterface>
 
   if(!update) {
-    return next(new ErrorResponse('Could not create project update', 500))
+    return next(new ErrorResponse('Unable to create project update', 500))
   }
 
   res.status(200).json({
@@ -40,11 +38,9 @@ export const createUpdate = asyncHandler(async (req: Request<{}, {}, CreateProje
 export const updateUpdate = asyncHandler(async (req: Request<{ uuid: string }, {}, UpdateProjectUpdateRequest>, res: Response<ControllerResponse>, next: NextFunction) => {
   const { projectUpdate } = req.body
 
-  const email = req.user?.email
-
   const update = await Update.update({
     projectUpdate,
-    updatedBy: email
+    ...editorTracking(req)
   },{
     where: {
       uuid: req.params.uuid
@@ -52,7 +48,7 @@ export const updateUpdate = asyncHandler(async (req: Request<{ uuid: string }, {
   })
 
   if(!update) {
-    return next(new ErrorResponse(`Could not update project update by uuid ${ req.params.uuid }`, 500))
+    return next(new ErrorResponse(`Unable to update project update by uuid ${ req.params.uuid }`, 500))
   }
 
   res.status(200).json({
@@ -65,11 +61,15 @@ export const updateUpdate = asyncHandler(async (req: Request<{ uuid: string }, {
 //@route   DELETE /api/v1/eng/cip/updates/:uuid
 //@access  Private
 export const deleteUpdate = asyncHandler(async (req: Request<{ uuid: string }>, res: Response<ControllerResponse>, next: NextFunction) => {
-  await Update.destroy({
+  const result = await Update.destroy({
     where: {
       uuid: req.params.uuid
     }
   })
+
+  if(result === 0) {
+    return next(new ErrorResponse(`Unable to delete project update by uuid ${ req.params.uuid }`, 500))
+  }
 
   res.status(200).json({
     success: true,

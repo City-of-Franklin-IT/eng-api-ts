@@ -2,6 +2,7 @@ import { v4 as uuidv4 } from 'uuid'
 import { Op } from 'sequelize'
 import asyncHandler from '@middleware/async'
 import { ErrorResponse } from '@utils/errorResponse'
+import editorTracking from '@utils/editorTracking'
 import { Inspector, Site, Complaint, SiteContact, Contact, Log, ConstructionViolation, FollowUpDate, IllicitDischarge } from '@models/stormwater'
 import { emailInspector, inspectorLookup } from '@utils/automatedEmails/emailInspector'
 
@@ -20,8 +21,6 @@ export const createSite = asyncHandler(async (req: Request<{}, {}, CreateSiteReq
 
   const production = process.env.NODE_ENV === 'production'
 
-  const email = req.user?.email
-
   const site = await Site.create({
     siteId: `site-${ uuidv4() }`,
     inspectorId,
@@ -34,8 +33,7 @@ export const createSite = asyncHandler(async (req: Request<{}, {}, CreateSiteReq
     cof,
     tnq,
     greenInfrastructure,
-    createdBy: email,
-    updatedBy: email
+    ...editorTracking(req)
   }) as Model<SiteInterface> & SiteInterface
 
   if(!site) {
@@ -176,8 +174,6 @@ export const updateSite = asyncHandler(async (req: Request<{ uuid: string }, {},
 
   const production = process.env.NODE_ENV === 'production'
 
-  const email = req.user?.email
-
   const inspector = await inspectorLookup(req.params.uuid, Site, inspectorId)
 
   const site = await Site.update({
@@ -192,7 +188,7 @@ export const updateSite = asyncHandler(async (req: Request<{ uuid: string }, {},
     tnq,
     greenInfrastructure,
     inactive,
-    updatedBy: email,
+    ...editorTracking(req)
   },{
     where: {
       uuid: req.params.uuid

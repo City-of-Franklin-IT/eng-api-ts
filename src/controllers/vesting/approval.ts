@@ -1,5 +1,6 @@
 import asyncHandler from '@middleware/async'
 import { ErrorResponse } from '@utils/errorResponse'
+import editorTracking from '@utils/editorTracking'
 import { Approval } from '@models/vesting'
 
 // Types
@@ -13,14 +14,11 @@ import { CreateApprovalRequest, UpdateApprovalRequest } from './types'
 export const createApproval = asyncHandler(async (req: Request<{}, {}, CreateApprovalRequest>, res: Response<ControllerResponse>, next: NextFunction) => {
   const { date, approvedBy, parentId } = req.body
 
-  const email = req.user?.email
-
   const approval = await Approval.create({
     date,
     approvedBy,
     parentId,
-    createdBy: email,
-    updatedBy: email
+    ...editorTracking(req)
   })
 
   if(!approval) {
@@ -39,12 +37,10 @@ export const createApproval = asyncHandler(async (req: Request<{}, {}, CreateApp
 export const updateApproval = asyncHandler(async (req: Request<{ uuid: string }, {}, UpdateApprovalRequest>, res: Response<ControllerResponse>, next: NextFunction) => {
   const { date, approvedBy } = req.body
 
-  const email = req.user?.email
-
   const approval = await Approval.update({
     date,
     approvedBy,
-    updatedBy: email
+    ...editorTracking(req)
   },{
     where: {
       uuid: req.params.uuid

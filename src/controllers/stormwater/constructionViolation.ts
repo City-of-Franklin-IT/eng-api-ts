@@ -1,6 +1,7 @@
 import { v4 as uuidv4 } from 'uuid'
 import asyncHandler from '@middleware/async'
 import { ErrorResponse } from '@utils/errorResponse'
+import editorTracking from '@utils/editorTracking'
 import { ConstructionViolation, Site, FollowUpDate } from '@models/stormwater'
 
 // Types
@@ -16,16 +17,13 @@ import { CreateConstructionViolationRequest, CreateConstructionViolationResponse
 export const createViolation = asyncHandler(async (req: Request<{}, {}, CreateConstructionViolationRequest>, res: Response<CreateConstructionViolationResponse>, next: NextFunction) => {
   const { date, siteId, details, complaintId } = req.body
 
-  const email = req.user?.email
-
   const violation = await ConstructionViolation.create({
     violationId: `violation-${ uuidv4() }`,
     date,
     siteId,
     details,
     complaintId,
-    createdBy: email,
-    updatedBy: email
+    ...editorTracking(req)
   }) as Model<ConstructionViolationInterface> & ConstructionViolationInterface
   
   if(!violation) {
@@ -43,14 +41,13 @@ export const createViolation = asyncHandler(async (req: Request<{}, {}, CreateCo
 // @route   GET /api/v1/stormwater/violations
 // @access  Private
 export const getViolations = asyncHandler(async (req: Request, res: Response<GetConstructionViolationsResponse>, next: NextFunction) => {
-
   const violations = await ConstructionViolation.findAll({
     order: [[Site, 'name', 'asc'], [FollowUpDate, 'followUpDate', 'desc']],
     include: [
       { model: Site }, 
       { model: FollowUpDate }
     ]
-  }) as Model<ConstructionViolationInterface>[] & ConstructionViolationInterface
+  }) as (Model<ConstructionViolationInterface> & ConstructionViolationInterface)[]
 
   res.status(200).json({
     success: true,
@@ -86,22 +83,20 @@ export const getViolation = asyncHandler(async (req: Request<{ uuid: string }>, 
 export const updateViolation = asyncHandler(async (req: Request<{ uuid: string }, {}, UpdateConstructionViolationRequest>, res: Response<UpdateConstructionViolationResponse>, next: NextFunction) => {
   const { date, siteId, details, enforcementAction, penaltyDate, penaltyAmount, penaltyDueDate, paymentReceived, swoDate, swoLiftedDate, compliance, closed } = req.body
 
-  const email = req.user?.email
-
   const violation = await ConstructionViolation.update({
     date,
     siteId,
     details,
     enforcementAction,
-    penaltyDate: penaltyDate ?? null,
+    penaltyDate: penaltyDate,
     penaltyAmount,
-    penaltyDueDate: penaltyDueDate ?? null,
-    paymentReceived: paymentReceived ?? null,
-    swoDate: swoDate ?? null,
-    swoLiftedDate: swoLiftedDate ?? null,
+    penaltyDueDate: penaltyDueDate,
+    paymentReceived: paymentReceived,
+    swoDate: swoDate,
+    swoLiftedDate: swoLiftedDate,
     compliance,
     closed,
-    updatedBy: email,
+    ...editorTracking(req)
   },
   {
     where: {

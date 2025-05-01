@@ -1,10 +1,10 @@
 import { Router } from 'express'
-import { createSiteContact, deleteSiteContacts } from '@controllers/stormwater/siteContacts'
-import { protect } from '@middleware/auth'
+import { createSiteContact, deleteSiteContacts } from '@controllers/stormwater/siteContact'
+import { entra } from '@middleware/auth'
 
 const router = Router()
 
-router.use(protect)
+router.use(entra)
 
 router
   .route('/')

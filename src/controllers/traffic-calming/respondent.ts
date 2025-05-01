@@ -3,6 +3,7 @@ import { Op } from 'sequelize'
 import asyncHandler from '@middleware/async'
 import { ErrorResponse } from '@utils/errorResponse'
 import createShortId from '@utils/createShortId'
+import editorTracking from '@utils/editorTracking'
 import { InforAddress } from '@models/infor'
 import { Petition, Respondent, Response as PetitionResponse, Attachment } from '@models/traffic-calming'
 
@@ -20,13 +21,11 @@ import { CreateRespondentsRequest, UpdateRespondentRequest, VerifyRespondentResp
 export const createRespondents = asyncHandler(async (req: Request<{}, {}, CreateRespondentsRequest[]>, res: Response<ControllerResponse>, next: NextFunction) => {
   const newRespondents = req.body
 
-  const email = req.user?.email
-
   Promise.all(
     newRespondents.map(async respondent => {
     const { name, address, ownerAddress, ownerCity, ownerState, ownerZIP, parentId } = respondent
 
-    const result = await Respondent.create({
+    await Respondent.create({
       name,
       address,
       ownerAddress,
@@ -35,13 +34,8 @@ export const createRespondents = asyncHandler(async (req: Request<{}, {}, Create
       ownerZIP,
       shortId: createShortId(),
       parentId,
-      createdBy: email,
-      updatedBy: email
+      ...editorTracking(req)
     })
-
-    if(!result) {
-      return next(new ErrorResponse('Error creating petition respondent', 500))
-    }
   }))
 
   res.status(201).json({
@@ -56,8 +50,6 @@ export const createRespondents = asyncHandler(async (req: Request<{}, {}, Create
 export const updateRespondent = asyncHandler(async (req: Request<{ uuid: string }, {}, UpdateRespondentRequest>, res: Response<ControllerResponse>, next: NextFunction) => {
   const { name, address, ownerAddress, ownerCity, ownerState, ownerZIP } = req.body
 
-  const email = req.user?.email
-
   const respondent = await Respondent.update({
     name,
     address,
@@ -65,7 +57,7 @@ export const updateRespondent = asyncHandler(async (req: Request<{ uuid: string 
     ownerCity,
     ownerState,
     ownerZIP,
-    updatedBy: email
+    ...editorTracking(req)
   },{
     where: {
       uuid: req.params.uuid
@@ -184,22 +176,18 @@ export const downloadTemplate = asyncHandler(async (req: Request, res: Response<
 //@route   POST /api/v1/eng/traffic-calming/respondent/search
 //@access  Private
 export const getRespondentsByADDRKEY = asyncHandler(async (req: Request<{}, {}, GetRespondentsByADDRKEYRequest>, res: Response<GetRespondentsByADDRKEYResponse>, next: NextFunction) => {
-  try {
-    const { addrkeys } = req.body
+  const { addrkeys } = req.body
 
-    const results = await InforAddress.findAll({ // Query Infor db
-      where: {
-        addrkey: {
-          [Op.in]: addrkeys
-        }
+  const results = await InforAddress.findAll({ // Query Infor db
+    where: {
+      addrkey: {
+        [Op.in]: addrkeys
       }
-    }) as (Model<InforAddressInterface> & InforAddressInterface)[]
-  
-    res.status(200).json({
-      success: true,
-      data: results
-    })
-  } catch(err) {
-    console.log(err)
-  }
+    }
+  }) as (Model<InforAddressInterface> & InforAddressInterface)[]
+
+  res.status(200).json({
+    success: true,
+    data: results
+  })
 })

@@ -1,6 +1,7 @@
 import { v4 as uuidv4 } from 'uuid'
 import asyncHandler from '@middleware/async'
 import { ErrorResponse } from '@utils/errorResponse'
+import editorTracking from '@utils/editorTracking'
 import { FollowUpDate } from '@models/stormwater'
 
 // Types
@@ -16,8 +17,6 @@ import { CreateFollowUpDateRequest, CreateFollowUpDateResponse, UpdateFollowUpDa
 export const createFollowUpDate = asyncHandler(async (req: Request<{}, {}, CreateFollowUpDateRequest>, res: Response<CreateFollowUpDateResponse>, next: NextFunction) => {
   const { parentId, followUpDate } = req.body
 
-  const email = req.user?.email
-
   const type = parentId.split('-')[0]
 
   const date = await FollowUpDate.create({
@@ -27,8 +26,7 @@ export const createFollowUpDate = asyncHandler(async (req: Request<{}, {}, Creat
     illicitId: type === 'illicit' ? parentId : null,
     greenId: type === 'green' ? parentId : null,
     followUpDate,
-    createdBy: email,
-    updatedBy: email,
+    ...editorTracking(req)
   }) as Model<FollowUpDateInterface> & FollowUpDateInterface
 
   if(!date) {
@@ -48,11 +46,9 @@ export const createFollowUpDate = asyncHandler(async (req: Request<{}, {}, Creat
 export const updateFollowUpDate = asyncHandler(async (req: Request<{ uuid: string }, {}, UpdateFollowUpDateRequest>, res: Response<UpdateFollowUpDateResponse>, next: NextFunction) => {
   const { followUpDate } = req.body
 
-  const email = req.user?.email
-
   const date = await FollowUpDate.update({
     followUpDate,
-    updatedBy: email
+    ...editorTracking(req)
   },{
     where: {
       uuid: req.params.uuid
