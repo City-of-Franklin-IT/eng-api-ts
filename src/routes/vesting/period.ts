@@ -1,5 +1,5 @@
 import { Router } from 'express'
-import { createVestingPeriod, updatePeriod, deleteVestingPeriod, updateVestingStatus } from '@controllers/vesting/vestingPeriod'
+import { createVestingPeriod, updateVestingPeriod, deleteVestingPeriod, updateVestingStatus } from '@controllers/vesting/vestingPeriod'
 import { entra } from '@middleware/auth'
 
 const router = Router()
@@ -12,7 +12,7 @@ router
 
 router
   .route('/:uuid')
-  .put(updatePeriod)
+  .put(updateVestingPeriod)
   .delete(deleteVestingPeriod)
 
 router

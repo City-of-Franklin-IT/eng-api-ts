@@ -5,10 +5,8 @@ import { VestingExtension } from '@models/vesting'
 
 // Types
 import { Request, Response, NextFunction } from 'express'
-import { Model } from 'sequelize'
 import { ControllerResponse } from '@controllers/types'
-import { CreateVestingExtensionRequest, UpdateVestingExtensionRequest, UpdateVestingExtensionResponse } from './types'
-import { VestingExtensionInterface } from '@models/vesting/types'
+import { CreateVestingExtensionRequest, UpdateVestingExtensionRequest } from './types'
 
 //@desc    Create vesting extension
 //@route   POST /api/v2/eng/vesting/vesting-extension
@@ -35,31 +33,27 @@ export const createVestingExtension = asyncHandler(async (req: Request<{}, {}, C
 //@desc    Update vesting extension
 //@route   PUT /api/v2/eng/vesting/vesting-extension/:uuid
 //@access  Private
-export const updateVestingExtension = asyncHandler(async (req: Request<{ uuid: string }, {}, UpdateVestingExtensionRequest>, res: Response<UpdateVestingExtensionResponse>, next: NextFunction) => {
+export const updateVestingExtension = asyncHandler(async (req: Request<{ uuid: string }, {}, UpdateVestingExtensionRequest>, res: Response<ControllerResponse>, next: NextFunction) => {
   const { date } = req.body
 
-  const extension = await VestingExtension.update({
+  const result = await VestingExtension.update({
     date,
     ...editorTracking(req)
   },{
     where: {
       uuid: req.params.uuid
-    },
-    returning: true
+    }
   })
 
-  const [affectedCount, affectedRows] = extension
+  const [affectedCount] = result
 
   if(affectedCount === 0) {
     return next(new ErrorResponse(`Unable to update vesting extension by uuid ${ req.params.uuid }`, 500))
   }
 
-  const data = (affectedRows as (Model<VestingExtensionInterface> & VestingExtensionInterface)[])[0]
-
   res.status(200).json({
     success: true,
-    msg: "Vesting Extension Updated",
-    data
+    msg: "Vesting Extension Updated"
   })
 })
 

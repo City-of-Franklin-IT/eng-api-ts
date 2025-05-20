@@ -3,7 +3,6 @@ dotenv.config({ path: 'config/config.env' })
 
 // Types
 import { Sequelize, Model, DataTypes, ModelStatic } from 'sequelize'
-import AttachmentModel from './Attachment'
 import ComplaintModel from './Complaint'
 import ConstructionViolationModel from './ConstructionViolation'
 import ContactModel from './Contact'
@@ -25,7 +24,6 @@ const cfg = config as ConfigInterface
 
 const db = {
   sequelize: {} as Sequelize,
-  Attachment: {} as ModelStatic<Model<AttachmentInterface, AttachmentCreationAttributes>>,
   Complaint: {} as ModelStatic<Model<ComplaintInterface, ComplaintCreationAttributes>>,
   ConstructionViolation: {} as ModelStatic<Model<ConstructionViolationInterface, ConstructionViolationCreationAttributes>>,
   Contact: {} as ModelStatic<Model<ContactInterface, ContactCreationAttributes>>,
@@ -42,7 +40,6 @@ const dbPath: DBPathInterface = cfg[env].databases['stormwater']
 
 db.sequelize = new Sequelize(dbPath.database, dbPath.username, dbPath.password, dbPath)
 
-db.Attachment = AttachmentModel(db.sequelize, DataTypes)
 db.Complaint = ComplaintModel(db.sequelize, DataTypes)
 db.ConstructionViolation = ConstructionViolationModel(db.sequelize, DataTypes)
 db.Contact = ContactModel(db.sequelize, DataTypes)
@@ -60,7 +57,6 @@ Object.keys(db).forEach(modelName => {
   }
 })
 
-export const Attachment = db.Attachment
 export const Complaint = db.Complaint
 export const ConstructionViolation = db.ConstructionViolation
 export const Contact = db.Contact

@@ -5,10 +5,8 @@ import { MilestoneExtension } from '@models/vesting'
 
 // Types
 import { Request, Response, NextFunction } from 'express'
-import { Model } from 'sequelize'
 import { ControllerResponse } from '@controllers/types'
-import { MilestoneExtensionInterface } from '@models/vesting/types'
-import { CreateMilestoneExtensionRequest } from './types'
+import { CreateMilestoneExtensionRequest, UpdateMilestoneExtensionRequest } from './types'
 
 //@desc    Create extension
 //@route   POST /api/v1/eng/vesting/extension
@@ -32,34 +30,30 @@ export const createMilestoneExtension = asyncHandler(async (req: Request<{}, {},
   })
 })
 
-//@desc    Update extension
-//@route   PUT /api/v1/eng/vesting/extension/:uuid
+//@desc    Update milestone extension
+//@route   PUT /api/v2/eng/vesting/extension/:uuid
 //@access  Private
-export const updateMilestoneExtension = asyncHandler(async (req: Request<{ uuid: string }>, res: Response, next: NextFunction) => {
+export const updateMilestoneExtension = asyncHandler(async (req: Request<{ uuid: string }, {}, UpdateMilestoneExtensionRequest>, res:Response<ControllerResponse>, next: NextFunction) => {
   const { date } = req.body
 
-  const extension = await MilestoneExtension.update({
+  const result = await MilestoneExtension.update({
     date,
     ...editorTracking(req)
   },{
     where: {
       uuid: req.params.uuid
-    },
-    returning: true
+    }
   })
 
-  const [affectedCount, affectedRows] = extension
+  const [affectedCount] = result
 
   if(affectedCount === 0) {
     return next(new ErrorResponse(`Unable to update milestone extension by uuid ${ req.params.uuid }`, 500))
   }
 
-  const data = (affectedRows as (Model<MilestoneExtensionInterface> & MilestoneExtensionInterface)[])[0]
-
   res.status(200).json({
     success: true,
-    msg: "Milestone Extension Updated",
-    data
+    msg: "Milestone Extension Updated"
   })
 })
 

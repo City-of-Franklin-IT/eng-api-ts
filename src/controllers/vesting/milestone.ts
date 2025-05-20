@@ -8,7 +8,7 @@ import { Request, Response, NextFunction } from 'express'
 import { Model } from 'sequelize'
 import { ControllerResponse } from '@controllers/types'
 import { MilestoneInterface } from '@models/vesting/types'
-import { CreateMilestoneRequest, UpdateMilestoneRequest, UpdateMilestoneStatusRequest } from './types'
+import { CreateMilestoneRequest, UpdateMilestoneStatusRequest, UpdateMilestoneRequest } from './types'
 
 //@desc    Create milestone
 //@route   POST /api/v1/eng/vesting/milestone
@@ -41,12 +41,12 @@ export const createMilestone = asyncHandler(async (req: Request<{}, {}, CreateMi
 })
 
 //@desc    Update milestone
-//@route   PUT /api/v1/eng/vesting/milestone/:uuid
+//@route   PUT /api/v2/eng/vesting/milestone/:uuid
 //@access  Private
 export const updateMilestone = asyncHandler(async (req: Request<{ uuid: string }, {}, UpdateMilestoneRequest>, res: Response<ControllerResponse>, next: NextFunction) => {
   const { date } = req.body
 
-  const milestone = await Milestone.update({
+  const result = await Milestone.update({
     date,
     ...editorTracking(req)
   },{
@@ -54,11 +54,11 @@ export const updateMilestone = asyncHandler(async (req: Request<{ uuid: string }
       uuid: req.params.uuid
     }
   })
-  
-  const [affectedCount] = milestone
+
+  const [affectedCount] = result
 
   if(affectedCount === 0) {
-    return next(new ErrorResponse(`Unable to update milestone by uuid ${ req.params.uuid }`, 500))
+    return next(new ErrorResponse(`Unable to update milestone by status ${ req.params.uuid }`, 500))
   }
 
   res.status(200).json({

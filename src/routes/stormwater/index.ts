@@ -20,14 +20,14 @@ export default (app: Express) => {
     return app.use(`${ baseURL }${ path }`, router)
   }
 
-  setURL('/complaints', complaints)
-  setURL('/contacts', contacts)
+  setURL('/complaint', complaints)
+  setURL('/contact', contacts)
   setURL('/followup', followUps)
   setURL('/greeninfrastructure', greenInfrastructure)
-  setURL('/illicitdischarges', illicitDischarges)
-  setURL('/inspectors', inspectors)
-  setURL('/logs', logs)
-  setURL('/sitecontacts', siteContacts)
-  setURL('/sites', sites)
-  setURL('/violations', violations)
+  setURL('/illicitdischarge', illicitDischarges)
+  setURL('/inspector', inspectors)
+  setURL('/log', logs)
+  setURL('/sitecontact', siteContacts)
+  setURL('/site', sites)
+  setURL('/violation', violations)
 }

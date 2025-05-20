@@ -8,10 +8,10 @@ import { Request, Response, NextFunction } from 'express'
 import { Model } from 'sequelize'
 import { ControllerResponse } from '@controllers/types'
 import { VestingPeriodInterface } from '@models/vesting/types'
-import { CreateVestingPeriodRequest, UpdateVestingPeriodRequest, UpdateVestingStatusRequest } from './types'
+import { CreateVestingPeriodRequest, UpdateVestingStatusRequest, UpdateVestingPeriodRequest } from './types'
 
 //@desc    Create vesting period
-//@route   POST /api/v1/eng/vesting/period
+//@route   POST /api/v2/eng/vesting/period
 //@access  Private
 export const createVestingPeriod = asyncHandler(async (req: Request<{}, {}, CreateVestingPeriodRequest>, res: Response<ControllerResponse>, next: NextFunction) => {
   const { type, date, parentId } = req.body
@@ -44,8 +44,36 @@ export const createVestingPeriod = asyncHandler(async (req: Request<{}, {}, Crea
   })
 })
 
+//@desc    Update vesting period
+//@route   PUT /api/v2/eng/vesting/period/:uuid
+//@access  Private
+export const updateVestingPeriod = asyncHandler(async (req: Request<{ uuid: string }, {}, UpdateVestingPeriodRequest>, res: Response<ControllerResponse>, next: NextFunction) => {
+  const { date } = req.body
+
+  const result = await VestingPeriod.update({
+    date,
+    ...editorTracking(req)
+  },
+  {
+    where: {
+      uuid: req.params.uuid
+    }
+  })
+
+  const [affectedCount] = result
+
+  if(affectedCount === 0) {
+    return next(new ErrorResponse(`Unable to update vesting period by uuid ${ req.params.uuid }`, 500))
+  }
+
+  res.status(200).json({
+    success: true,
+    msg: "Vesting Period Updated"
+  })
+})
+
 //@desc    Delete vesting period
-//@route   DELETE /api/v1/eng/vesting/period/:uuid
+//@route   DELETE /api/v2/eng/vesting/period/:uuid
 //@access  Private
 export const deleteVestingPeriod = asyncHandler(async (req: Request<{ uuid: string }>, res: Response<ControllerResponse>, next: NextFunction) => {
   const result = await VestingPeriod.destroy({
@@ -61,34 +89,6 @@ export const deleteVestingPeriod = asyncHandler(async (req: Request<{ uuid: stri
   res.status(200).json({
     success: true,
     msg: "Vesting Period Deleted"
-  })
-})
-
-//@desc    Update vesting period
-//@route   PUT /api/v1/eng/vesting/period/:uuid
-//@access  Private
-export const updatePeriod = asyncHandler(async (req: Request<{ uuid: string }, {}, UpdateVestingPeriodRequest>, res: Response<ControllerResponse>, next: NextFunction) => {
-  const { type, date } = req.body
-
-  const result = await VestingPeriod.update({
-    type,
-    date,
-    ...editorTracking(req)
-  },{
-    where: {
-      uuid: req.params.uuid
-    }
-  })
-
-  const [affectedCount] = result
-
-  if(affectedCount === 0) {
-    return next(new ErrorResponse(`Unable to update vesting period by uuid ${ req.params.uuid }`, 500))
-  }
-
-  res.status(200).json({
-    success: true,
-    msg: "Vesting Period Updated"
   })
 })
 

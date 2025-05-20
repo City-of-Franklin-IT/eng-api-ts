@@ -20,6 +20,10 @@ export interface CreateMilestoneExtensionRequest {
   parentId: string
 }
 
+export interface UpdateMilestoneExtensionRequest {
+  date: string
+}
+
 export interface UpdateExtensionRequest {
   date: string
 }
@@ -60,7 +64,6 @@ export interface CreateVestingPeriodRequest {
 }
 
 export interface UpdateVestingPeriodRequest {
-  type: "10Y" | "15Y"
   date: string
 }
 

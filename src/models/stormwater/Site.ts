@@ -25,14 +25,13 @@ export default (sequelize: Sequelize, dataTypes: typeof DataTypes) => {
     declare updatedBy: string
     declare updatedAt: Date
 
-    static associate({ Log, ConstructionViolation, Complaint, IllicitDischarge, SiteContact, Inspector, Attachment }: { Log: ModelStatic<Model<LogInterface, LogCreationAttributes>>, ConstructionViolation: ModelStatic<Model<ConstructionViolationInterface, ConstructionViolationCreationAttributes>>, Complaint: ModelStatic<Model<ComplaintInterface, ComplaintCreationAttributes>>, IllicitDischarge: ModelStatic<Model<IllicitDischargeInterface, IllicitDischargeCreationAttributes>>, SiteContact: ModelStatic<Model<SiteContactInterface, SiteContactCreationAttributes>>, Inspector: ModelStatic<Model<InspectorInterface, InspectorCreationAttributes>>, Attachment: ModelStatic<Model<AttachmentInterface, AttachmentCreationAttributes>> }) {
+    static associate({ Log, ConstructionViolation, Complaint, IllicitDischarge, SiteContact, Inspector }: { Log: ModelStatic<Model<LogInterface, LogCreationAttributes>>, ConstructionViolation: ModelStatic<Model<ConstructionViolationInterface, ConstructionViolationCreationAttributes>>, Complaint: ModelStatic<Model<ComplaintInterface, ComplaintCreationAttributes>>, IllicitDischarge: ModelStatic<Model<IllicitDischargeInterface, IllicitDischargeCreationAttributes>>, SiteContact: ModelStatic<Model<SiteContactInterface, SiteContactCreationAttributes>>, Inspector: ModelStatic<Model<InspectorInterface, InspectorCreationAttributes>> }) {
       this.hasMany(Log, { sourceKey: 'siteId', foreignKey: 'siteId' })
       this.hasMany(ConstructionViolation, { sourceKey: 'siteId', foreignKey: 'siteId' })
       this.hasMany(Complaint, { sourceKey: 'siteId', foreignKey: 'siteId' })
       this.hasMany(IllicitDischarge, { sourceKey: 'siteId', foreignKey: 'siteId' })
       this.hasMany(SiteContact, { sourceKey: 'siteId', foreignKey: 'siteId' })
       this.hasOne(Inspector, { sourceKey: 'inspectorId', foreignKey: 'inspectorId' })
-      this.hasMany(Attachment, { sourceKey: 'uuid', foreignKey: 'parentId' })
     }
 
     toJSON() {

@@ -55,9 +55,8 @@ export const getProject = asyncHandler(async (req: Request<{ uuid: string }>, re
       uuid: req.params.uuid
     },
     order: [
+      [Approval, 'date', 'asc'], 
       [Milestone, 'number', 'asc'], 
-      [Milestone, 'date', 'asc'], 
-      ['name', 'asc'], 
       [VestingNotification, 'date', 'desc']
     ],
     include: [
