@@ -6,12 +6,12 @@ import { Resolution } from '@models/vesting'
 // Types
 import { Request, Response, NextFunction } from 'express'
 import { ControllerResponse } from '@controllers/types'
-import { CreateResolutionRequest, UpdateResolutionRequest } from './types'
+import * as Types from '@models/vesting/types'
 
 //@desc    Create resolution
 //@route   POST /api/v1/eng/vesting/resolution
 //@access  Private
-export const createResolution = asyncHandler(async (req: Request<{}, {}, CreateResolutionRequest>, res: Response<ControllerResponse>, next: NextFunction) => {
+export const createResolution = asyncHandler(async (req: Request<{}, {}, Types.ResolutionCreationAttributes>, res: Response<ControllerResponse>, next: NextFunction) => {
   const { resolution, parentId } = req.body
 
   const result = await Resolution.create({
@@ -33,7 +33,7 @@ export const createResolution = asyncHandler(async (req: Request<{}, {}, CreateR
 //@desc    Update resolution
 //@route   PUT /api/v1/eng/vesting/resolution/:uuid
 //@access  Private
-export const updateResolution = asyncHandler(async (req: Request<{ uuid: string }, {}, UpdateResolutionRequest>, res: Response<ControllerResponse>, next: NextFunction) => {
+export const updateResolution = asyncHandler(async (req: Request<{ uuid: string }, {}, Types.ResolutionCreationAttributes>, res: Response<ControllerResponse>, next: NextFunction) => {
   const { resolution } = req.body
 
   const result = await Resolution.update({

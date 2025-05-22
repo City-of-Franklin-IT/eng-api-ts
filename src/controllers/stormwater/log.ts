@@ -7,13 +7,13 @@ import { Log } from '@models/stormwater'
 // Types
 import { Request, Response, NextFunction } from 'express'
 import { Model } from 'sequelize'
-import { LogInterface } from '@models/stormwater/types'
-import { CreateLogRequest, CreateLogResponse, GetLogResponse, UpdateLogRequest, UpdateLogResponse } from './types'
+import { ControllerResponse } from '@controllers/types'
+import * as Types from '@models/stormwater/types'
 
 // @desc    Create log
 // @route   POST /api/v1/stormwater/logs
 // @access  Private
-export const createLog = asyncHandler(async (req: Request<{}, {}, CreateLogRequest>, res: Response<CreateLogResponse>, next: NextFunction) => {
+export const createLog = asyncHandler(async (req: Request<{}, {}, Types.LogCreationAttributes>, res: Response<ControllerResponse & { data: Types.LogInterface }>, next: NextFunction) => {
   const { siteId, inspectionDate } = req.body
 
   const log = await Log.create({
@@ -21,7 +21,7 @@ export const createLog = asyncHandler(async (req: Request<{}, {}, CreateLogReque
     siteId,
     inspectionDate,
     ...editorTracking(req)
-  }) as Model<LogInterface> & LogInterface
+  }) as Model<Types.LogInterface> & Types.LogInterface
 
   if(!log) {
     return next(new ErrorResponse("Unable to create new site log", 500))
@@ -37,12 +37,12 @@ export const createLog = asyncHandler(async (req: Request<{}, {}, CreateLogReque
 //@desc    Get log
 //@route   GET /api/v1/stormwater/logs/:uuid
 //@access  Private
-export const getLog = asyncHandler(async (req: Request<{ uuid: string }>, res: Response<GetLogResponse>, next: NextFunction) => {
+export const getLog = asyncHandler(async (req: Request<{ uuid: string }>, res: Response<ControllerResponse & { data: Types.LogInterface }>, next: NextFunction) => {
   const log = await Log.findOne({
     where: {
       uuid: req.params.uuid
     }
-  }) as Model<LogInterface> & LogInterface
+  }) as Model<Types.LogInterface> & Types.LogInterface
 
   if(!log) {
     return next(new ErrorResponse(`Unable to return site log by uuid ${ req.params.uuid }`, 500))
@@ -57,7 +57,7 @@ export const getLog = asyncHandler(async (req: Request<{ uuid: string }>, res: R
 // @desc    Update log
 // @route   PUT /api/v1/stormwater/logs/:uuid
 // @access  Private
-export const updateLog = asyncHandler(async (req: Request<{ uuid: string }, {}, UpdateLogRequest>, res: Response<UpdateLogResponse>, next: NextFunction) => {
+export const updateLog = asyncHandler(async (req: Request<{ uuid: string }, {}, Types.LogCreationAttributes>, res: Response<ControllerResponse & { data: Types.LogInterface }>, next: NextFunction) => {
   const { inspectionDate } = req.body
 
   const log = await Log.update({
@@ -76,7 +76,7 @@ export const updateLog = asyncHandler(async (req: Request<{ uuid: string }, {}, 
     return next(new ErrorResponse(`Unable to update log by uuid ${ req.params.uuid }`, 500))
   }
 
-  const data = (affectedRows as (Model<LogInterface> & LogInterface)[])[0]
+  const data = (affectedRows as (Model<Types.LogInterface> & Types.LogInterface)[])[0]
 
   res.status(200).json({
     success: true,

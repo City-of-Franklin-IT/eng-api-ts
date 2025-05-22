@@ -7,13 +7,12 @@ import { Project, Approval, Resolution, VestingNotification, Milestone, Mileston
 import { Request, Response, NextFunction } from 'express'
 import { Model } from 'sequelize'
 import { ControllerResponse } from '@controllers/types'
-import { ProjectInterface } from '@models/vesting/types'
-import { GetProjectsResponse, GetProjectResponse, CreateProjectRequest, CreateProjectResponse, UpdateProjectRequest } from './types'
+import * as Types from '@models/vesting/types'
 
 //@desc    Get projects
 //@route   GET /api/v1/eng/vesting/project
 //@access  Private
-export const getProjects = asyncHandler(async (req: Request, res: Response<GetProjectsResponse>, next: NextFunction) => {
+export const getProjects = asyncHandler(async (req: Request, res: Response<ControllerResponse & { data: Types.ProjectInterface[] }>, next: NextFunction) => {
   const projects = await Project.findAll({
     order: [
       [Milestone, 'number', 'asc'], 
@@ -38,7 +37,7 @@ export const getProjects = asyncHandler(async (req: Request, res: Response<GetPr
       },
       { model: VestingNotification },
     ]
-  }) as (Model<ProjectInterface> & ProjectInterface)[]
+  }) as (Model<Types.ProjectInterface> & Types.ProjectInterface)[]
 
   res.status(200).json({
     success: true,
@@ -49,7 +48,7 @@ export const getProjects = asyncHandler(async (req: Request, res: Response<GetPr
 //@desc    Get project
 //@route   GET /api/v1/eng/vesting/project/:uuid
 //@access  Private
-export const getProject = asyncHandler(async (req: Request<{ uuid: string }>, res: Response<GetProjectResponse>, next: NextFunction) => {
+export const getProject = asyncHandler(async (req: Request<{ uuid: string }>, res: Response<ControllerResponse & { data: Types.ProjectInterface }>, next: NextFunction) => {
   const project = await Project.findOne({
     where: {
       uuid: req.params.uuid
@@ -76,7 +75,7 @@ export const getProject = asyncHandler(async (req: Request<{ uuid: string }>, re
       },
       { model: VestingNotification },
     ]
-  }) as Model<ProjectInterface> & ProjectInterface
+  }) as Model<Types.ProjectInterface> & Types.ProjectInterface
 
   if(!project) {
     return next(new ErrorResponse(`Unable to return project by uuid ${ req.params.uuid }`, 500))
@@ -91,7 +90,7 @@ export const getProject = asyncHandler(async (req: Request<{ uuid: string }>, re
 //@desc    Create project
 //@route   POST /api/v1/eng/vesting/project
 //@access  Private
-export const createProject = asyncHandler(async (req: Request<{}, {}, CreateProjectRequest>, res: Response<CreateProjectResponse>, next: NextFunction) => {
+export const createProject = asyncHandler(async (req: Request<{}, {}, Types.ProjectCreationAttributes>, res: Response<ControllerResponse & { data: Types.ProjectInterface }>, next: NextFunction) => {
   const { type, name, cof, ordinance, notes } = req.body
 
   const project = await Project.create({
@@ -101,7 +100,7 @@ export const createProject = asyncHandler(async (req: Request<{}, {}, CreateProj
     ordinance,
     notes,
     ...editorTracking(req)
-  }) as Model<ProjectInterface> & ProjectInterface
+  }) as Model<Types.ProjectInterface> & Types.ProjectInterface
 
   if(!project) {
     return next(new ErrorResponse('Unable to create new project', 500))
@@ -117,7 +116,7 @@ export const createProject = asyncHandler(async (req: Request<{}, {}, CreateProj
 //@desc    Update project
 //@route   PUT /api/v1/eng/vesting/project/:uuid
 //@access  Private
-export const updateProject = asyncHandler(async (req: Request<{ uuid: string }, {}, UpdateProjectRequest>, res: Response<ControllerResponse>, next: NextFunction) => {
+export const updateProject = asyncHandler(async (req: Request<{ uuid: string }, {}, Types.ProjectCreationAttributes>, res: Response<ControllerResponse>, next: NextFunction) => {
   const { name, cof, ordinance, expired, notes } = req.body
 
   const project = await Project.update({

@@ -6,12 +6,12 @@ import { VestingNotification } from '@models/vesting'
 // Types
 import { Request, Response, NextFunction } from 'express'
 import { ControllerResponse } from '@controllers/types'
-import { CreateNotificationRequest, UpdateNotificationRequest } from './types'
+import * as Types from '@models/vesting/types'
 
 //@desc    Create notification
 //@route   POST /api/v2/eng/vesting/notification
 //@access  Private
-export const createNotification = asyncHandler(async (req: Request<{}, {}, CreateNotificationRequest>, res: Response<ControllerResponse>, next: NextFunction) => {
+export const createNotification = asyncHandler(async (req: Request<{}, {}, Types.VestingNotificationCreationAttributes>, res: Response<ControllerResponse>, next: NextFunction) => {
   const { date, type, parentId } = req.body
 
   const notification = await VestingNotification.create({
@@ -34,7 +34,7 @@ export const createNotification = asyncHandler(async (req: Request<{}, {}, Creat
 //@desc    Update notification
 //@route   PUT /api/v2/eng/vesting/notification/:uuid
 //@access  
-export const updateNotification = asyncHandler(async (req: Request<{ uuid: string }, {}, UpdateNotificationRequest>, res: Response<ControllerResponse>, next: NextFunction) => {
+export const updateNotification = asyncHandler(async (req: Request<{ uuid: string }, {}, Types.VestingNotificationCreationAttributes>, res: Response<ControllerResponse>, next: NextFunction) => {
   const { date } = req.body
 
   const result = await VestingNotification.update({

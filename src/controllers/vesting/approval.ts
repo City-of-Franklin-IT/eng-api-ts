@@ -6,12 +6,12 @@ import { Approval } from '@models/vesting'
 // Types
 import { Request, Response, NextFunction } from 'express'
 import { ControllerResponse } from '@controllers/types'
-import { CreateApprovalRequest, UpdateApprovalRequest } from './types'
+import * as Types from '@models/vesting/types'
 
 //@desc    Create project approval
 //@route   POST /api/v2/eng/vesting/approval
 //@access  Private
-export const createApproval = asyncHandler(async (req: Request<{}, {}, CreateApprovalRequest>, res: Response<ControllerResponse>, next: NextFunction) => {
+export const createApproval = asyncHandler(async (req: Request<{}, {}, Types.ApprovalCreationAttributes>, res: Response<ControllerResponse>, next: NextFunction) => {
   const { date, approvedBy, parentId } = req.body
 
   const approval = await Approval.create({
@@ -34,7 +34,7 @@ export const createApproval = asyncHandler(async (req: Request<{}, {}, CreateApp
 //@desc    Update project approval
 //@route   PUT /api/v2/eng/vesting/approval/:uuid
 //@access  Private
-export const updateApproval = asyncHandler(async (req: Request<{ uuid: string }, {}, UpdateApprovalRequest>, res: Response<ControllerResponse>, next: NextFunction) => {
+export const updateApproval = asyncHandler(async (req: Request<{ uuid: string }, {}, Types.ApprovalCreationAttributes>, res: Response<ControllerResponse>, next: NextFunction) => {
   const { date, approvedBy } = req.body
 
   const result = await Approval.update({

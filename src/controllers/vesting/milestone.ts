@@ -7,13 +7,12 @@ import { Milestone, MilestoneStatus } from '@models/vesting'
 import { Request, Response, NextFunction } from 'express'
 import { Model } from 'sequelize'
 import { ControllerResponse } from '@controllers/types'
-import { MilestoneInterface } from '@models/vesting/types'
-import { CreateMilestoneRequest, UpdateMilestoneStatusRequest, UpdateMilestoneRequest } from './types'
+import * as Types from '@models/vesting/types'
 
 //@desc    Create milestone
 //@route   POST /api/v1/eng/vesting/milestone
 //@access  Private
-export const createMilestone = asyncHandler(async (req: Request<{}, {}, CreateMilestoneRequest>, res: Response<ControllerResponse>, next: NextFunction) => {
+export const createMilestone = asyncHandler(async (req: Request<{}, {}, Types.MilestoneCreationAttributes>, res: Response<ControllerResponse>, next: NextFunction) => {
   const { number, date, parentId } = req.body
 
   const milestone = await Milestone.create({
@@ -21,7 +20,7 @@ export const createMilestone = asyncHandler(async (req: Request<{}, {}, CreateMi
     date,
     parentId,
     ...editorTracking(req)
-  }) as Model<MilestoneInterface> & MilestoneInterface
+  }) as Model<Types.MilestoneInterface> & Types.MilestoneInterface
 
   if(!milestone) {
     return next(new ErrorResponse('Could not create new milestone', 500))
@@ -43,7 +42,7 @@ export const createMilestone = asyncHandler(async (req: Request<{}, {}, CreateMi
 //@desc    Update milestone
 //@route   PUT /api/v2/eng/vesting/milestone/:uuid
 //@access  Private
-export const updateMilestone = asyncHandler(async (req: Request<{ uuid: string }, {}, UpdateMilestoneRequest>, res: Response<ControllerResponse>, next: NextFunction) => {
+export const updateMilestone = asyncHandler(async (req: Request<{ uuid: string }, {}, Types.MilestoneCreationAttributes>, res: Response<ControllerResponse>, next: NextFunction) => {
   const { date } = req.body
 
   const result = await Milestone.update({
@@ -70,7 +69,7 @@ export const updateMilestone = asyncHandler(async (req: Request<{ uuid: string }
 //@desc    Update milestone status
 //@route   PUT /api/v1/eng/vesting/milestone/status/:uuid
 //@access  Private
-export const updateMilestoneStatus = asyncHandler(async (req: Request<{ uuid: string }, {}, UpdateMilestoneStatusRequest>, res: Response<ControllerResponse>, next: NextFunction) => {
+export const updateMilestoneStatus = asyncHandler(async (req: Request<{ uuid: string }, {}, Types.MilestoneStatusCreationAttributes>, res: Response<ControllerResponse>, next: NextFunction) => {
   const { achieved, expired } = req.body
 
   const status = await MilestoneStatus.update({

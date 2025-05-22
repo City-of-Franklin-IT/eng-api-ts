@@ -6,12 +6,12 @@ import { MilestoneExtension } from '@models/vesting'
 // Types
 import { Request, Response, NextFunction } from 'express'
 import { ControllerResponse } from '@controllers/types'
-import { CreateMilestoneExtensionRequest, UpdateMilestoneExtensionRequest } from './types'
+import * as Types from '@models/vesting/types'
 
 //@desc    Create extension
 //@route   POST /api/v1/eng/vesting/extension
 //@access  Private
-export const createMilestoneExtension = asyncHandler(async (req: Request<{}, {}, CreateMilestoneExtensionRequest>, res: Response, next: NextFunction) => {
+export const createMilestoneExtension = asyncHandler(async (req: Request<{}, {}, Types.MilestoneCreationAttributes>, res: Response, next: NextFunction) => {
   const { date, parentId } = req.body
 
   const extension = await MilestoneExtension.create({ // Create milestone extension
@@ -33,7 +33,7 @@ export const createMilestoneExtension = asyncHandler(async (req: Request<{}, {},
 //@desc    Update milestone extension
 //@route   PUT /api/v2/eng/vesting/extension/:uuid
 //@access  Private
-export const updateMilestoneExtension = asyncHandler(async (req: Request<{ uuid: string }, {}, UpdateMilestoneExtensionRequest>, res:Response<ControllerResponse>, next: NextFunction) => {
+export const updateMilestoneExtension = asyncHandler(async (req: Request<{ uuid: string }, {}, Types.MilestoneExtensionCreationAttributes>, res:Response<ControllerResponse>, next: NextFunction) => {
   const { date } = req.body
 
   const result = await MilestoneExtension.update({

@@ -7,13 +7,12 @@ import { VestingPeriod, VestingStatus } from '@models/vesting'
 import { Request, Response, NextFunction } from 'express'
 import { Model } from 'sequelize'
 import { ControllerResponse } from '@controllers/types'
-import { VestingPeriodInterface } from '@models/vesting/types'
-import { CreateVestingPeriodRequest, UpdateVestingStatusRequest, UpdateVestingPeriodRequest } from './types'
+import * as Types from '@models/vesting/types'
 
 //@desc    Create vesting period
 //@route   POST /api/v2/eng/vesting/period
 //@access  Private
-export const createVestingPeriod = asyncHandler(async (req: Request<{}, {}, CreateVestingPeriodRequest>, res: Response<ControllerResponse>, next: NextFunction) => {
+export const createVestingPeriod = asyncHandler(async (req: Request<{}, {}, Types.VestingPeriodCreationAttributes>, res: Response<ControllerResponse>, next: NextFunction) => {
   const { type, date, parentId } = req.body
 
   const result = await VestingPeriod.create({
@@ -21,7 +20,7 @@ export const createVestingPeriod = asyncHandler(async (req: Request<{}, {}, Crea
     date,
     parentId,
     ...editorTracking(req)
-  }) as Model<VestingPeriodInterface> & VestingPeriodInterface
+  }) as Model<Types.VestingPeriodInterface> & Types.VestingPeriodInterface
 
   if(!result) {
     return next(new ErrorResponse('Unable to create new vesting period', 500))
@@ -47,7 +46,7 @@ export const createVestingPeriod = asyncHandler(async (req: Request<{}, {}, Crea
 //@desc    Update vesting period
 //@route   PUT /api/v2/eng/vesting/period/:uuid
 //@access  Private
-export const updateVestingPeriod = asyncHandler(async (req: Request<{ uuid: string }, {}, UpdateVestingPeriodRequest>, res: Response<ControllerResponse>, next: NextFunction) => {
+export const updateVestingPeriod = asyncHandler(async (req: Request<{ uuid: string }, {}, Types.VestingPeriodCreationAttributes>, res: Response<ControllerResponse>, next: NextFunction) => {
   const { date } = req.body
 
   const result = await VestingPeriod.update({
@@ -95,7 +94,7 @@ export const deleteVestingPeriod = asyncHandler(async (req: Request<{ uuid: stri
 //@desc    Update vesting status
 //@route   PUT /api/v1/eng/vesting/period/status/:uuid
 //@access  Private
-export const updateVestingStatus = asyncHandler(async (req: Request<{ uuid: string }, {}, UpdateVestingStatusRequest>, res: Response<ControllerResponse>, next: NextFunction) => {
+export const updateVestingStatus = asyncHandler(async (req: Request<{ uuid: string }, {}, Types.VestingStatusCreationAttributes>, res: Response<ControllerResponse>, next: NextFunction) => {
   const { achieved, expired } = req.body
 
   const status = await VestingStatus.update({

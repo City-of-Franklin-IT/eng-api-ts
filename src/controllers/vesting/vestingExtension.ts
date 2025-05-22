@@ -6,12 +6,12 @@ import { VestingExtension } from '@models/vesting'
 // Types
 import { Request, Response, NextFunction } from 'express'
 import { ControllerResponse } from '@controllers/types'
-import { CreateVestingExtensionRequest, UpdateVestingExtensionRequest } from './types'
+import * as Types from '@models/vesting/types'
 
 //@desc    Create vesting extension
 //@route   POST /api/v2/eng/vesting/vesting-extension
 //@access  Private
-export const createVestingExtension = asyncHandler(async (req: Request<{}, {}, CreateVestingExtensionRequest>, res: Response<ControllerResponse>, next: NextFunction) => {
+export const createVestingExtension = asyncHandler(async (req: Request<{}, {}, Types.VestingExtensionCreationAttributes>, res: Response<ControllerResponse>, next: NextFunction) => {
   const { date, parentId } = req.body
 
   const extension = await VestingExtension.create({ // Create vesting extension
@@ -33,7 +33,7 @@ export const createVestingExtension = asyncHandler(async (req: Request<{}, {}, C
 //@desc    Update vesting extension
 //@route   PUT /api/v2/eng/vesting/vesting-extension/:uuid
 //@access  Private
-export const updateVestingExtension = asyncHandler(async (req: Request<{ uuid: string }, {}, UpdateVestingExtensionRequest>, res: Response<ControllerResponse>, next: NextFunction) => {
+export const updateVestingExtension = asyncHandler(async (req: Request<{ uuid: string }, {}, Types.VestingExtensionCreationAttributes>, res: Response<ControllerResponse>, next: NextFunction) => {
   const { date } = req.body
 
   const result = await VestingExtension.update({

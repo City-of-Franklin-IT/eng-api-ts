@@ -13,9 +13,9 @@ export default (sequelize: Sequelize, dataTypes: typeof DataTypes) => {
     declare isInspector: boolean
     declare uuid: string
     declare createdBy: string
-    declare createdAt: Date
+    declare createdAt: string
     declare updatedBy: string
-    declare updatedAt: Date
+    declare updatedAt: string
 
     static associate({ Contact, Site }: { Contact: ModelStatic<Model>, Site: ModelStatic<Model> }) {
       this.belongsTo(Contact, { targetKey: 'contactId', foreignKey: 'contactId' })

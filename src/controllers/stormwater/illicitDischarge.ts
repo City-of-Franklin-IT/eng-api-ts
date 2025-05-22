@@ -9,13 +9,12 @@ import editorTracking from '@utils/editorTracking'
 import { Request, Response, NextFunction } from 'express'
 import { Model } from 'sequelize'
 import { ControllerResponse } from '@controllers/types'
-import { IllicitDischargeInterface, InspectorInterface } from '@models/stormwater/types'
-import { CreateIllicitDischargeRequest, CreateIllicitDischargeResponse, GetIllicitDischargesResponse, GetIllicitDischargeResponse, UpdateIllicitDischargeRequest, UpdateIllicitDischargeResponse } from './types'
+import * as Types from '@models/stormwater/types'
 
 // @desc    Create illicit discharge
 // @route   POST /api/v1/stormwater/illicit-discharges/create
 // @access  Private
-export const createIllicitDischarge = asyncHandler(async (req: Request<{}, {}, CreateIllicitDischargeRequest>, res: Response<CreateIllicitDischargeResponse>, next: NextFunction) => {
+export const createIllicitDischarge = asyncHandler(async (req: Request<{}, {}, Types.IllicitDischargeCreationAttributes>, res: Response<ControllerResponse & { data: Types.IllicitDischargeInterface }>, next: NextFunction) => {
   const { complaintId, siteId, date, xCoordinate, yCoordinate, locationDescription, inspectorId, details, responsibleParty, volumeLost, streamWatershed, otherStreamWatershed, enforcementAction, penaltyDate, penaltyAmount, penaltyDueDate, paymentReceived } = req.body
 
   const production = process.env.NODE_ENV === 'production'
@@ -24,7 +23,7 @@ export const createIllicitDischarge = asyncHandler(async (req: Request<{}, {}, C
     illicitId: `illicit-${ uuidv4() }`,
     complaintId,
     siteId,
-    date: new Date(date),
+    date,
     xCoordinate,
     yCoordinate,
     locationDescription,
@@ -39,7 +38,7 @@ export const createIllicitDischarge = asyncHandler(async (req: Request<{}, {}, C
     penaltyDueDate,
     paymentReceived,
     ...editorTracking(req)
-  }) as Model<IllicitDischargeInterface> & IllicitDischargeInterface
+  }) as Model<Types.IllicitDischargeInterface> & Types.IllicitDischargeInterface
     
   if(!illicit) {
     return next(new ErrorResponse("Unable to create illicit discharge", 500))
@@ -51,7 +50,7 @@ export const createIllicitDischarge = asyncHandler(async (req: Request<{}, {}, C
         inspectorId
       },
       attributes: ['email']
-    }) as Model<InspectorInterface> & InspectorInterface
+    }) as Model<Types.InspectorInterface> & Types.InspectorInterface
 
     if(inspector) {
       await emailInspector(inspector.email, { uuid: illicit.uuid, details: illicit.details })
@@ -68,7 +67,7 @@ export const createIllicitDischarge = asyncHandler(async (req: Request<{}, {}, C
 // @desc    Get illicit discharges - no associated site
 // @route   GET /api/v1/stormwater/illicitdischarges
 // @access  Private
-export const getIllicitDischarges = asyncHandler(async (req: Request, res: Response<GetIllicitDischargesResponse>, next: NextFunction) => {
+export const getIllicitDischarges = asyncHandler(async (req: Request, res: Response<ControllerResponse & { data: Types.IllicitDischargeInterface[] }>, next: NextFunction) => {
   const illicitDischarges = await IllicitDischarge.findAll({
     where: {
       siteId: null
@@ -77,7 +76,7 @@ export const getIllicitDischarges = asyncHandler(async (req: Request, res: Respo
     include: [
       { model: FollowUpDate }
     ]
-  }) as (Model<IllicitDischargeInterface> & IllicitDischargeInterface)[]
+  }) as (Model<Types.IllicitDischargeInterface> & Types.IllicitDischargeInterface)[]
 
   res.status(200).json({
     success: true,
@@ -88,7 +87,7 @@ export const getIllicitDischarges = asyncHandler(async (req: Request, res: Respo
 // @desc    Get illicit discharge
 // @route   GET /api/v1/stormwater/illicit-discharges/:uuid
 // @access  Private
-export const getIllicitDischarge = asyncHandler(async (req: Request<{ uuid: string }>, res: Response<GetIllicitDischargeResponse>, next: NextFunction) => {
+export const getIllicitDischarge = asyncHandler(async (req: Request<{ uuid: string }>, res: Response<ControllerResponse & { data: Types.IllicitDischargeInterface }>, next: NextFunction) => {
   const illicit = await IllicitDischarge.findOne({
     where: {
       uuid: req.params.uuid
@@ -97,7 +96,7 @@ export const getIllicitDischarge = asyncHandler(async (req: Request<{ uuid: stri
     include: {
       model: FollowUpDate
     }
-  }) as Model<IllicitDischargeInterface>
+  }) as Model<Types.IllicitDischargeInterface> & Types.IllicitDischargeInterface
 
   if(!illicit) {
     return next(new ErrorResponse(`Unable to return illicit discharge by uuid ${ req.params.uuid }`, 500))
@@ -112,7 +111,7 @@ export const getIllicitDischarge = asyncHandler(async (req: Request<{ uuid: stri
 // @desc    Update illicit discharge
 // @route   PUT /api/v1/stormwater/illicit-discharges/:uuid
 // @access  Private
-export const updateIllicitDischarge = asyncHandler(async (req: Request<{ uuid: string },{}, UpdateIllicitDischargeRequest>, res: Response<UpdateIllicitDischargeResponse>, next: NextFunction) => {
+export const updateIllicitDischarge = asyncHandler(async (req: Request<{ uuid: string },{}, Types.IllicitDischargeCreationAttributes>, res: Response<ControllerResponse & { data: Types.IllicitDischargeInterface }>, next: NextFunction) => {
   const { date, xCoordinate, yCoordinate, locationDescription, inspectorId, details, responsibleParty, volumeLost, streamWatershed, otherStreamWatershed, enforcementAction, penaltyDate, penaltyAmount, penaltyDueDate, paymentReceived, compliance, closed } = req.body
 
   const production = process.env.NODE_ENV === 'production'
@@ -130,10 +129,10 @@ export const updateIllicitDischarge = asyncHandler(async (req: Request<{ uuid: s
     volumeLost,
     streamWatershed: otherStreamWatershed ? otherStreamWatershed : streamWatershed,
     enforcementAction,
-    penaltyDate: penaltyDate,
+    penaltyDate,
     penaltyAmount,
-    penaltyDueDate: penaltyDueDate,
-    paymentReceived: paymentReceived,
+    penaltyDueDate,
+    paymentReceived,
     compliance,
     closed,
     ...editorTracking(req)
@@ -151,7 +150,7 @@ export const updateIllicitDischarge = asyncHandler(async (req: Request<{ uuid: s
     return next(new ErrorResponse(`Unable to update illicit discharge by uuid ${ req.params.uuid }`, 500))
   }
 
-  const data = (affectedRows as (Model<IllicitDischargeInterface> & IllicitDischargeInterface)[])[0]
+  const data = (affectedRows as (Model<Types.IllicitDischargeInterface> & Types.IllicitDischargeInterface)[])[0]
 
   if(inspectorEmail && inspectorId && production) {
     await emailInspector(inspectorEmail.email, { uuid: data.uuid, illicitId: data.illicitId, details: data.details })

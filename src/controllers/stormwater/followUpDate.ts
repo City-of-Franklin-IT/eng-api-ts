@@ -8,26 +8,24 @@ import { FollowUpDate } from '@models/stormwater'
 import { Request, Response, NextFunction } from 'express'
 import { Model } from 'sequelize'
 import { ControllerResponse } from '@controllers/types'
-import { FollowUpDateInterface } from '@models/stormwater/types'
-import { CreateFollowUpDateRequest, CreateFollowUpDateResponse, UpdateFollowUpDateRequest, UpdateFollowUpDateResponse } from './types'
+import * as Types from '../../models/stormwater/types'
 
 // @desc    Create follow up date
 // @route   POST /api/v1/stormwater/followup
 // @access  Private
-export const createFollowUpDate = asyncHandler(async (req: Request<{}, {}, CreateFollowUpDateRequest>, res: Response<CreateFollowUpDateResponse>, next: NextFunction) => {
+export const createFollowUpDate = asyncHandler(async (req: Request<{}, {}, Types.FollowUpDateCreationAttributes>, res: Response<ControllerResponse & { data: Types.FollowUpDateInterface }>, next: NextFunction) => {
   const { parentId, followUpDate } = req.body
 
-  const type = parentId.split('-')[0]
+  const type = parentId?.split('-')[0]
 
   const date = await FollowUpDate.create({
     followUpId: `follow-${ uuidv4() }`,
     violationId: type === 'violation' ? parentId : null,
     complaintId: type === 'complaint' ? parentId : null,
     illicitId: type === 'illicit' ? parentId : null,
-    greenId: type === 'green' ? parentId : null,
     followUpDate,
     ...editorTracking(req)
-  }) as Model<FollowUpDateInterface> & FollowUpDateInterface
+  }) as Model<Types.FollowUpDateInterface> & Types.FollowUpDateInterface
 
   if(!date) {
     return next(new ErrorResponse("Unable to create follow up date", 500))
@@ -43,7 +41,7 @@ export const createFollowUpDate = asyncHandler(async (req: Request<{}, {}, Creat
 // @desc    Update follow up date
 // @route   PUT /api/v1/stormwater/followup/:uuid
 // @access  Private
-export const updateFollowUpDate = asyncHandler(async (req: Request<{ uuid: string }, {}, UpdateFollowUpDateRequest>, res: Response<UpdateFollowUpDateResponse>, next: NextFunction) => {
+export const updateFollowUpDate = asyncHandler(async (req: Request<{ uuid: string }, {}, Types.FollowUpDateCreationAttributes>, res: Response<ControllerResponse & { data: Types.FollowUpDateInterface }>, next: NextFunction) => {
   const { followUpDate } = req.body
 
   const date = await FollowUpDate.update({
@@ -62,7 +60,7 @@ export const updateFollowUpDate = asyncHandler(async (req: Request<{ uuid: strin
     return next(new ErrorResponse(`Unable to update follow up date by uuid ${ req.params.uuid }`, 500))
   }
 
-  const data = (affectedRows as (Model<FollowUpDateInterface> & FollowUpDateInterface)[])[0]
+  const data = (affectedRows as (Model<Types.FollowUpDateInterface> & Types.FollowUpDateInterface)[])[0]
 
   res.status(200).json({
     success: true,

@@ -10,16 +10,13 @@ import { emailInspector, inspectorLookup } from '@utils/automatedEmails/emailIns
 import { Request, Response, NextFunction } from 'express'
 import { Model } from 'sequelize'
 import { ControllerResponse } from '@controllers/types'
-import { InspectorInterface, SiteInterface } from '@models/stormwater/types'
-import { CreateSiteRequest, CreateSiteResponse, GetSitesResponse, GetSiteResponse, UpdateSiteRequest, UpdateSiteResponse, GetActiveSitesResponse } from './types'
+import * as Types from '@models/stormwater/types'
 
 // @desc    Create site
 // @route   POST /api/v1/stormwater/sites
 // @access  Private
-export const createSite = asyncHandler(async (req: Request<{}, {}, CreateSiteRequest>, res: Response<CreateSiteResponse>, next: NextFunction) => {
+export const createSite = asyncHandler(async (req: Request<{}, {}, Types.SiteCreationAttributes>, res: Response<ControllerResponse & { data: Types.SiteInterface }>, next: NextFunction) => {
   const { inspectorId, name, preconDate, location, xCoordinate, yCoordinate, permit, cof, tnq, greenInfrastructure } = req.body
-
-  const production = process.env.NODE_ENV === 'production'
 
   const site = await Site.create({
     siteId: `site-${ uuidv4() }`,
@@ -34,24 +31,11 @@ export const createSite = asyncHandler(async (req: Request<{}, {}, CreateSiteReq
     tnq,
     greenInfrastructure,
     ...editorTracking(req)
-  }) as Model<SiteInterface> & SiteInterface
+  }) as Model<Types.SiteInterface> & Types.SiteInterface
 
   if(!site) {
     return next(new ErrorResponse("Unable to create site", 500))
   }
-
-  // if(inspectorId && production) { // If inspector assigned and in production - email inspector
-  //   const inspector = await Inspector.findOne({
-  //     where: {
-  //       inspectorId
-  //     },
-  //     attributes: ['email']
-  //   }) as Model<InspectorInterface> & InspectorInterface
-
-  //   if(inspector) {
-  //     await emailInspector(inspector.email, { uuid: site.uuid, name: site.name })
-  //   }
-  // }
 
   res.status(201).json({
     success: true,
@@ -63,7 +47,7 @@ export const createSite = asyncHandler(async (req: Request<{}, {}, CreateSiteReq
 // @desc    Get sites
 // @route   GET /api/v1/stormwater/sites
 // @access  Private
-export const getSites = asyncHandler(async (req: Request, res: Response<GetSitesResponse>, next: NextFunction) => {
+export const getSites = asyncHandler(async (req: Request, res: Response<ControllerResponse & { data: Types.SiteInterface[] }>, next: NextFunction) => {
   const results = await Site.findAll({
     order: [
       ['name', 'asc'], 
@@ -92,7 +76,7 @@ export const getSites = asyncHandler(async (req: Request, res: Response<GetSites
         include: [{ model: FollowUpDate }]
       }
     ]
-  }) as Model<SiteInterface>[] & SiteInterface
+  }) as Model<Types.SiteInterface>[] & Types.SiteInterface
 
   const sites = results.map(result => {
     const site = result.toJSON()
@@ -106,7 +90,7 @@ export const getSites = asyncHandler(async (req: Request, res: Response<GetSites
       hasOpenViolation: openViolations,
       hasOpenComplaint: openComplaints,
       hasOpenIllicitDischarge: openIllicitDischarges
-    } as Model<SiteInterface> & SiteInterface
+    } as Model<Types.SiteInterface> & Types.SiteInterface
   })
 
   res.status(200).json({
@@ -118,7 +102,7 @@ export const getSites = asyncHandler(async (req: Request, res: Response<GetSites
 // @desc    Get site
 // @route   GET /api/v1/stormwater/sites/:uuid
 // @access  Private
-export const getSite = asyncHandler(async (req: Request<{ uuid: string }>, res: Response<GetSiteResponse>, next: NextFunction) => {
+export const getSite = asyncHandler(async (req: Request<{ uuid: string }>, res: Response<ControllerResponse & { data: Types.SiteInterface }>, next: NextFunction) => {
   const site = await Site.findOne({
     where: {
       uuid: req.params.uuid
@@ -150,7 +134,7 @@ export const getSite = asyncHandler(async (req: Request<{ uuid: string }>, res: 
         include: [{ model: FollowUpDate }]
       }
     ]
-  }) as Model<SiteInterface> & SiteInterface
+  }) as Model<Types.SiteInterface> & Types.SiteInterface
 
   if(!site) {
     return next(new ErrorResponse(`Unable to return site by uuid ${ req.params.uuid }`, 500))
@@ -169,7 +153,7 @@ export const getSite = asyncHandler(async (req: Request<{ uuid: string }>, res: 
 // @desc    Update site
 // @route   PUT /api/v1/stormwater/sites/:uuid
 // @access  Private
-export const updateSite = asyncHandler(async (req: Request<{ uuid: string }, {}, UpdateSiteRequest>, res: Response<UpdateSiteResponse>, next: NextFunction) => {
+export const updateSite = asyncHandler(async (req: Request<{ uuid: string }, {}, Types.SiteCreationAttributes>, res: Response<ControllerResponse & { data: Types.SiteInterface }>, next: NextFunction) => {
   const { inspectorId, name, location, preconDate, xCoordinate, yCoordinate, permit, cof, tnq, greenInfrastructure, inactive } = req.body
 
   const production = process.env.NODE_ENV === 'production'
@@ -202,7 +186,7 @@ export const updateSite = asyncHandler(async (req: Request<{ uuid: string }, {},
     return next(new ErrorResponse(`Unable to update site by uuid ${ req.params.uuid }`, 500))
   }
 
-  const data = (updatedRecords as (Model<SiteInterface> & SiteInterface)[])[0]
+  const data = (updatedRecords as (Model<Types.SiteInterface> & Types.SiteInterface)[])[0]
 
   if(inspector && inspectorId && production) { // If inspector assigned and in production - email inspector
     await emailInspector(inspector.email, { uuid: data.uuid, name: data.name })
@@ -238,7 +222,7 @@ export const deleteSite = asyncHandler(async (req: Request<{ uuid: string }>, re
 //@desc    Get active sites
 //@route   GET /api/v1/stormwater/sites/active
 //@access  Private
-export const getActiveSites = asyncHandler(async (req: Request, res: Response<GetActiveSitesResponse>, next: NextFunction) => {
+export const getActiveSites = asyncHandler(async (req: Request, res: Response<ControllerResponse & { data: Types.SiteInterface[] }>, next: NextFunction) => {
   const sites = await Site.findAll({
     where: {
       inactive: {
@@ -247,7 +231,7 @@ export const getActiveSites = asyncHandler(async (req: Request, res: Response<Ge
     },
     order: [['name', 'asc']],
     attributes: ['name', 'siteId', 'xCoordinate', 'yCoordinate', 'inspectorId', 'uuid']
-  }) as Model<SiteInterface>[] & SiteInterface
+  }) as (Model<Types.SiteInterface> & Types.SiteInterface)[]
 
   res.status(200).json({
     success: true,

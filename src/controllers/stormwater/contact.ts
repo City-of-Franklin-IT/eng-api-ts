@@ -8,13 +8,12 @@ import { Contact, SiteContact, Site } from '@models/stormwater'
 import { Request, Response, NextFunction } from 'express'
 import { Model } from 'sequelize'
 import { ControllerResponse } from '@controllers/types'
-import { ContactInterface } from '@models/stormwater/types'
-import { CreateContactRequest, CreateContactResponse, GetContactsResponse, GetContactResponse, UpdateContactRequest, UpdateContactResponse } from './types'
+import * as Types from '../../models/stormwater/types'
 
 // @desc    Create contact
 // @route   POST /api/v1/stormwater/contacts
 // @access  Private
-export const createContact = asyncHandler(async (req: Request<{}, {}, CreateContactRequest>, res: Response<CreateContactResponse>, next: NextFunction) => {
+export const createContact = asyncHandler(async (req: Request<{}, {}, Types.ContactCreationAttributes>, res: Response<ControllerResponse & { data: Types.ContactInterface }>, next: NextFunction) => {
   const { name, phone, company, email } = req.body
 
   const contact = await Contact.create({
@@ -24,7 +23,7 @@ export const createContact = asyncHandler(async (req: Request<{}, {}, CreateCont
     company,
     email,
     ...editorTracking(req)
-  }) as Model<ContactInterface> & ContactInterface
+  }) as Model<Types.ContactInterface> & Types.ContactInterface
 
   if(!contact) {
     return next(new ErrorResponse("Unable to create contact", 500))
@@ -40,13 +39,13 @@ export const createContact = asyncHandler(async (req: Request<{}, {}, CreateCont
 // @desc    Get contacts
 // @route   GET /api/v1/stormwater/contacts
 // @access  Private
-export const getContacts = asyncHandler(async (req: Request, res: Response<GetContactsResponse>, next: NextFunction) => {
+export const getContacts = asyncHandler(async (req: Request, res: Response<ControllerResponse & { data: Types.ContactInterface[] }>, next: NextFunction) => {
   const contacts = await Contact.findAll({
     order: [['name', 'asc']],
     include: [
       { model: SiteContact, 
         include: [{ model: Site }] }]
-  }) as Model<ContactInterface>[] & ContactInterface
+  }) as (Model<Types.ContactInterface> & Types.ContactInterface)[]
 
   res.status(200).json({
     success: true,
@@ -57,7 +56,7 @@ export const getContacts = asyncHandler(async (req: Request, res: Response<GetCo
 // @desc    Get contact
 // @route   GET /api/v1/stormwater/contacts/:uuid
 // @access  Private
-export const getContact = asyncHandler(async (req: Request<{ uuid: string }>, res: Response<GetContactResponse>, next: NextFunction) => {
+export const getContact = asyncHandler(async (req: Request<{ uuid: string }>, res: Response<ControllerResponse & { data: Types.ContactInterface }>, next: NextFunction) => {
   const contact = await Contact.findOne({
     where: {
       uuid: req.params.uuid
@@ -66,7 +65,7 @@ export const getContact = asyncHandler(async (req: Request<{ uuid: string }>, re
       model: SiteContact,
       include: [{ model: Site }]
     }]
-  }) as Model<ContactInterface> & ContactInterface
+  }) as Model<Types.ContactInterface> & Types.ContactInterface
 
   if(!contact) {
     return next(new ErrorResponse(`Unable to return contact by uuid ${ req.params.uuid }`, 500))
@@ -81,7 +80,7 @@ export const getContact = asyncHandler(async (req: Request<{ uuid: string }>, re
 // @desc    Update contact
 // @route   PUT /api/v1/stormwater/contacts/:uuid
 // @access  Private
-export const updateContact = asyncHandler(async (req: Request<{ uuid: string }, {}, UpdateContactRequest>, res: Response<UpdateContactResponse>, next: NextFunction) => {
+export const updateContact = asyncHandler(async (req: Request<{ uuid: string }, {}, Types.ContactCreationAttributes>, res: Response<ControllerResponse & { data: Types.ContactInterface }>, next: NextFunction) => {
   const { name, phone, company, email, inactive } = req.body
 
   const contact = await Contact.update({
@@ -104,7 +103,7 @@ export const updateContact = asyncHandler(async (req: Request<{ uuid: string }, 
     return next(new ErrorResponse(`Unable to update contact by uuid ${ req.params.uuid }`, 500))
   }
 
-  const data = (affectedRows as (Model<ContactInterface> & ContactInterface)[])[0]
+  const data = (affectedRows as (Model<Types.ContactInterface> & Types.ContactInterface)[])[0]
 
   res.status(200).json({
     success: true,

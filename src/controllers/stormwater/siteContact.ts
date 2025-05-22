@@ -6,14 +6,13 @@ import { SiteContact } from '@models/stormwater'
 // Types
 import { Request, Response, NextFunction } from 'express'
 import { Model } from 'sequelize'
-import { SiteContactInterface } from '@models/stormwater/types'
-import { CreateSiteContactRequest, CreateSiteContactResponse } from './types'
 import { ControllerResponse } from '@controllers/types'
+import * as Types from '@models/stormwater/types'
 
 // @desc    Create site contact
 // @route   POST /api/v1/stormwater/site-contacts
 // @access  Private
-export const createSiteContact = asyncHandler(async (req: Request<{}, {}, CreateSiteContactRequest>, res: Response<CreateSiteContactResponse>, next: NextFunction) => {
+export const createSiteContact = asyncHandler(async (req: Request<{}, {}, Types.SiteContactCreationAttributes>, res: Response<ControllerResponse & { data: Types.SiteContactInterface }>, next: NextFunction) => {
   const { siteId, contactId, isPrimary, isContractor, isInspector } = req.body
 
   const siteContact = await SiteContact.create({
@@ -23,7 +22,7 @@ export const createSiteContact = asyncHandler(async (req: Request<{}, {}, Create
     isContractor,
     isInspector,
     ...editorTracking(req)
-  }) as Model<SiteContactInterface> & SiteContactInterface
+  }) as Model<Types.SiteContactInterface> & Types.SiteContactInterface
 
   if(!siteContact) {
     return next(new ErrorResponse("Unable to create site contact", 500))

@@ -8,13 +8,12 @@ import { ConstructionViolation, Site, FollowUpDate } from '@models/stormwater'
 import { Request, Response, NextFunction } from 'express'
 import { Model } from 'sequelize'
 import { ControllerResponse } from '@controllers/types'
-import { ConstructionViolationInterface } from '@models/stormwater/types'
-import { CreateConstructionViolationRequest, CreateConstructionViolationResponse, GetConstructionViolationsResponse, GetConstructionViolationResponse, UpdateConstructionViolationRequest, UpdateConstructionViolationResponse } from './types'
+import * as Types from '@models/stormwater/types'
 
 // @desc    Create construction violation
 // @route   POST /api/v1/stormwater/violations
 // @access  Private
-export const createViolation = asyncHandler(async (req: Request<{}, {}, CreateConstructionViolationRequest>, res: Response<CreateConstructionViolationResponse>, next: NextFunction) => {
+export const createViolation = asyncHandler(async (req: Request<{}, {}, Types.ConstructionViolationCreationAttributes>, res: Response<ControllerResponse & { data: Types.ConstructionViolationInterface }>, next: NextFunction) => {
   const { date, siteId, details, complaintId } = req.body
 
   const violation = await ConstructionViolation.create({
@@ -24,7 +23,7 @@ export const createViolation = asyncHandler(async (req: Request<{}, {}, CreateCo
     details,
     complaintId,
     ...editorTracking(req)
-  }) as Model<ConstructionViolationInterface> & ConstructionViolationInterface
+  }) as Model<Types.ConstructionViolationInterface> & Types.ConstructionViolationInterface
   
   if(!violation) {
     return next(new ErrorResponse("Unable to create construction violation", 500))
@@ -40,14 +39,14 @@ export const createViolation = asyncHandler(async (req: Request<{}, {}, CreateCo
 // @desc    Get violations
 // @route   GET /api/v1/stormwater/violations
 // @access  Private
-export const getViolations = asyncHandler(async (req: Request, res: Response<GetConstructionViolationsResponse>, next: NextFunction) => {
+export const getViolations = asyncHandler(async (req: Request, res: Response<ControllerResponse & { data: Types.ConstructionViolationInterface[] }>, next: NextFunction) => {
   const violations = await ConstructionViolation.findAll({
     order: [[Site, 'name', 'asc'], [FollowUpDate, 'followUpDate', 'desc']],
     include: [
       { model: Site }, 
       { model: FollowUpDate }
     ]
-  }) as (Model<ConstructionViolationInterface> & ConstructionViolationInterface)[]
+  }) as (Model<Types.ConstructionViolationInterface> & Types.ConstructionViolationInterface)[]
 
   res.status(200).json({
     success: true,
@@ -58,14 +57,14 @@ export const getViolations = asyncHandler(async (req: Request, res: Response<Get
 // @desc    Get violation
 // @route   GET /api/v1/stormwater/violations/:uuid
 // @access  Private
-export const getViolation = asyncHandler(async (req: Request<{ uuid: string }>, res: Response<GetConstructionViolationResponse>, next: NextFunction) => {
+export const getViolation = asyncHandler(async (req: Request<{ uuid: string }>, res: Response<ControllerResponse & { data: Types.ConstructionViolationInterface }>, next: NextFunction) => {
   const violation = await ConstructionViolation.findOne({
     where: {
       uuid: req.params.uuid
     },
     order: [[FollowUpDate, 'followUpDate', 'desc']],
     include: { model: FollowUpDate }
-  }) as Model<ConstructionViolationInterface> & ConstructionViolationInterface
+  }) as Model<Types.ConstructionViolationInterface> & Types.ConstructionViolationInterface
 
   if(!violation) {
     return next(new ErrorResponse(`Unable to return construction violation by uuid ${ req.params.uuid }`, 500))
@@ -80,7 +79,7 @@ export const getViolation = asyncHandler(async (req: Request<{ uuid: string }>, 
 // @desc    Update violation
 // @route   PUT /api/v1/stormwater/violations/:uuid
 // @access  Private
-export const updateViolation = asyncHandler(async (req: Request<{ uuid: string }, {}, UpdateConstructionViolationRequest>, res: Response<UpdateConstructionViolationResponse>, next: NextFunction) => {
+export const updateViolation = asyncHandler(async (req: Request<{ uuid: string }, {}, Types.ConstructionViolationCreationAttributes>, res: Response<ControllerResponse & { data: Types.ConstructionViolationInterface }>, next: NextFunction) => {
   const { date, siteId, details, enforcementAction, penaltyDate, penaltyAmount, penaltyDueDate, paymentReceived, swoDate, swoLiftedDate, compliance, closed } = req.body
 
   const violation = await ConstructionViolation.update({
@@ -111,7 +110,7 @@ export const updateViolation = asyncHandler(async (req: Request<{ uuid: string }
     return next(new ErrorResponse(`Unable to update construction violation by uuid ${ req.params.uuid }`, 500))
   }
 
-  const data = (affectedRows as (Model<ConstructionViolationInterface> & ConstructionViolationInterface)[])[0]
+  const data = (affectedRows as (Model<Types.ConstructionViolationInterface> & Types.ConstructionViolationInterface)[])[0]
 
   res.status(200).json({
     success: true,

@@ -9,13 +9,12 @@ import { emailInspector, inspectorLookup } from '@utils/automatedEmails/emailIns
 import { Request, Response, NextFunction } from 'express'
 import { Model } from 'sequelize'
 import { ControllerResponse } from '@controllers/types'
-import { ComplaintInterface, InspectorInterface } from '@models/stormwater/types'
-import { CreateComplaintRequest, CreateComplaintResponse, GetComplaintsResponse, GetComplaintResponse, UpdateComplaintRequest, UpdateComplaintResponse } from './types'
+import * as Types from '@models/stormwater/types'
 
 // @desc    Create complaint
 // @route   POST /api/v1/stormwater/complaints
 // @access  Private
-export const createComplaint = asyncHandler(async (req: Request<{}, {}, CreateComplaintRequest>, res: Response<CreateComplaintResponse>, next: NextFunction) => {
+export const createComplaint = asyncHandler(async (req: Request<{}, {}, Types.ComplaintCreationAttributes>, res: Response<ControllerResponse & { data: Types.ComplaintInterface }>, next: NextFunction) => {
   const { date, siteId, inspectorId, name, address, phone, email, xCoordinate, yCoordinate, locationDescription, concern, otherConcern, details, responsibleParty, comments } = req.body
 
   const production = process.env.NODE_ENV === 'production'
@@ -38,7 +37,7 @@ export const createComplaint = asyncHandler(async (req: Request<{}, {}, CreateCo
     responsibleParty,
     comments,
     ...editorTracking(req)
-  }) as Model<ComplaintInterface> & ComplaintInterface
+  }) as Model<Types.ComplaintInterface> & Types.ComplaintInterface
 
   if(!complaint) {
     return next(new ErrorResponse("Unable to create complaint", 500))
@@ -49,7 +48,7 @@ export const createComplaint = asyncHandler(async (req: Request<{}, {}, CreateCo
       where: {
         inspectorId
       }
-    }) as Model<InspectorInterface> & InspectorInterface
+    }) as Model<Types.InspectorInterface> & Types.InspectorInterface
 
     if(inspector) {
       const data = { complaintId: complaint.complaintId, details: complaint.details, uuid: complaint.uuid }
@@ -67,14 +66,14 @@ export const createComplaint = asyncHandler(async (req: Request<{}, {}, CreateCo
 // @desc    Get complaints - no associated site
 // @route   GET /api/v1/stormwater/complaints
 // @access  Private
-export const getComplaints = asyncHandler(async (req: Request, res: Response<GetComplaintsResponse>, next: NextFunction) => {
+export const getComplaints = asyncHandler(async (req: Request, res: Response<ControllerResponse & { data: Types.ComplaintInterface[] }>, next: NextFunction) => {
   const complaints = await Complaint.findAll({
     where: {
       siteId: null
     },
     order: [['date', 'desc'], [FollowUpDate, 'followUpDate', 'desc']],
     include: [ { model: FollowUpDate } ]
-  }) as Model<ComplaintInterface>[] & ComplaintInterface
+  }) as (Model<Types.ComplaintInterface> & Types.ComplaintInterface)[]
 
   res.status(200).json({
     success: true,
@@ -85,7 +84,7 @@ export const getComplaints = asyncHandler(async (req: Request, res: Response<Get
 // @desc    Get complaint
 // @route   GET /api/v1/stormwater/complaints/:uuid
 // @access  Private
-export const getComplaint = asyncHandler(async (req: Request<{ uuid: string }>, res: Response<GetComplaintResponse>, next: NextFunction) => {
+export const getComplaint = asyncHandler(async (req: Request<{ uuid: string }>, res: Response<ControllerResponse & { data: Types.ComplaintInterface }>, next: NextFunction) => {
   const complaint = await Complaint.findOne({
     where: {
       uuid: req.params.uuid
@@ -95,7 +94,7 @@ export const getComplaint = asyncHandler(async (req: Request<{ uuid: string }>, 
       { model: Site },
       { model: FollowUpDate}
     ]
-  }) as Model<ComplaintInterface> & ComplaintInterface
+  }) as Model<Types.ComplaintInterface> & Types.ComplaintInterface
 
   if(!complaint) {
     return next(new ErrorResponse(`Unable to return complaint by uuid ${ req.params.uuid }`, 500))
@@ -110,7 +109,7 @@ export const getComplaint = asyncHandler(async (req: Request<{ uuid: string }>, 
 // @desc    Update complaint
 // @route   PUT /api/v1/stormwater/complaints/:uuid
 // @access  Private
-export const updateComplaint = asyncHandler(async (req: Request<{ uuid: string }, {}, UpdateComplaintRequest>, res: Response<UpdateComplaintResponse>, next: NextFunction) => {
+export const updateComplaint = asyncHandler(async (req: Request<{ uuid: string }, {}, Types.ComplaintCreationAttributes>, res: Response<ControllerResponse & { data: Types.ComplaintInterface }>, next: NextFunction) => {
   const { date, siteId, inspectorId, name, address, phone, email, xCoordinate, yCoordinate, locationDescription, concern, otherConcern, details, responsibleParty, comments, compliance, closed } = req.body
 
   const production = process.env.NODE_ENV === 'production'
@@ -150,7 +149,7 @@ export const updateComplaint = asyncHandler(async (req: Request<{ uuid: string }
     return next(new ErrorResponse(`Unable to update complaint by uuid ${ req.params.uuid }`, 500))
   }
 
-  const data = (affectedRows as (Model<ComplaintInterface> & ComplaintInterface)[])[0]
+  const data = (affectedRows as (Model<Types.ComplaintInterface> & Types.ComplaintInterface)[])[0]
 
   if(inspectorEmail && inspectorId && production) { // If inspector assigned - email inspector
     const obj = { siteId: data.siteId, complaintId: data.complaintId, details: data.details, uuid: data.uuid }
