@@ -1,5 +1,5 @@
 import { Router } from 'express'
-import { createSiteContact, deleteSiteContacts } from '@controllers/stormwater/siteContact'
+import { createSiteContact, deleteSiteContact } from '@controllers/stormwater/siteContact'
 import { entra } from '@middleware/auth'
 
 const router = Router()
@@ -11,7 +11,7 @@ router
   .post(createSiteContact)
 
 router
-  .route('/site/:siteid')
-  .delete(deleteSiteContacts)
+  .route('/:uuid')
+  .delete(deleteSiteContact)
 
 export default router

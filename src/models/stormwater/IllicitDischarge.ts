@@ -11,8 +11,8 @@ export default (sequelize: Sequelize, dataTypes: typeof DataTypes) => {
     declare complaintId: string | null
     declare siteId: string | null
     declare date: string
-    declare xCoordinate: number
-    declare yCoordinate: number
+    declare xCoordinate: number | null
+    declare yCoordinate: number | null
     declare locationDescription: string | null
     declare inspectorId: string | null
     declare details: string
@@ -63,11 +63,9 @@ export default (sequelize: Sequelize, dataTypes: typeof DataTypes) => {
     },
     xCoordinate: {
       type: dataTypes.FLOAT,
-      allowNull: false
     },
     yCoordinate: {
       type: dataTypes.FLOAT,
-      allowNull: false
     },
     locationDescription: {
       type: dataTypes.STRING,

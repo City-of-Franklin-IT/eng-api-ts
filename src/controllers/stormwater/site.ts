@@ -13,7 +13,7 @@ import { ControllerResponse } from '@controllers/types'
 import * as Types from '@models/stormwater/types'
 
 // @desc    Create site
-// @route   POST /api/v1/stormwater/sites
+// @route   POST /api/v2/stormwater/site
 // @access  Private
 export const createSite = asyncHandler(async (req: Request<{}, {}, Types.SiteCreationAttributes>, res: Response<ControllerResponse & { data: Types.SiteInterface }>, next: NextFunction) => {
   const { inspectorId, name, preconDate, location, xCoordinate, yCoordinate, permit, cof, tnq, greenInfrastructure } = req.body
@@ -45,7 +45,7 @@ export const createSite = asyncHandler(async (req: Request<{}, {}, Types.SiteCre
 })
 
 // @desc    Get sites
-// @route   GET /api/v1/stormwater/sites
+// @route   GET /api/v2/stormwater/site
 // @access  Private
 export const getSites = asyncHandler(async (req: Request, res: Response<ControllerResponse & { data: Types.SiteInterface[] }>, next: NextFunction) => {
   const results = await Site.findAll({

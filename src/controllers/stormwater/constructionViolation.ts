@@ -2,7 +2,7 @@ import { v4 as uuidv4 } from 'uuid'
 import asyncHandler from '@middleware/async'
 import { ErrorResponse } from '@utils/errorResponse'
 import editorTracking from '@utils/editorTracking'
-import { ConstructionViolation, Site, FollowUpDate } from '@models/stormwater'
+import { ConstructionViolation, Site, FollowUpDate, SiteContact, Contact } from '@models/stormwater'
 
 // Types
 import { Request, Response, NextFunction } from 'express'
@@ -41,9 +41,17 @@ export const createViolation = asyncHandler(async (req: Request<{}, {}, Types.Co
 // @access  Private
 export const getViolations = asyncHandler(async (req: Request, res: Response<ControllerResponse & { data: Types.ConstructionViolationInterface[] }>, next: NextFunction) => {
   const violations = await ConstructionViolation.findAll({
-    order: [[Site, 'name', 'asc'], [FollowUpDate, 'followUpDate', 'desc']],
+    order: [['date', 'desc'], [FollowUpDate, 'followUpDate', 'desc']],
     include: [
-      { model: Site }, 
+      { model: Site,
+        include: [
+          { model: SiteContact,
+            include: [
+              { model: Contact }
+            ]
+          }
+        ]
+      }, 
       { model: FollowUpDate }
     ]
   }) as (Model<Types.ConstructionViolationInterface> & Types.ConstructionViolationInterface)[]

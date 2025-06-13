@@ -53,12 +53,22 @@ export const getInspectors = asyncHandler(async (req: Request, res: Response<Con
 })
 
 // @desc    Get inspector sites
-// @route   GET /api/v1/stormwater/inspectors/:inspectorid
+// @route   GET /api/v1/stormwater/inspectors/:slug
 // @access  Private
-export const getInspector = asyncHandler(async (req: Request<{ inspectorid: string }>, res: Response<ControllerResponse & { data: { sites: Types.SiteInterface[], inspector: Types.InspectorInterface } }>, next: NextFunction) => {
+export const getInspector = asyncHandler(async (req: Request<{ slug: string }>, res: Response<ControllerResponse & { data: { sites: Types.SiteInterface[], inspector: Types.InspectorInterface } }>, next: NextFunction) => {
+  const inspector = await Inspector.findOne({
+    where: {
+      slug: req.params.slug
+    }
+  }) as Model<Types.InspectorInterface> & Types.InspectorInterface
+
+  if(!inspector) {
+    return next(new ErrorResponse(`Unable to return inspector by slug ${ req.params.slug }`, 500))
+  }
+
   const results = await Site.findAll({
     where: {
-      inspectorId: req.params.inspectorid
+      inspectorId: inspector.inspectorId
     },
     order: [['name', 'asc']],
     include: [
@@ -94,12 +104,6 @@ export const getInspector = asyncHandler(async (req: Request<{ inspectorid: stri
       hasOpenIllicitDischarge: openIllicitDischarges
     } as Model<Types.SiteInterface> & Types.SiteInterface
   })
-
-  const inspector = await Inspector.findOne({
-    where: {
-      inspectorId: req.params.inspectorid
-    }
-  }) as Model<Types.InspectorInterface> & Types.InspectorInterface
 
   res.status(200).json({
     success: true,

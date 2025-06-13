@@ -2,7 +2,7 @@ import { v4 as uuidv4 } from 'uuid'
 import asyncHandler from '@middleware/async'
 import { ErrorResponse } from '@utils/errorResponse'
 import editorTracking from '@utils/editorTracking'
-import { Complaint, Inspector, FollowUpDate, Site } from '@models/stormwater'
+import { Complaint, Inspector, FollowUpDate, Site, SiteContact, Contact } from '@models/stormwater'
 import { emailInspector, inspectorLookup } from '@utils/automatedEmails/emailInspector'
 
 // Types
@@ -12,7 +12,7 @@ import { ControllerResponse } from '@controllers/types'
 import * as Types from '@models/stormwater/types'
 
 // @desc    Create complaint
-// @route   POST /api/v1/stormwater/complaints
+// @route   POST /api/v2/stormwater/complaint
 // @access  Private
 export const createComplaint = asyncHandler(async (req: Request<{}, {}, Types.ComplaintCreationAttributes>, res: Response<ControllerResponse & { data: Types.ComplaintInterface }>, next: NextFunction) => {
   const { date, siteId, inspectorId, name, address, phone, email, xCoordinate, yCoordinate, locationDescription, concern, otherConcern, details, responsibleParty, comments } = req.body
@@ -63,16 +63,24 @@ export const createComplaint = asyncHandler(async (req: Request<{}, {}, Types.Co
   })
 })
 
-// @desc    Get complaints - no associated site
-// @route   GET /api/v1/stormwater/complaints
+// @desc    Get complaints
+// @route   GET /api/v2/stormwater/complaint
 // @access  Private
 export const getComplaints = asyncHandler(async (req: Request, res: Response<ControllerResponse & { data: Types.ComplaintInterface[] }>, next: NextFunction) => {
   const complaints = await Complaint.findAll({
-    where: {
-      siteId: null
-    },
     order: [['date', 'desc'], [FollowUpDate, 'followUpDate', 'desc']],
-    include: [ { model: FollowUpDate } ]
+    include: [
+      { model: FollowUpDate },
+      { model: Site,
+        include: [
+          { model: SiteContact,
+            include: [
+              { model: Contact }
+            ]
+          }
+        ]
+      } 
+    ]
   }) as (Model<Types.ComplaintInterface> & Types.ComplaintInterface)[]
 
   res.status(200).json({
@@ -82,7 +90,7 @@ export const getComplaints = asyncHandler(async (req: Request, res: Response<Con
 })
 
 // @desc    Get complaint
-// @route   GET /api/v1/stormwater/complaints/:uuid
+// @route   GET /api/v2/stormwater/complaint/:uuid
 // @access  Private
 export const getComplaint = asyncHandler(async (req: Request<{ uuid: string }>, res: Response<ControllerResponse & { data: Types.ComplaintInterface }>, next: NextFunction) => {
   const complaint = await Complaint.findOne({
@@ -107,7 +115,7 @@ export const getComplaint = asyncHandler(async (req: Request<{ uuid: string }>, 
 })
 
 // @desc    Update complaint
-// @route   PUT /api/v1/stormwater/complaints/:uuid
+// @route   PUT /api/v2/stormwater/complaint/:uuid
 // @access  Private
 export const updateComplaint = asyncHandler(async (req: Request<{ uuid: string }, {}, Types.ComplaintCreationAttributes>, res: Response<ControllerResponse & { data: Types.ComplaintInterface }>, next: NextFunction) => {
   const { date, siteId, inspectorId, name, address, phone, email, xCoordinate, yCoordinate, locationDescription, concern, otherConcern, details, responsibleParty, comments, compliance, closed } = req.body
@@ -164,7 +172,7 @@ export const updateComplaint = asyncHandler(async (req: Request<{ uuid: string }
 })
 
 // @desc    Delete complaint
-// @route   DELETE /api/v1/stormwater/complaints/:uuid
+// @route   DELETE /api/v2/stormwater/complaint/:uuid
 // @access  Private
 export const deleteComplaint = asyncHandler(async (req: Request<{ uuid: string }>, res: Response<ControllerResponse>, next: NextFunction) => {
   const result = await Complaint.destroy({

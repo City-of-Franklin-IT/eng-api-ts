@@ -1,7 +1,7 @@
 import { v4 as uuidv4 } from 'uuid'
 import asyncHandler from '@middleware/async'
 import { ErrorResponse } from '@utils/errorResponse'
-import { IllicitDischarge, Inspector, FollowUpDate } from '@models/stormwater'
+import { IllicitDischarge, Inspector, FollowUpDate, Site, SiteContact, Contact } from '@models/stormwater'
 import { emailInspector, inspectorLookup } from '@utils/automatedEmails/emailInspector'
 import editorTracking from '@utils/editorTracking'
 
@@ -15,7 +15,7 @@ import * as Types from '@models/stormwater/types'
 // @route   POST /api/v1/stormwater/illicit-discharges/create
 // @access  Private
 export const createIllicitDischarge = asyncHandler(async (req: Request<{}, {}, Types.IllicitDischargeCreationAttributes>, res: Response<ControllerResponse & { data: Types.IllicitDischargeInterface }>, next: NextFunction) => {
-  const { complaintId, siteId, date, xCoordinate, yCoordinate, locationDescription, inspectorId, details, responsibleParty, volumeLost, streamWatershed, otherStreamWatershed, enforcementAction, penaltyDate, penaltyAmount, penaltyDueDate, paymentReceived } = req.body
+  const { complaintId, siteId, date, xCoordinate, yCoordinate, locationDescription, inspectorId, details, responsibleParty, volumeLost, streamWatershed, enforcementAction, penaltyDate, penaltyAmount, penaltyDueDate, paymentReceived } = req.body
 
   const production = process.env.NODE_ENV === 'production'
 
@@ -31,14 +31,14 @@ export const createIllicitDischarge = asyncHandler(async (req: Request<{}, {}, T
     details,
     responsibleParty,
     volumeLost,
-    streamWatershed: otherStreamWatershed ? otherStreamWatershed : streamWatershed,
+    streamWatershed,
     enforcementAction,
     penaltyDate,
     penaltyAmount,
     penaltyDueDate,
     paymentReceived,
     ...editorTracking(req)
-  }) as Model<Types.IllicitDischargeInterface> & Types.IllicitDischargeInterface
+  }) as unknown as Model<Types.IllicitDischargeInterface> & Types.IllicitDischargeInterface
     
   if(!illicit) {
     return next(new ErrorResponse("Unable to create illicit discharge", 500))
@@ -64,17 +64,23 @@ export const createIllicitDischarge = asyncHandler(async (req: Request<{}, {}, T
   })
 })
 
-// @desc    Get illicit discharges - no associated site
+// @desc    Get illicit discharges
 // @route   GET /api/v1/stormwater/illicitdischarges
 // @access  Private
 export const getIllicitDischarges = asyncHandler(async (req: Request, res: Response<ControllerResponse & { data: Types.IllicitDischargeInterface[] }>, next: NextFunction) => {
   const illicitDischarges = await IllicitDischarge.findAll({
-    where: {
-      siteId: null
-    },
     order: [['date', 'desc'], [FollowUpDate, 'followUpDate', 'desc']],
     include: [
-      { model: FollowUpDate }
+      { model: FollowUpDate },
+      { model: Site,
+        include: [
+          { model: SiteContact,
+            include: [
+              { model: Contact }
+            ]
+          }
+        ]
+      } 
     ]
   }) as (Model<Types.IllicitDischargeInterface> & Types.IllicitDischargeInterface)[]
 
@@ -112,7 +118,7 @@ export const getIllicitDischarge = asyncHandler(async (req: Request<{ uuid: stri
 // @route   PUT /api/v1/stormwater/illicit-discharges/:uuid
 // @access  Private
 export const updateIllicitDischarge = asyncHandler(async (req: Request<{ uuid: string },{}, Types.IllicitDischargeCreationAttributes>, res: Response<ControllerResponse & { data: Types.IllicitDischargeInterface }>, next: NextFunction) => {
-  const { date, xCoordinate, yCoordinate, locationDescription, inspectorId, details, responsibleParty, volumeLost, streamWatershed, otherStreamWatershed, enforcementAction, penaltyDate, penaltyAmount, penaltyDueDate, paymentReceived, compliance, closed } = req.body
+  const { date, xCoordinate, yCoordinate, locationDescription, inspectorId, details, responsibleParty, volumeLost, streamWatershed, enforcementAction, penaltyDate, penaltyAmount, penaltyDueDate, paymentReceived, compliance, closed } = req.body
 
   const production = process.env.NODE_ENV === 'production'
 
@@ -127,7 +133,7 @@ export const updateIllicitDischarge = asyncHandler(async (req: Request<{ uuid: s
     details,
     responsibleParty,
     volumeLost,
-    streamWatershed: otherStreamWatershed ? otherStreamWatershed : streamWatershed,
+    streamWatershed,
     enforcementAction,
     penaltyDate,
     penaltyAmount,

@@ -109,15 +109,14 @@ export interface IllicitDischargeInterface extends BaseInterface {
   complaintId: string | null
   siteId: string | null
   date: string
-  xCoordinate: number
-  yCoordinate: number
+  xCoordinate: number | null
+  yCoordinate: number | null
   locationDescription: string | null
   inspectorId: string | null
   details: string
   responsibleParty: string | null
   volumeLost: string | null
   streamWatershed: string
-  otherStreamWatershed: string | null
   enforcementAction: string | null
   penaltyDate: string | null
   penaltyAmount: number | null
