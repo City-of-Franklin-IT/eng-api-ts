@@ -14,6 +14,9 @@ router
 router
   .route('/:slug')
   .get(getInspector)
+
+router
+  .route('/:inspectorid')
   .put(updateInspector)
   .delete(deleteInspector)
 

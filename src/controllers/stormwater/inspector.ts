@@ -11,7 +11,7 @@ import { ControllerResponse } from '@controllers/types'
 import * as Types from '@models/stormwater/types'
 
 // @desc    Create inspector
-// @route   POST /api/v1/stormwater/inspectors
+// @route   POST /api/v2/stormwater/inspector
 // @access  Private
 export const createInspector = asyncHandler(async (req: Request<{}, {}, Types.InspectorCreationAttributes>, res: Response<ControllerResponse & { data: Types.InspectorInterface }>, next: NextFunction) => {
   const { name, email } = req.body
@@ -36,7 +36,7 @@ export const createInspector = asyncHandler(async (req: Request<{}, {}, Types.In
 })
 
 // @desc    Get inspectors
-// @route   GET /api/v1/stormwater/inspectors
+// @route   GET /api/v2/stormwater/inspector
 // @access  Private
 export const getInspectors = asyncHandler(async (req: Request, res: Response<ControllerResponse & { data: Types.InspectorInterface[] }>, next: NextFunction) => {
   const inspectors = await Inspector.findAll({
@@ -53,7 +53,7 @@ export const getInspectors = asyncHandler(async (req: Request, res: Response<Con
 })
 
 // @desc    Get inspector sites
-// @route   GET /api/v1/stormwater/inspectors/:slug
+// @route   GET /api/v2/stormwater/inspector/:slug
 // @access  Private
 export const getInspector = asyncHandler(async (req: Request<{ slug: string }>, res: Response<ControllerResponse & { data: { sites: Types.SiteInterface[], inspector: Types.InspectorInterface } }>, next: NextFunction) => {
   const inspector = await Inspector.findOne({
@@ -112,7 +112,7 @@ export const getInspector = asyncHandler(async (req: Request<{ slug: string }>, 
 })
 
 // @desc    Update inspector
-// @route   PUT /api/v1/stormwater/inspectors/:inspectorid
+// @route   PUT /api/v2/stormwater/inspector/:inspectorid
 // @access  Private
 export const updateInspector = asyncHandler(async (req: Request<{ inspectorid: string }, {}, Types.InspectorCreationAttributes>, res: Response<ControllerResponse & { data: Types.InspectorInterface }>, next: NextFunction) => {
   const { name, email, inactive } = req.body
@@ -146,7 +146,7 @@ export const updateInspector = asyncHandler(async (req: Request<{ inspectorid: s
 })
 
 // @desc    Delete inspector
-// @route   DELETE /api/v1/stormwater/inspectors/:inspectorid
+// @route   DELETE /api/v2/stormwater/inspector/:inspectorid
 // @access  Private
 export const deleteInspector = asyncHandler(async (req:  Request<{ inspectorid: string }>, res: Response<ControllerResponse>, next: NextFunction) => {
   const result = await Inspector.destroy({

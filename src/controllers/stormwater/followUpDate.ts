@@ -14,15 +14,13 @@ import * as Types from '../../models/stormwater/types'
 // @route   POST /api/v1/stormwater/followup
 // @access  Private
 export const createFollowUpDate = asyncHandler(async (req: Request<{}, {}, Types.FollowUpDateCreationAttributes>, res: Response<ControllerResponse & { data: Types.FollowUpDateInterface }>, next: NextFunction) => {
-  const { parentId, followUpDate } = req.body
-
-  const type = parentId?.split('-')[0]
+  const { violationId, complaintId, illicitId, followUpDate } = req.body
 
   const date = await FollowUpDate.create({
     followUpId: `follow-${ uuidv4() }`,
-    violationId: type === 'violation' ? parentId : null,
-    complaintId: type === 'complaint' ? parentId : null,
-    illicitId: type === 'illicit' ? parentId : null,
+    violationId,
+    complaintId,
+    illicitId,
     followUpDate,
     ...editorTracking(req)
   }) as Model<Types.FollowUpDateInterface> & Types.FollowUpDateInterface
