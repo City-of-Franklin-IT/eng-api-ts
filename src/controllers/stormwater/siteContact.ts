@@ -54,3 +54,19 @@ export const deleteSiteContact = asyncHandler(async (req: Request<{ uuid: string
     msg: "Site Contact Deleted"
   })
 })
+
+//@desc    Delete all site contacts by siteId
+//@route   DELETE /api/v2/eng/stormwater/site-contact/site/:siteid
+//@access  Private
+export const deleteSiteContacts = asyncHandler(async (req: Request<{ siteid: string }>, res: Response<ControllerResponse>, next: NextFunction) => {
+  await SiteContact.destroy({
+    where: {
+      siteId: req.params.siteid
+    }
+  })
+
+  res.status(200).json({
+    success: true,
+    msg: "Site Contacts Deleted"
+  })
+})

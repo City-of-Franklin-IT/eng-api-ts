@@ -85,10 +85,12 @@ export const getViolation = asyncHandler(async (req: Request<{ uuid: string }>, 
 })
 
 // @desc    Update violation
-// @route   PUT /api/v2/stormwater/violations/:uuid
+// @route   PUT /api/v2/stormwater/violation/:uuid
 // @access  Private
 export const updateViolation = asyncHandler(async (req: Request<{ uuid: string }, {}, Types.ConstructionViolationCreationAttributes>, res: Response<ControllerResponse & { data: Types.ConstructionViolationInterface }>, next: NextFunction) => {
   const { date, siteId, details, enforcementAction, penaltyDate, penaltyAmount, penaltyDueDate, paymentReceived, swoDate, swoLiftedDate, compliance, closed } = req.body
+
+  console.log(req.body)
 
   const violation = await ConstructionViolation.update({
     date,
