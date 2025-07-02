@@ -9,7 +9,7 @@ import { ResponseInterface } from '@models/traffic-calming/types'
 import { CreateResponseRequest, CreateResponseResponse } from './types'
 
 //@desc    Create response
-//@route   POST /api/v1/eng/traffic-calming/response
+//@route   POST /api/v2/eng/traffic-calming/response
 //@access  Public
 export const createResponse = asyncHandler(async (req: Request<{}, {}, CreateResponseRequest>, res: Response<CreateResponseResponse>, next: NextFunction) => {
   const { response, parentId, shortId } = req.body

@@ -10,7 +10,7 @@ import { ControllerResponse } from '@controllers/types'
 import * as Types from '@models/vesting/types'
 
 //@desc    Create milestone
-//@route   POST /api/v1/eng/vesting/milestone
+//@route   POST /api/v2/eng/vesting/milestone
 //@access  Private
 export const createMilestone = asyncHandler(async (req: Request<{}, {}, Types.MilestoneCreationAttributes>, res: Response<ControllerResponse>, next: NextFunction) => {
   const { number, date, parentId } = req.body
@@ -67,7 +67,7 @@ export const updateMilestone = asyncHandler(async (req: Request<{ uuid: string }
 })
 
 //@desc    Update milestone status
-//@route   PUT /api/v1/eng/vesting/milestone/status/:uuid
+//@route   PUT /api/v2/eng/vesting/milestone/status/:uuid
 //@access  Private
 export const updateMilestoneStatus = asyncHandler(async (req: Request<{ uuid: string }, {}, Types.MilestoneStatusCreationAttributes>, res: Response<ControllerResponse>, next: NextFunction) => {
   const { achieved, expired } = req.body

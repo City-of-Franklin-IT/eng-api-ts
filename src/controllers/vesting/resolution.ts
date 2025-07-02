@@ -9,7 +9,7 @@ import { ControllerResponse } from '@controllers/types'
 import * as Types from '@models/vesting/types'
 
 //@desc    Create resolution
-//@route   POST /api/v1/eng/vesting/resolution
+//@route   POST /api/v2/eng/vesting/resolution
 //@access  Private
 export const createResolution = asyncHandler(async (req: Request<{}, {}, Types.ResolutionCreationAttributes>, res: Response<ControllerResponse>, next: NextFunction) => {
   const { resolution, parentId } = req.body
@@ -31,7 +31,7 @@ export const createResolution = asyncHandler(async (req: Request<{}, {}, Types.R
 })
 
 //@desc    Update resolution
-//@route   PUT /api/v1/eng/vesting/resolution/:uuid
+//@route   PUT /api/v2/eng/vesting/resolution/:uuid
 //@access  Private
 export const updateResolution = asyncHandler(async (req: Request<{ uuid: string }, {}, Types.ResolutionCreationAttributes>, res: Response<ControllerResponse>, next: NextFunction) => {
   const { resolution } = req.body

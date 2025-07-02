@@ -11,7 +11,7 @@ import { ControllerResponse } from '@controllers/types'
 import * as Types from '../../models/stormwater/types'
 
 // @desc    Create follow up date
-// @route   POST /api/v1/stormwater/followup
+// @route   POST /api/v2/stormwater/followup
 // @access  Private
 export const createFollowUpDate = asyncHandler(async (req: Request<{}, {}, Types.FollowUpDateCreationAttributes>, res: Response<ControllerResponse & { data: Types.FollowUpDateInterface }>, next: NextFunction) => {
   const { parentId, followUpDate } = req.body
@@ -39,7 +39,7 @@ export const createFollowUpDate = asyncHandler(async (req: Request<{}, {}, Types
 })
 
 // @desc    Update follow up date
-// @route   PUT /api/v1/stormwater/followup/:uuid
+// @route   PUT /api/v2/stormwater/followup/:uuid
 // @access  Private
 export const updateFollowUpDate = asyncHandler(async (req: Request<{ uuid: string }, {}, Types.FollowUpDateCreationAttributes>, res: Response<ControllerResponse & { data: Types.FollowUpDateInterface }>, next: NextFunction) => {
   const { followUpDate } = req.body
@@ -70,7 +70,7 @@ export const updateFollowUpDate = asyncHandler(async (req: Request<{ uuid: strin
 })
 
 // @desc    Delete follow up date
-// @route   DELETE /api/v1/stormwater/followup/:uuid
+// @route   DELETE /api/v2/stormwater/followup/:uuid
 // @access  Private
 export const deleteFollowUpDate = asyncHandler(async (req: Request<{ uuid: string }>, res: Response<ControllerResponse>, next: NextFunction) => {
   const result = await FollowUpDate.destroy({

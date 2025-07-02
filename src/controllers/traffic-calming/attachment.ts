@@ -14,7 +14,7 @@ import { CreateAttachmentRequest, DownloadAttachmentResponse } from './types'
 import { FileInterface } from '@models/stormwater/types'
 
 //@desc    Upload attachment
-//@route   POST /api/v1/eng/traffic-calming/attachment
+//@route   POST /api/v2/eng/traffic-calming/attachment
 //@access  Private
 export const createAttachment = asyncHandler(async (req: Request<{}, {}, CreateAttachmentRequest>, res: Response<ControllerResponse>, next: NextFunction) => {
   const { file } = req
@@ -35,7 +35,7 @@ export const createAttachment = asyncHandler(async (req: Request<{}, {}, CreateA
 })
 
 // @desc    Download attachment
-// @route   GET /api/v1/eng/traffic-calming/attachment/:uuid
+// @route   GET /api/v2/eng/traffic-calming/attachment/:uuid
 // @access  Private
 export const getAttachment = asyncHandler(async (req:Request<{ uuid: string }>, res: Response<DownloadAttachmentResponse>, next: NextFunction) => {
   const attachment = await Attachment.findOne({
@@ -55,7 +55,7 @@ export const getAttachment = asyncHandler(async (req:Request<{ uuid: string }>, 
 })
 
 // @desc    Delete attachment
-// @route   DELETE /api/v1/eng/traffic-calming/attachments/:uuid
+// @route   DELETE /api/v2/eng/traffic-calming/attachments/:uuid
 // @access  Private
 export const deleteAttachment = asyncHandler(async (req: Request<{ uuid: string }>, res: Response<ControllerResponse>, next: NextFunction) => {
   const result = await Attachment.destroy({

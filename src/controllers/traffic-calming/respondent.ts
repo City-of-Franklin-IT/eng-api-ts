@@ -16,7 +16,7 @@ import { InforAddressInterface } from '@models/infor/types'
 import { CreateRespondentsRequest, UpdateRespondentRequest, VerifyRespondentResponse, GetRespondentsByADDRKEYRequest, GetRespondentsByADDRKEYResponse } from './types'
 
 //@desc    Create petition respondents
-//@route   POST /api/v1/eng/traffic-calming/respondent
+//@route   POST /api/v2/eng/traffic-calming/respondent
 //@access  Private
 export const createRespondents = asyncHandler(async (req: Request<{}, {}, CreateRespondentsRequest[]>, res: Response<ControllerResponse>, next: NextFunction) => {
   const newRespondents = req.body
@@ -45,7 +45,7 @@ export const createRespondents = asyncHandler(async (req: Request<{}, {}, Create
 })
 
 //@desc    Update petition respondent
-//@route   PUT /api/v1/eng/traffic-calming/respondent/:uuid
+//@route   PUT /api/v2/eng/traffic-calming/respondent/:uuid
 //@access  Private
 export const updateRespondent = asyncHandler(async (req: Request<{ uuid: string }, {}, UpdateRespondentRequest>, res: Response<ControllerResponse>, next: NextFunction) => {
   const { name, address, ownerAddress, ownerCity, ownerState, ownerZIP } = req.body
@@ -77,7 +77,7 @@ export const updateRespondent = asyncHandler(async (req: Request<{ uuid: string 
 })
 
 //@desc    Delete petition respondent
-//@route   DELETE /api/v1/eng/traffic-calming/respondent/:uuid
+//@route   DELETE /api/v2/eng/traffic-calming/respondent/:uuid
 //@access  Private
 export const deleteRespondent = asyncHandler(async (req: Request<{ uuid: string }>, res: Response<ControllerResponse>, next: NextFunction) => {
   const result = await Respondent.destroy({
@@ -97,7 +97,7 @@ export const deleteRespondent = asyncHandler(async (req: Request<{ uuid: string 
 })
 
 //@desc    Get respondents by petition
-//@route   GET /api/v1/eng/traffic-calming/respondent/petition/:uuid
+//@route   GET /api/v2/eng/traffic-calming/respondent/petition/:uuid
 //@access  Public
 export const getRespondents = asyncHandler(async (req: Request<{ uuid: string }>, res: Response, next: NextFunction) => {
   const respondents = await Respondent.findAll({
@@ -114,7 +114,7 @@ export const getRespondents = asyncHandler(async (req: Request<{ uuid: string }>
 })
 
 //@desc    Verify respondent by shortId
-//@route   GET /api/v1/eng/traffic-calming/respondent/id/:shortid
+//@route   GET /api/v2/eng/traffic-calming/respondent/id/:shortid
 //@access  Public
 export const verifyRespondent = asyncHandler(async (req: Request<{ shortid: string }>, res: Response<VerifyRespondentResponse>, next: NextFunction) => {
   const result = await Respondent.findOne({
@@ -157,7 +157,7 @@ export const verifyRespondent = asyncHandler(async (req: Request<{ shortid: stri
 })
 
 //@desc    Download respondent template
-//@route   POST /api/v1/eng/traffic-calming/respondent/template
+//@route   POST /api/v2/eng/traffic-calming/respondent/template
 //@access  Private
 export const downloadTemplate = asyncHandler(async (req: Request, res: Response<Promise<void>>, next: NextFunction) => {
   const fileName = 'TrafficCalmingTemplate.csv'
@@ -173,7 +173,7 @@ export const downloadTemplate = asyncHandler(async (req: Request, res: Response<
 })
 
 //@desc    Get respondents by ADDRKEY
-//@route   POST /api/v1/eng/traffic-calming/respondent/search
+//@route   POST /api/v2/eng/traffic-calming/respondent/search
 //@access  Private
 export const getRespondentsByADDRKEY = asyncHandler(async (req: Request<{}, {}, GetRespondentsByADDRKEYRequest>, res: Response<GetRespondentsByADDRKEYResponse>, next: NextFunction) => {
   const { addrkeys } = req.body

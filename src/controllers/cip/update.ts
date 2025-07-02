@@ -11,7 +11,7 @@ import { ControllerResponse } from '@controllers/types'
 import { CreateProjectUpdateRequest, UpdateProjectUpdateRequest } from './types'
 
 //@desc    Create project update
-//@route   POST /api/v1/eng/cip/updates
+//@route   POST /api/v2/eng/cip/update
 //@access  Private
 export const createUpdate = asyncHandler(async (req: Request<{}, {}, CreateProjectUpdateRequest>, res: Response<ControllerResponse>, next: NextFunction) => {
   const { projectUpdate, parentId } = req.body
@@ -33,7 +33,7 @@ export const createUpdate = asyncHandler(async (req: Request<{}, {}, CreateProje
 })
 
 //@desc    Update project update
-//@route   PUT /api/v1/eng/cip/updates/:uuid
+//@route   PUT /api/v2/eng/cip/update/:uuid
 //@access  Private
 export const updateUpdate = asyncHandler(async (req: Request<{ uuid: string }, {}, UpdateProjectUpdateRequest>, res: Response<ControllerResponse>, next: NextFunction) => {
   const { projectUpdate } = req.body
@@ -58,7 +58,7 @@ export const updateUpdate = asyncHandler(async (req: Request<{ uuid: string }, {
 })
 
 //@desc    Delete project update
-//@route   DELETE /api/v1/eng/cip/updates/:uuid
+//@route   DELETE /api/v2/eng/cip/update/:uuid
 //@access  Private
 export const deleteUpdate = asyncHandler(async (req: Request<{ uuid: string }>, res: Response<ControllerResponse>, next: NextFunction) => {
   const result = await Update.destroy({

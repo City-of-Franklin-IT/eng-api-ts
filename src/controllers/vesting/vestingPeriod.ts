@@ -92,7 +92,7 @@ export const deleteVestingPeriod = asyncHandler(async (req: Request<{ uuid: stri
 })
 
 //@desc    Update vesting status
-//@route   PUT /api/v1/eng/vesting/period/status/:uuid
+//@route   PUT /api/v2/eng/vesting/period/status/:uuid
 //@access  Private
 export const updateVestingStatus = asyncHandler(async (req: Request<{ uuid: string }, {}, Types.VestingStatusCreationAttributes>, res: Response<ControllerResponse>, next: NextFunction) => {
   const { achieved, expired } = req.body

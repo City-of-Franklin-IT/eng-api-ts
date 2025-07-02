@@ -11,7 +11,7 @@ import { ControllerResponse } from '@controllers/types'
 import * as Types from '../../models/stormwater/types'
 
 // @desc    Create contact
-// @route   POST /api/v1/stormwater/contacts
+// @route   POST /api/v2/stormwater/contacts
 // @access  Private
 export const createContact = asyncHandler(async (req: Request<{}, {}, Types.ContactCreationAttributes>, res: Response<ControllerResponse & { data: Types.ContactInterface }>, next: NextFunction) => {
   const { name, phone, company, email } = req.body
@@ -37,7 +37,7 @@ export const createContact = asyncHandler(async (req: Request<{}, {}, Types.Cont
 })
 
 // @desc    Get contacts
-// @route   GET /api/v1/stormwater/contacts
+// @route   GET /api/v2/stormwater/contacts
 // @access  Private
 export const getContacts = asyncHandler(async (req: Request, res: Response<ControllerResponse & { data: Types.ContactInterface[] }>, next: NextFunction) => {
   const contacts = await Contact.findAll({
@@ -54,7 +54,7 @@ export const getContacts = asyncHandler(async (req: Request, res: Response<Contr
 })
 
 // @desc    Get contact
-// @route   GET /api/v1/stormwater/contacts/:uuid
+// @route   GET /api/v2/stormwater/contacts/:uuid
 // @access  Private
 export const getContact = asyncHandler(async (req: Request<{ uuid: string }>, res: Response<ControllerResponse & { data: Types.ContactInterface }>, next: NextFunction) => {
   const contact = await Contact.findOne({
@@ -78,7 +78,7 @@ export const getContact = asyncHandler(async (req: Request<{ uuid: string }>, re
 })
 
 // @desc    Update contact
-// @route   PUT /api/v1/stormwater/contacts/:uuid
+// @route   PUT /api/v2/stormwater/contacts/:uuid
 // @access  Private
 export const updateContact = asyncHandler(async (req: Request<{ uuid: string }, {}, Types.ContactCreationAttributes>, res: Response<ControllerResponse & { data: Types.ContactInterface }>, next: NextFunction) => {
   const { name, phone, company, email, inactive } = req.body
@@ -113,7 +113,7 @@ export const updateContact = asyncHandler(async (req: Request<{ uuid: string }, 
 })
 
 // @desc    Delete contact
-// @route   DELETE /api/v1/stormwater/contacts/:uuid
+// @route   DELETE /api/v2/stormwater/contacts/:uuid
 // @access  Private
 export const deleteContact = asyncHandler(async (req: Request<{ uuid: string }>, res: Response<ControllerResponse>, next: NextFunction) => {
   const result = await Contact.destroy({

@@ -11,7 +11,7 @@ import { ControllerResponse } from '@controllers/types'
 import * as Types from '@models/stormwater/types'
 
 // @desc    Create log
-// @route   POST /api/v1/stormwater/logs
+// @route   POST /api/v2/stormwater/logs
 // @access  Private
 export const createLog = asyncHandler(async (req: Request<{}, {}, Types.LogCreationAttributes>, res: Response<ControllerResponse & { data: Types.LogInterface }>, next: NextFunction) => {
   const { siteId, inspectionDate } = req.body
@@ -35,7 +35,7 @@ export const createLog = asyncHandler(async (req: Request<{}, {}, Types.LogCreat
 })
 
 //@desc    Get log
-//@route   GET /api/v1/stormwater/logs/:uuid
+//@route   GET /api/v2/stormwater/logs/:uuid
 //@access  Private
 export const getLog = asyncHandler(async (req: Request<{ uuid: string }>, res: Response<ControllerResponse & { data: Types.LogInterface }>, next: NextFunction) => {
   const log = await Log.findOne({
@@ -55,7 +55,7 @@ export const getLog = asyncHandler(async (req: Request<{ uuid: string }>, res: R
 })
 
 // @desc    Update log
-// @route   PUT /api/v1/stormwater/logs/:uuid
+// @route   PUT /api/v2/stormwater/logs/:uuid
 // @access  Private
 export const updateLog = asyncHandler(async (req: Request<{ uuid: string }, {}, Types.LogCreationAttributes>, res: Response<ControllerResponse & { data: Types.LogInterface }>, next: NextFunction) => {
   const { inspectionDate } = req.body
@@ -86,7 +86,7 @@ export const updateLog = asyncHandler(async (req: Request<{ uuid: string }, {}, 
 })
 
 // @desc    Delete log
-// @route   DELETE /api/v1/stormwater/logs/:uuid
+// @route   DELETE /api/v2/stormwater/logs/:uuid
 // @access  Private
 export const deleteLog = asyncHandler(async (req: Request<{ uuid: string }>, res: Response, next: NextFunction) => {
   const result = await Log.destroy({

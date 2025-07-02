@@ -11,7 +11,7 @@ import { ControllerResponse } from '@controllers/types'
 import { CreateSpendingRequest } from './types'
 
 //@desc    Create spending
-//@route   POST /api/v1/eng/cip/spending
+//@route   POST /api/v2/eng/cip/spending
 //@access  Private
 export const createSpending = asyncHandler(async (req: Request<{}, {}, CreateSpendingRequest>, res: Response<ControllerResponse>, next: NextFunction) => {
   const { dollarsSpent, parentId } = req.body
@@ -34,7 +34,7 @@ export const createSpending = asyncHandler(async (req: Request<{}, {}, CreateSpe
 })
 
 //@desc    Delete spending
-//@route   DELETE /api/v1/eng/cip/spending/:uuid
+//@route   DELETE /api/v2/eng/cip/spending/:uuid
 //@access  Private
 export const deleteSpending = asyncHandler(async (req: Request<{ uuid: string }>, res: Response<ControllerResponse>, next: NextFunction) => {
   const result = await Spending.destroy({

@@ -10,7 +10,7 @@ import { ControllerResponse } from '@controllers/types'
 import * as Types from '@models/vesting/types'
 
 //@desc    Get projects
-//@route   GET /api/v1/eng/vesting/project
+//@route   GET /api/v2/eng/vesting/project
 //@access  Private
 export const getProjects = asyncHandler(async (req: Request, res: Response<ControllerResponse & { data: Types.ProjectInterface[] }>, next: NextFunction) => {
   const projects = await Project.findAll({
@@ -46,7 +46,7 @@ export const getProjects = asyncHandler(async (req: Request, res: Response<Contr
 })
 
 //@desc    Get project
-//@route   GET /api/v1/eng/vesting/project/:uuid
+//@route   GET /api/v2/eng/vesting/project/:uuid
 //@access  Private
 export const getProject = asyncHandler(async (req: Request<{ uuid: string }>, res: Response<ControllerResponse & { data: Types.ProjectInterface }>, next: NextFunction) => {
   const project = await Project.findOne({
@@ -88,7 +88,7 @@ export const getProject = asyncHandler(async (req: Request<{ uuid: string }>, re
 })
 
 //@desc    Create project
-//@route   POST /api/v1/eng/vesting/project
+//@route   POST /api/v2/eng/vesting/project
 //@access  Private
 export const createProject = asyncHandler(async (req: Request<{}, {}, Types.ProjectCreationAttributes>, res: Response<ControllerResponse & { data: Types.ProjectInterface }>, next: NextFunction) => {
   const { type, name, cof, ordinance, notes } = req.body
@@ -114,7 +114,7 @@ export const createProject = asyncHandler(async (req: Request<{}, {}, Types.Proj
 })
 
 //@desc    Update project
-//@route   PUT /api/v1/eng/vesting/project/:uuid
+//@route   PUT /api/v2/eng/vesting/project/:uuid
 //@access  Private
 export const updateProject = asyncHandler(async (req: Request<{ uuid: string }, {}, Types.ProjectCreationAttributes>, res: Response<ControllerResponse>, next: NextFunction) => {
   const { name, cof, ordinance, expired, notes } = req.body
@@ -145,7 +145,7 @@ export const updateProject = asyncHandler(async (req: Request<{ uuid: string }, 
 })
 
 //@desc    Delete project
-//@route   DELETE /api/v1/eng/vesting/project/:uuid
+//@route   DELETE /api/v2/eng/vesting/project/:uuid
 //@access  Private
 export const deleteProject = asyncHandler(async (req: Request<{ uuid: string }>, res: Response<ControllerResponse>, next: NextFunction) => {
   const result = await Project.destroy({

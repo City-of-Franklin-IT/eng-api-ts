@@ -11,7 +11,7 @@ import { ControllerResponse } from '@controllers/types'
 import * as Types from '@models/stormwater/types'
 
 // @desc    Create construction violation
-// @route   POST /api/v1/stormwater/violations
+// @route   POST /api/v2/stormwater/violations
 // @access  Private
 export const createViolation = asyncHandler(async (req: Request<{}, {}, Types.ConstructionViolationCreationAttributes>, res: Response<ControllerResponse & { data: Types.ConstructionViolationInterface }>, next: NextFunction) => {
   const { date, siteId, details, complaintId } = req.body
@@ -37,7 +37,7 @@ export const createViolation = asyncHandler(async (req: Request<{}, {}, Types.Co
 })
 
 // @desc    Get violations
-// @route   GET /api/v1/stormwater/violations
+// @route   GET /api/v2/stormwater/violations
 // @access  Private
 export const getViolations = asyncHandler(async (req: Request, res: Response<ControllerResponse & { data: Types.ConstructionViolationInterface[] }>, next: NextFunction) => {
   const violations = await ConstructionViolation.findAll({
@@ -63,7 +63,7 @@ export const getViolations = asyncHandler(async (req: Request, res: Response<Con
 })
 
 // @desc    Get violation
-// @route   GET /api/v1/stormwater/violations/:uuid
+// @route   GET /api/v2/stormwater/violations/:uuid
 // @access  Private
 export const getViolation = asyncHandler(async (req: Request<{ uuid: string }>, res: Response<ControllerResponse & { data: Types.ConstructionViolationInterface }>, next: NextFunction) => {
   const violation = await ConstructionViolation.findOne({
@@ -85,7 +85,7 @@ export const getViolation = asyncHandler(async (req: Request<{ uuid: string }>, 
 })
 
 // @desc    Update violation
-// @route   PUT /api/v1/stormwater/violations/:uuid
+// @route   PUT /api/v2/stormwater/violations/:uuid
 // @access  Private
 export const updateViolation = asyncHandler(async (req: Request<{ uuid: string }, {}, Types.ConstructionViolationCreationAttributes>, res: Response<ControllerResponse & { data: Types.ConstructionViolationInterface }>, next: NextFunction) => {
   const { date, siteId, details, enforcementAction, penaltyDate, penaltyAmount, penaltyDueDate, paymentReceived, swoDate, swoLiftedDate, compliance, closed } = req.body
@@ -128,7 +128,7 @@ export const updateViolation = asyncHandler(async (req: Request<{ uuid: string }
 })
 
 // @desc    Delete violation
-// @route   DELETE /api/v1/stormwater/violations/:uuid
+// @route   DELETE /api/v2/stormwater/violations/:uuid
 // @access  Private
 export const deleteViolation = asyncHandler(async (req: Request<{ uuid: string }>, res: Response<ControllerResponse>, next: NextFunction) => {
   const result = await ConstructionViolation.destroy({

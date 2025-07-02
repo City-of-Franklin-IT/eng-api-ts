@@ -12,13 +12,16 @@ import { ProjectInterface } from '@models/cip/types'
 import { GetProjectsResponse, GetProjectResponse, CreateProjectRequest, CreateProjectResponse } from './types'
 
 //@desc    Get projects
-//@route   GET /api/v1/eng/cip/project
+//@route   GET /api/v2/eng/cip/project
 //@access  Public
 export const getProjects = asyncHandler(async (req: Request, res: Response<GetProjectsResponse>, next: NextFunction) => {
   const projects = await Project.findAll({
     where: {
       name: { [Op.ne]: '' }
-    }
+    },
+    include: [
+      { model: Phase }
+    ]
   }) as (Model<ProjectInterface> & ProjectInterface)[]
 
   res.status(200).json({
@@ -28,7 +31,7 @@ export const getProjects = asyncHandler(async (req: Request, res: Response<GetPr
 })
 
 //@desc    Get project
-//@route   GET /api/v1/eng/cip/project/:uuid
+//@route   GET /api/v2/eng/cip/project/:uuid
 //@access  Public
 export const getProject = asyncHandler(async (req: Request<{ uuid: string }>, res: Response<GetProjectResponse>, next: NextFunction) => {
   const project = await Project.findOne({
@@ -59,7 +62,7 @@ export const getProject = asyncHandler(async (req: Request<{ uuid: string }>, re
 })
 
 //@desc    Create project
-//@route   POST /api/v1/eng/cip/project
+//@route   POST /api/v2/eng/cip/project
 //@access  Private
 export const createProject = asyncHandler(async (req: Request<{}, {}, CreateProjectRequest>, res: Response<CreateProjectResponse>, next: NextFunction) => {
   const { name, projectDescription, type, manager, managerEmail, link, approvedBudget, archived, xCoordinate, yCoordinate } = req.body
@@ -96,7 +99,7 @@ export const createProject = asyncHandler(async (req: Request<{}, {}, CreateProj
 })
 
 //@desc    Update project
-//@route   PUT /api/v1/end/cip/project/:uuid
+//@route   PUT /api/v2/end/cip/project/:uuid
 //@access  Private
 export const updateProject = asyncHandler(async (req: Request<{ uuid: string }, {}, CreateProjectRequest>, res: Response<ControllerResponse>, next: NextFunction) => {
   const { name, projectDescription, type, manager, managerEmail, link, approvedBudget, archived, xCoordinate, yCoordinate } = req.body
@@ -130,7 +133,7 @@ export const updateProject = asyncHandler(async (req: Request<{ uuid: string }, 
 })
 
 //@desc    Delete project
-//@route   DELETE /api/v1/eng/cip/project/:uuid
+//@route   DELETE /api/v2/eng/cip/project/:uuid
 //@access  Private
 export const deleteProject = asyncHandler(async (req: Request<{ uuid: string }>, res: Response<ControllerResponse>, next: NextFunction) => {
   const result = await Project.destroy({

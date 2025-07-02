@@ -100,7 +100,7 @@ export const getSites = asyncHandler(async (req: Request, res: Response<Controll
 })
 
 // @desc    Get site
-// @route   GET /api/v1/stormwater/sites/:uuid
+// @route   GET /api/v2/stormwater/sites/:uuid
 // @access  Private
 export const getSite = asyncHandler(async (req: Request<{ uuid: string }>, res: Response<ControllerResponse & { data: Types.SiteInterface }>, next: NextFunction) => {
   const site = await Site.findOne({
@@ -151,7 +151,7 @@ export const getSite = asyncHandler(async (req: Request<{ uuid: string }>, res: 
 })
 
 // @desc    Update site
-// @route   PUT /api/v1/stormwater/sites/:uuid
+// @route   PUT /api/v2/stormwater/sites/:uuid
 // @access  Private
 export const updateSite = asyncHandler(async (req: Request<{ uuid: string }, {}, Types.SiteCreationAttributes>, res: Response<ControllerResponse & { data: Types.SiteInterface }>, next: NextFunction) => {
   const { inspectorId, name, location, preconDate, xCoordinate, yCoordinate, permit, cof, tnq, greenInfrastructure, inactive } = req.body
@@ -200,7 +200,7 @@ export const updateSite = asyncHandler(async (req: Request<{ uuid: string }, {},
 })
 
 // @desc    Delete site
-// @route   DELETE /api/v1/stormwater/sites/:uuid
+// @route   DELETE /api/v2/stormwater/sites/:uuid
 // @access  Private
 export const deleteSite = asyncHandler(async (req: Request<{ uuid: string }>, res: Response<ControllerResponse>, next: NextFunction) => {
   const result = await Site.destroy({
@@ -220,7 +220,7 @@ export const deleteSite = asyncHandler(async (req: Request<{ uuid: string }>, re
 })
 
 //@desc    Get active sites
-//@route   GET /api/v1/stormwater/sites/active
+//@route   GET /api/v2/stormwater/sites/active
 //@access  Private
 export const getActiveSites = asyncHandler(async (req: Request, res: Response<ControllerResponse & { data: Types.SiteInterface[] }>, next: NextFunction) => {
   const sites = await Site.findAll({

@@ -12,7 +12,7 @@ import { ControllerResponse } from '@controllers/types'
 import * as Types from '@models/stormwater/types'
 
 // @desc    Create illicit discharge
-// @route   POST /api/v1/stormwater/illicit-discharges/create
+// @route   POST /api/v2/stormwater/illicit-discharges/create
 // @access  Private
 export const createIllicitDischarge = asyncHandler(async (req: Request<{}, {}, Types.IllicitDischargeCreationAttributes>, res: Response<ControllerResponse & { data: Types.IllicitDischargeInterface }>, next: NextFunction) => {
   const { complaintId, siteId, date, xCoordinate, yCoordinate, locationDescription, inspectorId, details, responsibleParty, volumeLost, streamWatershed, enforcementAction, penaltyDate, penaltyAmount, penaltyDueDate, paymentReceived } = req.body
@@ -65,7 +65,7 @@ export const createIllicitDischarge = asyncHandler(async (req: Request<{}, {}, T
 })
 
 // @desc    Get illicit discharges
-// @route   GET /api/v1/stormwater/illicitdischarges
+// @route   GET /api/v2/stormwater/illicitdischarges
 // @access  Private
 export const getIllicitDischarges = asyncHandler(async (req: Request, res: Response<ControllerResponse & { data: Types.IllicitDischargeInterface[] }>, next: NextFunction) => {
   const illicitDischarges = await IllicitDischarge.findAll({
@@ -91,7 +91,7 @@ export const getIllicitDischarges = asyncHandler(async (req: Request, res: Respo
 })
 
 // @desc    Get illicit discharge
-// @route   GET /api/v1/stormwater/illicit-discharges/:uuid
+// @route   GET /api/v2/stormwater/illicit-discharges/:uuid
 // @access  Private
 export const getIllicitDischarge = asyncHandler(async (req: Request<{ uuid: string }>, res: Response<ControllerResponse & { data: Types.IllicitDischargeInterface }>, next: NextFunction) => {
   const illicit = await IllicitDischarge.findOne({
@@ -115,7 +115,7 @@ export const getIllicitDischarge = asyncHandler(async (req: Request<{ uuid: stri
 })
 
 // @desc    Update illicit discharge
-// @route   PUT /api/v1/stormwater/illicit-discharges/:uuid
+// @route   PUT /api/v2/stormwater/illicit-discharges/:uuid
 // @access  Private
 export const updateIllicitDischarge = asyncHandler(async (req: Request<{ uuid: string },{}, Types.IllicitDischargeCreationAttributes>, res: Response<ControllerResponse & { data: Types.IllicitDischargeInterface }>, next: NextFunction) => {
   const { date, xCoordinate, yCoordinate, locationDescription, inspectorId, details, responsibleParty, volumeLost, streamWatershed, enforcementAction, penaltyDate, penaltyAmount, penaltyDueDate, paymentReceived, compliance, closed } = req.body
@@ -170,7 +170,7 @@ export const updateIllicitDischarge = asyncHandler(async (req: Request<{ uuid: s
 })
 
 // @desc    Delete illicit discharge
-// @route   DELETE /api/v1/stormwater/illicit-discharges/:uuid
+// @route   DELETE /api/v2/stormwater/illicit-discharges/:uuid
 // @access  Private
 export const deleteIllicitDischarge = asyncHandler(async (req: Request<{ uuid: string }>, res: Response<ControllerResponse>, next: NextFunction) => {
   const result = await IllicitDischarge.destroy({

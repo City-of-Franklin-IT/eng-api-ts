@@ -9,7 +9,7 @@ import { ControllerResponse } from '@controllers/types'
 import * as Types from '@models/vesting/types'
 
 //@desc    Create extension
-//@route   POST /api/v1/eng/vesting/extension
+//@route   POST /api/v2/eng/vesting/extension
 //@access  Private
 export const createMilestoneExtension = asyncHandler(async (req: Request<{}, {}, Types.MilestoneCreationAttributes>, res: Response, next: NextFunction) => {
   const { date, parentId } = req.body
@@ -58,7 +58,7 @@ export const updateMilestoneExtension = asyncHandler(async (req: Request<{ uuid:
 })
 
 //@desc    Delete extension
-//@route   DELETE /api/v1/eng/vesting/extension/:uuid
+//@route   DELETE /api/v2/eng/vesting/extension/:uuid
 //@access  Private
 export const deleteMilestoneExtension = asyncHandler(async (req: Request<{ uuid: string }>, res: Response<ControllerResponse>, next: NextFunction) => {
   const result = await MilestoneExtension.destroy({ // Delete extension

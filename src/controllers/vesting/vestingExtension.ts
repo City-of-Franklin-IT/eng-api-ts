@@ -58,7 +58,7 @@ export const updateVestingExtension = asyncHandler(async (req: Request<{ uuid: s
 })
 
 //@desc    Delete vesting extension
-//@route   DELETE /api/v1/eng/vesting/vesting-extension/:uuid
+//@route   DELETE /api/v2/eng/vesting/vesting-extension/:uuid
 //@access  Private
 export const deleteVestingExtension = asyncHandler(async (req: Request<{ uuid: string }>, res: Response<ControllerResponse>, next: NextFunction) => {
   const result = await VestingExtension.destroy({ // Delete vesting extension
