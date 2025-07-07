@@ -1,5 +1,5 @@
 import { Router } from 'express'
-import { createSpending, deleteSpending } from '@controllers/cip/spending'
+import { createSpending, deleteSpending, updateSpending } from '@controllers/cip/spending'
 import { entra } from '@middleware/auth'
 
 const router = Router()
@@ -12,6 +12,7 @@ router
 
 router
   .route('/:uuid')
+  .put(updateSpending)
   .delete(deleteSpending)
 
 export default router

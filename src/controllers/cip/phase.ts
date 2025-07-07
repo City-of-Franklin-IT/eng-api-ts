@@ -30,6 +30,33 @@ export const createPhase = asyncHandler(async (req: Request<{}, {}, CreatePhaseR
   })
 })
 
+//@desc    Update project phase
+//@route   PUT /api/v2/eng/cip/phase/:uuid
+//@access  Private
+export const updatePhase = asyncHandler(async (req: Request<{ uuid: string }, CreatePhaseRequest>, res: Response<ControllerResponse>, next: NextFunction) => {
+  const { phase } = req.body
+
+  const result = await Phase.update({
+    phase
+  },{
+    where: {
+      uuid: req.params.uuid
+    },
+    returning: false
+  })
+
+  const [affectedCount] = result
+
+  if(affectedCount === 0) {
+    return next(new ErrorResponse(`Unable to update project phase by uuid ${ req.params.uuid }`, 500))
+  }
+
+  res.status(200).json({
+    success: true,
+    msg: "Proect Phase Updated"
+  })
+})
+
 //@desc    Delete project phase
 //@route   DELETE /api/v2/eng/cip/phase/:uuid
 //@access  Private

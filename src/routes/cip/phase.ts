@@ -1,5 +1,5 @@
 import { Router } from 'express'
-import { createPhase, deletePhase } from '@controllers/cip/phase'
+import { createPhase, updatePhase, deletePhase } from '@controllers/cip/phase'
 import { entra } from '@middleware/auth'
 
 const router = Router()
@@ -12,6 +12,7 @@ router
 
 router
   .route('/:uuid')
+  .put(updatePhase)
   .delete(deletePhase)
 
 export default router

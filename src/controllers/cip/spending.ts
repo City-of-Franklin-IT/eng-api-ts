@@ -8,7 +8,7 @@ import { Request, Response, NextFunction } from 'express'
 import { Model } from 'sequelize'
 import { SpendingInterface } from '@models/cip/types'
 import { ControllerResponse } from '@controllers/types'
-import { CreateSpendingRequest } from './types'
+import { CreateSpendingRequest, UpdateSpendingRequest } from './types'
 
 //@desc    Create spending
 //@route   POST /api/v2/eng/cip/spending
@@ -30,6 +30,34 @@ export const createSpending = asyncHandler(async (req: Request<{}, {}, CreateSpe
   res.status(201).json({
     success: true,
     msg: "Spending Created"
+  })
+})
+
+//@desc    Update spending
+//@route   PUT /api/v2/eng/cip/spending/:uuid
+//@access  Private
+export const updateSpending = asyncHandler(async (req: Request<{ uuid: string }, {}, UpdateSpendingRequest>, res: Response<ControllerResponse>, next: NextFunction) => {
+  const { dollarsSpent } = req.body
+
+  const spending = await Spending.update({
+    dollarsSpent,
+    ...editorTracking(req)
+  },{
+    where: {
+      uuid: req.params.uuid
+    },
+    returning: false
+  })
+
+    const [affectedRows] = spending
+
+  if(affectedRows === 0) {
+    return next(new ErrorResponse(`Unable to update project spending by uuid ${ req.params.uuid }`, 500))
+  }
+
+  res.status(200).json({
+    success: true,
+    msg: "Spending Updated"
   })
 })
 
