@@ -4,8 +4,6 @@ import { entra } from '@middleware/auth'
 
 const router = Router()
 
-router.use(entra)
-
 router
   .route('/')
   .post(entra, createRespondents)
