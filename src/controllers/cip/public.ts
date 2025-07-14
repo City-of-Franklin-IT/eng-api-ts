@@ -8,7 +8,7 @@ import { Model } from 'sequelize'
 import { ProjectInterface } from '@models/cip/types'
 
 //@desc    Get CIP projects
-//@route   GET /api/v1/eng/public/cip-projects
+//@route   GET /api/v2/eng/public/cip-projects
 //@access  Public
 export const getProjects = asyncHandler(async (req: Request, res: Response, next: NextFunction) => {
   const projects = await Project.findAll({
@@ -24,10 +24,6 @@ export const getProjects = asyncHandler(async (req: Request, res: Response, next
       { model: Spending, as: 'Spending', attributes: ['dollarsSpent', 'dollarsSpentDate', 'uuid', 'createdAt']
     }]
   }) as (Model<ProjectInterface> & ProjectInterface)[]
-
-  if(!projects) {
-    return next(new ErrorResponse("Could not return CIP projects", 500))
-  }
 
   res.status(200).json({
     success: true,

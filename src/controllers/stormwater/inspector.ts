@@ -1,31 +1,28 @@
 import { v4 as uuidv4 } from 'uuid'
 import asyncHandler from '@middleware/async'
 import { ErrorResponse } from '@utils/errorResponse'
+import editorTracking from '@utils/editorTracking'
 import { Inspector, Site, Complaint, SiteContact, Contact, Log, ConstructionViolation, FollowUpDate, IllicitDischarge } from '@models/stormwater'
 
 // Types
 import { Request, Response, NextFunction } from 'express'
 import { Model } from 'sequelize'
 import { ControllerResponse } from '@controllers/types'
-import { InspectorInterface, SiteInterface } from '@models/stormwater/types'
-import { CreateInspectorRequest, CreateInspectorResponse, GetInspectorsResponse, GetInspectorResponse, UpdateInspectorRequest, UpdateInspectorResponse } from './types'
+import * as Types from '@models/stormwater/types'
 
 // @desc    Create inspector
-// @route   POST /api/v1/stormwater/inspectors
+// @route   POST /api/v2/stormwater/inspector
 // @access  Private
-export const createInspector = asyncHandler(async (req: Request<{}, {}, CreateInspectorRequest>, res: Response<CreateInspectorResponse>, next: NextFunction) => {
+export const createInspector = asyncHandler(async (req: Request<{}, {}, Types.InspectorCreationAttributes>, res: Response<ControllerResponse & { data: Types.InspectorInterface }>, next: NextFunction) => {
   const { name, email } = req.body
-
-  const userEmail = req.user?.email
 
   const inspector = await Inspector.create({
     inspectorId: `inspector-${ uuidv4() }`,
     name,
     email,
     slug: name.split(' ')[0].toLowerCase() + '-' + name.split(' ')[1].toLowerCase(),
-    createdBy: userEmail,
-    updatedBy: userEmail,
-  }) as Model<InspectorInterface> & InspectorInterface
+    ...editorTracking(req)
+  }) as Model<Types.InspectorInterface> & Types.InspectorInterface
 
   if(!inspector) {
     return next(new ErrorResponse("Unable to create inspector", 500))
@@ -39,15 +36,15 @@ export const createInspector = asyncHandler(async (req: Request<{}, {}, CreateIn
 })
 
 // @desc    Get inspectors
-// @route   GET /api/v1/stormwater/inspectors
+// @route   GET /api/v2/stormwater/inspector
 // @access  Private
-export const getInspectors = asyncHandler(async (req: Request, res: Response<GetInspectorsResponse>, next: NextFunction) => {
+export const getInspectors = asyncHandler(async (req: Request, res: Response<ControllerResponse & { data: Types.InspectorInterface[] }>, next: NextFunction) => {
   const inspectors = await Inspector.findAll({
     order: [['name', 'asc'], [Site, 'name', 'asc'], [Complaint, 'date', 'desc']],
     include: [
       { model: Site },
       { model: Complaint }]
-  }) as Model<InspectorInterface>[] & InspectorInterface
+  }) as (Model<Types.InspectorInterface> & Types.InspectorInterface)[]
 
   res.status(200).json({
     success: true,
@@ -56,12 +53,22 @@ export const getInspectors = asyncHandler(async (req: Request, res: Response<Get
 })
 
 // @desc    Get inspector sites
-// @route   GET /api/v1/stormwater/inspectors/:inspectorid
+// @route   GET /api/v2/stormwater/inspector/:slug
 // @access  Private
-export const getInspector = asyncHandler(async (req: Request<{ inspectorid: string }>, res: Response<GetInspectorResponse>, next: NextFunction) => {
+export const getInspector = asyncHandler(async (req: Request<{ slug: string }>, res: Response<ControllerResponse & { data: { sites: Types.SiteInterface[], inspector: Types.InspectorInterface } }>, next: NextFunction) => {
+  const inspector = await Inspector.findOne({
+    where: {
+      slug: req.params.slug
+    }
+  }) as Model<Types.InspectorInterface> & Types.InspectorInterface
+
+  if(!inspector) {
+    return next(new ErrorResponse(`Unable to return inspector by slug ${ req.params.slug }`, 500))
+  }
+
   const results = await Site.findAll({
     where: {
-      inspectorId: req.params.inspectorid
+      inspectorId: inspector.inspectorId
     },
     order: [['name', 'asc']],
     include: [
@@ -81,7 +88,7 @@ export const getInspector = asyncHandler(async (req: Request<{ inspectorid: stri
         include: [{ model: FollowUpDate }]
       }
     ]
-  }) as Model<SiteInterface>[] & SiteInterface
+  }) as (Model<Types.SiteInterface> & Types.SiteInterface)[]
 
   const sites = results.map(result => {
     const site = result.toJSON()
@@ -95,14 +102,8 @@ export const getInspector = asyncHandler(async (req: Request<{ inspectorid: stri
       hasOpenViolation: openViolations,
       hasOpenComplaint: openComplaints,
       hasOpenIllicitDischarge: openIllicitDischarges
-    } as Model<SiteInterface> & SiteInterface
+    } as Model<Types.SiteInterface> & Types.SiteInterface
   })
-
-  const inspector = await Inspector.findOne({
-    where: {
-      inspectorId: req.params.inspectorid
-    }
-  }) as Model<InspectorInterface> & InspectorInterface
 
   res.status(200).json({
     success: true,
@@ -111,18 +112,16 @@ export const getInspector = asyncHandler(async (req: Request<{ inspectorid: stri
 })
 
 // @desc    Update inspector
-// @route   PUT /api/v1/stormwater/inspectors/:inspectorid
+// @route   PUT /api/v2/stormwater/inspector/:inspectorid
 // @access  Private
-export const updateInspector = asyncHandler(async (req: Request<{ inspectorid: string }, {}, UpdateInspectorRequest>, res: Response<UpdateInspectorResponse>, next: NextFunction) => {
+export const updateInspector = asyncHandler(async (req: Request<{ inspectorid: string }, {}, Types.InspectorCreationAttributes>, res: Response<ControllerResponse & { data: Types.InspectorInterface }>, next: NextFunction) => {
   const { name, email, inactive } = req.body
-
-  const userEmail = req.user?.email
 
   const inspector = await Inspector.update({
     name,
     email,
     inactive,
-    updatedBy: userEmail
+    ...editorTracking(req)
   },
   {
     where: {
@@ -137,7 +136,7 @@ export const updateInspector = asyncHandler(async (req: Request<{ inspectorid: s
     return next(new ErrorResponse(`Unable to update inspector by inspectorId ${ req.params.inspectorid }`, 500))
   }
 
-  const data = (affectedRows as (Model<InspectorInterface> & InspectorInterface)[])[0]
+  const data = (affectedRows as (Model<Types.InspectorInterface> & Types.InspectorInterface)[])[0]
 
   res.status(200).json({
     success: true,
@@ -147,7 +146,7 @@ export const updateInspector = asyncHandler(async (req: Request<{ inspectorid: s
 })
 
 // @desc    Delete inspector
-// @route   DELETE /api/v1/stormwater/inspectors/:inspectorid
+// @route   DELETE /api/v2/stormwater/inspector/:inspectorid
 // @access  Private
 export const deleteInspector = asyncHandler(async (req:  Request<{ inspectorid: string }>, res: Response<ControllerResponse>, next: NextFunction) => {
   const result = await Inspector.destroy({

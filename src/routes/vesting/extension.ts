@@ -1,10 +1,10 @@
 import { Router } from 'express'
 import { createMilestoneExtension, updateMilestoneExtension, deleteMilestoneExtension } from '@controllers/vesting/milestoneExtension'
-import { protect } from '@middleware/auth'
+import { entra } from '@middleware/auth'
 
 const router = Router()
 
-router.use(protect)
+router.use(entra)
 
 router
   .route('/')

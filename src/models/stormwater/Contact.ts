@@ -11,12 +11,12 @@ export default (sequelize: Sequelize, dataTypes: typeof DataTypes) => {
     declare phone: string | null
     declare company: string | null
     declare email: string | null
-    declare inactive: boolean | null
+    declare inactive: boolean
     declare uuid: string
     declare createdBy: string
-    declare createdAt: Date
+    declare createdAt: string
     declare updatedBy: string
-    declare updatedAt: Date
+    declare updatedAt: string
 
     static associate({ SiteContact }: { SiteContact: ModelStatic<Model<SiteContactInterface, SiteContactCreationAttributes>> }) {
       this.hasMany(SiteContact, { sourceKey: 'contactId', foreignKey: 'contactId' })

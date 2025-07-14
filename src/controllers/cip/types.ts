@@ -57,6 +57,13 @@ export interface CreateSpendingRequest {
   parentId: string
 }
 
+export interface UpdateSpendingRequest {
+  dollarsSpent: number
+  dollarsSpentDate: string
+  readonly parentId: string
+  readonly uuid: string
+}
+
 export interface CreateProjectUpdateRequest {
   projectUpdate: string
   parentId: string

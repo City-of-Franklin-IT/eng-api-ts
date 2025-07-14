@@ -9,12 +9,12 @@ export default (sequelize: Sequelize, dataTypes: typeof DataTypes) => {
   class Log extends Model<LogInterface, LogCreationAttributes>{
     declare logId: string
     declare siteId: string
-    declare inspectionDate: Date | string
+    declare inspectionDate: string
     declare uuid: string
     declare createdBy: string
-    declare createdAt: Date
+    declare createdAt: string
     declare updatedBy: string
-    declare updatedAt: Date
+    declare updatedAt: string
 
     static assosciate({ Site }: { Site: ModelStatic<Model<SiteInterface, SiteCreationAttributes>> }) {
       this.belongsTo(Site, { targetKey: 'siteId', foreignKey: 'siteId' })

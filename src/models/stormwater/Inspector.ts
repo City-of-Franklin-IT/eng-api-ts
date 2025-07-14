@@ -2,7 +2,7 @@
 
 // Types
 import { Sequelize, Model, DataTypes, ModelStatic } from "sequelize"
-import { InspectorInterface, InspectorCreationAttributes, ComplaintInterface, ComplaintCreationAttributes, IllicitDischargeInterface, IllicitDischargeCreationAttributes, GreenInfrastructureInterface, GreenInfrastructureCreationAttributes, SiteInterface, SiteCreationAttributes } from './types'
+import { InspectorInterface, InspectorCreationAttributes, ComplaintInterface, ComplaintCreationAttributes, IllicitDischargeInterface, IllicitDischargeCreationAttributes, SiteInterface, SiteCreationAttributes } from './types'
 
 export default (sequelize: Sequelize, dataTypes: typeof DataTypes) => {
   class Inspector extends Model<InspectorInterface, InspectorCreationAttributes>{
@@ -10,18 +10,17 @@ export default (sequelize: Sequelize, dataTypes: typeof DataTypes) => {
     declare name: string
     declare email: string
     declare slug: string
-    declare inactive: boolean | null
+    declare inactive: boolean
     declare uuid: string
     declare createdBy: string
-    declare createdAt: Date
+    declare createdAt: string
     declare updatedBy: string
-    declare updatedAt: Date
+    declare updatedAt: string
 
-    static associate({ Site, Complaint, IllicitDischarge, GreenInfrastructure }: { Site: ModelStatic<Model<SiteInterface, SiteCreationAttributes>>, Complaint: ModelStatic<Model<ComplaintInterface, ComplaintCreationAttributes>>, IllicitDischarge: ModelStatic<Model<IllicitDischargeInterface, IllicitDischargeCreationAttributes>>, GreenInfrastructure: ModelStatic<Model<GreenInfrastructureInterface, GreenInfrastructureCreationAttributes>> }) {
+    static associate({ Site, Complaint, IllicitDischarge }: { Site: ModelStatic<Model<SiteInterface, SiteCreationAttributes>>, Complaint: ModelStatic<Model<ComplaintInterface, ComplaintCreationAttributes>>, IllicitDischarge: ModelStatic<Model<IllicitDischargeInterface, IllicitDischargeCreationAttributes>> }) {
       this.hasMany(Site, { sourceKey: 'inspectorId', foreignKey: 'inspectorId' })
       this.hasMany(Complaint, { sourceKey: 'inspectorId', foreignKey: 'inspectorId' })
       this.hasMany(IllicitDischarge, { sourceKey: 'inspectorId', foreignKey: 'inspectorId' })
-      this.hasMany(GreenInfrastructure, { sourceKey: 'inspectorId', foreignKey: 'inspectorId' })
     }
 
     toJSON() {

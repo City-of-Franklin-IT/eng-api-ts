@@ -1,5 +1,6 @@
 import asyncHandler from '@middleware/async'
 import { ErrorResponse } from '@utils/errorResponse'
+import editorTracking from '@utils/editorTracking'
 import { Petition, Respondent, Response as PetitionResponse, Attachment } from '@models/traffic-calming'
 import createPetitionId from '@utils/createPetitionId'
 
@@ -11,7 +12,7 @@ import { PetitionInterface } from '@models/traffic-calming/types'
 import { GetPetitionsResponse, GetPetitionResponse, CreatePetitionRequest, CreatePetitionResponse, UpdatePetititonRequest } from './types'
 
 //@desc    Get petitions
-//@route   GET /api/v1/eng/traffic-calming/petition
+//@route   GET /api/v2/eng/traffic-calming/petition
 //@access  Public
 export const getPetitions = asyncHandler(async (req: Request, res: Response<GetPetitionsResponse>, next: NextFunction) => {
   const petitions = await Petition.findAll({
@@ -31,7 +32,7 @@ export const getPetitions = asyncHandler(async (req: Request, res: Response<GetP
 })
 
 //@desc    Get petition
-//@route   GET /api/v1/eng/traffic-calming/petition/:uuid
+//@route   GET /api/v2/eng/traffic-calming/petition/:uuid
 //@access  Public
 export const getPetition = asyncHandler(async (req: Request<{ uuid: string }>, res: Response<GetPetitionResponse>, next: NextFunction) => {
   const petition = await Petition.findOne({
@@ -57,20 +58,17 @@ export const getPetition = asyncHandler(async (req: Request<{ uuid: string }>, r
 })
 
 //@desc    Create petition
-//@route   POST /api/v1/eng/traffic-calming/petition
+//@route   POST /api/v2/eng/traffic-calming/petition
 //@access  Private
 export const createPetition = asyncHandler(async (req: Request<{}, {}, CreatePetitionRequest>, res: Response<CreatePetitionResponse>, next: NextFunction) => {
   const { description, startDate, endDate } = req.body
-
-  const email = req.user?.email
 
   const petition = await Petition.create({
     petitionId: await createPetitionId(),
     description,
     startDate,
     endDate,
-    createdBy: email,
-    updatedBy: email
+    ...editorTracking(req)
   }) as Model<PetitionInterface> & PetitionInterface
 
   if(!petition) {
@@ -85,18 +83,16 @@ export const createPetition = asyncHandler(async (req: Request<{}, {}, CreatePet
 })
 
 //@desc    Update petition
-//@route   PUT /api/v1/eng/traffic-calming/petition/:uuid
+//@route   PUT /api/v2/eng/traffic-calming/petition/:uuid
 //@access  Private
 export const updatePetition = asyncHandler(async (req: Request<{ uuid: string }, {}, UpdatePetititonRequest>, res: Response<ControllerResponse>, next: NextFunction) => {
   const { description, startDate, endDate } = req.body
-
-  const email = req.user?.email
 
   const petition = await Petition.update({
     description,
     startDate,
     endDate,
-    updatedBy: email
+    ...editorTracking(req)
   },{
     where: {
       uuid: req.params.uuid
@@ -116,7 +112,7 @@ export const updatePetition = asyncHandler(async (req: Request<{ uuid: string },
 })
 
 //@desc    Delete petition
-//@route   DELETE /api/v1/eng/traffic-calming/petition/:uuid
+//@route   DELETE /api/v2/eng/traffic-calming/petition/:uuid
 //@access  Private
 export const deletePetition = asyncHandler(async (req: Request<{ uuid: string }>, res: Response<ControllerResponse>, next: NextFunction) => {
   const result = await Petition.destroy({

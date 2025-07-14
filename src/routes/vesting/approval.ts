@@ -1,10 +1,10 @@
 import { Router } from 'express'
-import { createApproval, updateApproval, deleteApproval } from '@controllers/vesting/approval'
-import { protect } from '@middleware/auth'
+import { createApproval, updateApproval } from '@controllers/vesting/approval'
+import { entra } from '@middleware/auth'
 
 const router = Router()
 
-router.use(protect)
+router.use(entra)
 
 router
   .route('/')
@@ -13,6 +13,5 @@ router
   router
   .route('/:uuid')
   .put(updateApproval)
-  .delete(deleteApproval)
 
 export default router

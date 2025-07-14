@@ -6,12 +6,11 @@
   "scripts": {
     "build": "tsc",
     "dev": "nodemon -r tsconfig-paths/register src/app.ts",
-    "start": "npx tsx dist/app.js --port 6004"
+    "start": "npx tsx dist/app.js --port 5050"
   },
   "author": "Andrew Southern",
   "license": "ISC",
   "dependencies": {
-    "@arcgis/core": "^4.31.6",
     "@types/cors": "^2.8.17",
     "cors": "^2.8.5",
     "dotenv": "^16.4.7",

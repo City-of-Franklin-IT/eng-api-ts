@@ -3,17 +3,17 @@ import moment from "moment"
 
 // Types
 import { Sequelize, Model, DataTypes, ModelStatic } from "sequelize"
-import { SiteInterface, SiteCreationAttributes, LogInterface, LogCreationAttributes, ConstructionViolationInterface, ConstructionViolationCreationAttributes, ComplaintInterface, ComplaintCreationAttributes, IllicitDischargeInterface, IllicitDischargeCreationAttributes, SiteContactInterface, SiteContactCreationAttributes, InspectorInterface, InspectorCreationAttributes, AttachmentInterface, AttachmentCreationAttributes } from './types'
+import { SiteInterface, SiteCreationAttributes, LogInterface, LogCreationAttributes, ConstructionViolationInterface, ConstructionViolationCreationAttributes, ComplaintInterface, ComplaintCreationAttributes, IllicitDischargeInterface, IllicitDischargeCreationAttributes, SiteContactInterface, SiteContactCreationAttributes, InspectorInterface, InspectorCreationAttributes } from './types'
 
 export default (sequelize: Sequelize, dataTypes: typeof DataTypes) => {
   class Site extends Model<SiteInterface, SiteCreationAttributes>{
     declare siteId: string
     declare inspectorId: string | null
     declare name: string
-    declare preconDate: Date | string
+    declare preconDate: string
     declare location: string
-    declare xCoordinate: string
-    declare yCoordinate: string
+    declare xCoordinate: number
+    declare yCoordinate: number
     declare permit: string | null
     declare cof: string | null
     declare tnq: string | null
@@ -21,18 +21,17 @@ export default (sequelize: Sequelize, dataTypes: typeof DataTypes) => {
     declare inactive: boolean
     declare uuid: string
     declare createdBy: string
-    declare createdAt: Date
+    declare createdAt: string
     declare updatedBy: string
-    declare updatedAt: Date
+    declare updatedAt: string
 
-    static associate({ Log, ConstructionViolation, Complaint, IllicitDischarge, SiteContact, Inspector, Attachment }: { Log: ModelStatic<Model<LogInterface, LogCreationAttributes>>, ConstructionViolation: ModelStatic<Model<ConstructionViolationInterface, ConstructionViolationCreationAttributes>>, Complaint: ModelStatic<Model<ComplaintInterface, ComplaintCreationAttributes>>, IllicitDischarge: ModelStatic<Model<IllicitDischargeInterface, IllicitDischargeCreationAttributes>>, SiteContact: ModelStatic<Model<SiteContactInterface, SiteContactCreationAttributes>>, Inspector: ModelStatic<Model<InspectorInterface, InspectorCreationAttributes>>, Attachment: ModelStatic<Model<AttachmentInterface, AttachmentCreationAttributes>> }) {
+    static associate({ Log, ConstructionViolation, Complaint, IllicitDischarge, SiteContact, Inspector }: { Log: ModelStatic<Model<LogInterface, LogCreationAttributes>>, ConstructionViolation: ModelStatic<Model<ConstructionViolationInterface, ConstructionViolationCreationAttributes>>, Complaint: ModelStatic<Model<ComplaintInterface, ComplaintCreationAttributes>>, IllicitDischarge: ModelStatic<Model<IllicitDischargeInterface, IllicitDischargeCreationAttributes>>, SiteContact: ModelStatic<Model<SiteContactInterface, SiteContactCreationAttributes>>, Inspector: ModelStatic<Model<InspectorInterface, InspectorCreationAttributes>> }) {
       this.hasMany(Log, { sourceKey: 'siteId', foreignKey: 'siteId' })
       this.hasMany(ConstructionViolation, { sourceKey: 'siteId', foreignKey: 'siteId' })
       this.hasMany(Complaint, { sourceKey: 'siteId', foreignKey: 'siteId' })
       this.hasMany(IllicitDischarge, { sourceKey: 'siteId', foreignKey: 'siteId' })
       this.hasMany(SiteContact, { sourceKey: 'siteId', foreignKey: 'siteId' })
       this.hasOne(Inspector, { sourceKey: 'inspectorId', foreignKey: 'inspectorId' })
-      this.hasMany(Attachment, { sourceKey: 'uuid', foreignKey: 'parentId' })
     }
 
     toJSON() {
@@ -64,11 +63,11 @@ export default (sequelize: Sequelize, dataTypes: typeof DataTypes) => {
       allowNull: false
     },
     xCoordinate: {
-      type: DataTypes.STRING,
+      type: DataTypes.FLOAT,
       allowNull: false
     },
     yCoordinate: {
-      type: DataTypes.STRING,
+      type: DataTypes.FLOAT,
       allowNull: false
     },
     permit: {

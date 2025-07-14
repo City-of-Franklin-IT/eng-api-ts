@@ -3,7 +3,7 @@ import moment from "moment"
 
 // Types
 import { Sequelize, Model, DataTypes, ModelStatic } from "sequelize"
-import { FollowUpDateInterface, FollowUpDateCreationAttributes, ComplaintInterface, ComplaintCreationAttributes, ConstructionViolationInterface, ConstructionViolationCreationAttributes, GreenInfrastructureInterface, GreenInfrastructureCreationAttributes, IllicitDischargeInterface, IllicitDischargeCreationAttributes } from './types'
+import { FollowUpDateInterface, FollowUpDateCreationAttributes, ComplaintInterface, ComplaintCreationAttributes, ConstructionViolationInterface, ConstructionViolationCreationAttributes, IllicitDischargeInterface, IllicitDischargeCreationAttributes } from './types'
 
 export default (sequelize: Sequelize, dataTypes: typeof DataTypes) => {
   class FollowUpDate extends Model<FollowUpDateInterface, FollowUpDateCreationAttributes> {
@@ -12,17 +12,16 @@ export default (sequelize: Sequelize, dataTypes: typeof DataTypes) => {
     declare complaintId: string | null
     declare illicitId: string | null
     declare greenId: string | null
-    declare followUpDate: Date | string
+    declare followUpDate: string
     declare uuid: string
     declare createdBy: string
-    declare createdAt: Date
+    declare createdAt: string
     declare updatedBy: string
-    declare updatedAt: Date
+    declare updatedAt: string
 
-    static associate({ Complaint, ConstructionViolation, GreenInfrastructure, IllicitDischarge }: { Complaint: ModelStatic<Model<ComplaintInterface, ComplaintCreationAttributes>>, ConstructionViolation: ModelStatic<Model<ConstructionViolationInterface, ConstructionViolationCreationAttributes>>, GreenInfrastructure: ModelStatic<Model<GreenInfrastructureInterface, GreenInfrastructureCreationAttributes>>, IllicitDischarge: ModelStatic<Model<IllicitDischargeInterface, IllicitDischargeCreationAttributes>> }) {
+    static associate({ Complaint, ConstructionViolation, IllicitDischarge }: { Complaint: ModelStatic<Model<ComplaintInterface, ComplaintCreationAttributes>>, ConstructionViolation: ModelStatic<Model<ConstructionViolationInterface, ConstructionViolationCreationAttributes>>, IllicitDischarge: ModelStatic<Model<IllicitDischargeInterface, IllicitDischargeCreationAttributes>> }) {
       this.belongsTo(Complaint, { targetKey: 'complaintId', foreignKey: 'complaintId' })
       this.belongsTo(ConstructionViolation, { targetKey: 'violationId', foreignKey: 'violationId' })
-      this.belongsTo(GreenInfrastructure, { targetKey: 'greenId', foreignKey: 'greenId' })
       this.belongsTo(IllicitDischarge, { targetKey: 'illicitId', foreignKey: 'illicitId' })
     }
 

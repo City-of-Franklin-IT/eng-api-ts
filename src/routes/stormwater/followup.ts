@@ -1,10 +1,10 @@
 import { Router } from 'express'
-import { createFollowUpDate, updateFollowUpDate, deleteFollowUpDate } from '@controllers/stormwater/followUpDates'
-import { protect } from '@middleware/auth'
+import { createFollowUpDate, updateFollowUpDate, deleteFollowUpDate } from '@controllers/stormwater/followUpDate'
+import { entra } from '@middleware/auth'
 
 const router = Router()
 
-router.use(protect)
+router.use(entra)
 
 router
   .route('/')

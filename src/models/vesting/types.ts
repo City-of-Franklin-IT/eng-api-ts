@@ -1,6 +1,5 @@
 // Types
 import { ModelStatic, Sequelize, Model } from 'sequelize'
-import { Optional } from "sequelize"
 import { BaseInterface } from "../types"
 
 export interface ApprovalInterface extends BaseInterface {
@@ -9,14 +8,14 @@ export interface ApprovalInterface extends BaseInterface {
   parentId: string
 }
 
-export interface ApprovalCreationAttributes extends Optional<ApprovalInterface, 'uuid' | 'createdAt' | 'createdBy' | 'updatedAt' | 'updatedBy'>{}
+export interface ApprovalCreationAttributes extends Omit<ApprovalInterface, 'uuid' | 'createdAt' | 'createdBy' | 'updatedAt' | 'updatedBy'>{}
 
 export interface MilestoneExtensionInterface extends BaseInterface {
   date: Date | string
   parentId: string
 }
 
-export interface MilestoneExtensionCreationAttributes extends Optional<MilestoneExtensionInterface, 'uuid' | 'createdAt' | 'createdBy' | 'updatedAt' | 'updatedBy'>{}
+export interface MilestoneExtensionCreationAttributes extends Omit<MilestoneExtensionInterface, 'uuid' | 'createdAt' | 'createdBy' | 'updatedAt' | 'updatedBy'>{}
 
 export interface MilestoneStatusInterface extends BaseInterface {
   achieved: boolean | null
@@ -24,7 +23,7 @@ export interface MilestoneStatusInterface extends BaseInterface {
   parentId: string
 }
 
-export interface MilestoneStatusCreationAttributes extends Optional<MilestoneStatusInterface, 'uuid' | 'createdAt' | 'createdBy' | 'updatedAt' | 'updatedBy'>{}
+export interface MilestoneStatusCreationAttributes extends Omit<MilestoneStatusInterface, 'uuid' | 'createdAt' | 'createdBy' | 'updatedAt' | 'updatedBy'>{}
 
 export interface VestingNotificationInterface extends BaseInterface {
   date: Date | string
@@ -32,7 +31,7 @@ export interface VestingNotificationInterface extends BaseInterface {
   parentId: string
 }
 
-export interface VestingNotificationCreationAttributes extends Optional<VestingNotificationInterface, 'uuid' | 'createdAt' | 'createdBy' | 'updatedAt' | 'updatedBy'>{}
+export interface VestingNotificationCreationAttributes extends Omit<VestingNotificationInterface, 'uuid' | 'createdAt' | 'createdBy' | 'updatedAt' | 'updatedBy'>{}
 
 export interface ProjectInterface extends BaseInterface {
   type: "Development Plan" | "Preliminary Plat" | "Site Plan"
@@ -43,21 +42,21 @@ export interface ProjectInterface extends BaseInterface {
   notes: string | null
 }
 
-export interface ProjectCreationAttributes extends Optional<ProjectInterface, 'uuid' | 'createdAt' | 'createdBy' | 'updatedAt' | 'updatedBy'>{}
+export interface ProjectCreationAttributes extends Omit<ProjectInterface, 'uuid' | 'createdAt' | 'createdBy' | 'updatedAt' | 'updatedBy'>{}
 
 export interface ResolutionInterface extends BaseInterface {
   resolution: string
   parentId: string
 }
 
-export interface ResolutionCreationAttributes extends Optional<ResolutionInterface, 'uuid' | 'createdAt' | 'createdBy' | 'updatedAt' | 'updatedBy'>{}
+export interface ResolutionCreationAttributes extends Omit<ResolutionInterface, 'uuid' | 'createdAt' | 'createdBy' | 'updatedAt' | 'updatedBy'>{}
 
 export interface VestingExtensionInterface extends BaseInterface {
   date: Date | string
   parentId: string
 }
 
-export interface VestingExtensionCreationAttributes extends Optional<VestingExtensionInterface, 'uuid' | 'createdAt' | 'createdBy' | 'updatedAt' | 'updatedBy'>{}
+export interface VestingExtensionCreationAttributes extends Omit<VestingExtensionInterface, 'uuid' | 'createdAt' | 'createdBy' | 'updatedAt' | 'updatedBy'>{}
 
 export interface MilestoneInterface extends BaseInterface {
   number: 1 | 2
@@ -65,7 +64,7 @@ export interface MilestoneInterface extends BaseInterface {
   parentId: string
 }
 
-export interface MilestoneCreationAttributes extends Optional<MilestoneInterface, 'uuid' | 'createdAt' | 'createdBy' | 'updatedAt' | 'updatedBy'>{}
+export interface MilestoneCreationAttributes extends Omit<MilestoneInterface, 'uuid' | 'createdAt' | 'createdBy' | 'updatedAt' | 'updatedBy'>{}
 
 export interface VestingPeriodInterface extends BaseInterface {
   type: "10Y" | "15Y"
@@ -73,7 +72,7 @@ export interface VestingPeriodInterface extends BaseInterface {
   parentId: string
 }
 
-export interface VestingPeriodCreationAttributes extends Optional<VestingPeriodInterface, 'uuid' | 'createdAt' | 'createdBy' | 'updatedAt' | 'updatedBy'>{}
+export interface VestingPeriodCreationAttributes extends Omit<VestingPeriodInterface, 'uuid' | 'createdAt' | 'createdBy' | 'updatedAt' | 'updatedBy'>{}
 
 export interface VestingStatusInterface extends BaseInterface {
   achieved: boolean | null
@@ -81,7 +80,7 @@ export interface VestingStatusInterface extends BaseInterface {
   parentId: string
 }
 
-export interface VestingStatusCreationAttributes extends Optional<VestingStatusInterface, 'uuid' | 'createdAt' | 'createdBy' | 'updatedAt' | 'updatedBy'>{}
+export interface VestingStatusCreationAttributes extends Omit<VestingStatusInterface, 'uuid' | 'createdAt' | 'createdBy' | 'updatedAt' | 'updatedBy'>{}
 
 export interface DatabaseInterface {
   sequelize: Sequelize

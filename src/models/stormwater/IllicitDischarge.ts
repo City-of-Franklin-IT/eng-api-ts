@@ -10,9 +10,9 @@ export default (sequelize: Sequelize, dataTypes: typeof DataTypes) => {
     declare illicitId: string
     declare complaintId: string | null
     declare siteId: string | null
-    declare date: Date | string
-    declare xCoordinate: string
-    declare yCoordinate: string
+    declare date: string
+    declare xCoordinate: number | null
+    declare yCoordinate: number | null
     declare locationDescription: string | null
     declare inspectorId: string | null
     declare details: string
@@ -20,17 +20,17 @@ export default (sequelize: Sequelize, dataTypes: typeof DataTypes) => {
     declare volumeLost: string | null
     declare streamWatershed: string
     declare enforcementAction: string | null
-    declare penaltyDate: Date | string | null
+    declare penaltyDate: string | null
     declare penaltyAmount: number | null
-    declare penaltyDueDate: Date | string | null
-    declare paymentReceived: Date | string | null
+    declare penaltyDueDate: string | null
+    declare paymentReceived: string | null
     declare compliance: boolean | null
     declare closed: boolean | null
     declare uuid: string
     declare createdBy: string
-    declare createdAt: Date
+    declare createdAt: string
     declare updatedBy: string
-    declare updatedAt: Date
+    declare updatedAt: string
 
     static associate({ Site, Inspector, FollowUpDate }: { Site: ModelStatic<Model<SiteInterface, SiteCreationAttributes>>, Inspector: ModelStatic<Model<InspectorInterface>>, FollowUpDate: ModelStatic<Model<FollowUpDateInterface, FollowUpDateCreationAttributes>> }) {
       this.belongsTo(Site, { targetKey: 'siteId', foreignKey: 'siteId' })
@@ -62,12 +62,10 @@ export default (sequelize: Sequelize, dataTypes: typeof DataTypes) => {
       }
     },
     xCoordinate: {
-      type: dataTypes.STRING,
-      allowNull: false
+      type: dataTypes.FLOAT,
     },
     yCoordinate: {
-      type: dataTypes.STRING,
-      allowNull: false
+      type: dataTypes.FLOAT,
     },
     locationDescription: {
       type: dataTypes.STRING,

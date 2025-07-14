@@ -1,18 +1,18 @@
 import { Router } from 'express'
 import { getProjects, createProject, getProject, updateProject, deleteProject } from '@controllers/vesting/project'
-import { protect } from '@middleware/auth'
+import { entra } from '@middleware/auth'
 
 const router = Router()
 
 router
   .route('/')
   .get(getProjects)
-  .post(protect, createProject)
+  .post(entra, createProject)
 
 router
   .route('/:uuid')
   .get(getProject)
-  .put(protect, updateProject)
-  .delete(protect, deleteProject)
+  .put(entra, updateProject)
+  .delete(entra, deleteProject)
 
 export default router

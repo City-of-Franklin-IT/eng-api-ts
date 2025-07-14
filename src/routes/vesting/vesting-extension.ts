@@ -1,10 +1,10 @@
 import { Router } from 'express'
 import { createVestingExtension, updateVestingExtension, deleteVestingExtension } from '@controllers/vesting/vestingExtension'
-import { protect } from '@middleware/auth'
+import { entra } from '@middleware/auth'
 
 const router = Router()
 
-router.use(protect)
+router.use(entra)
 
 router
   .route('/')

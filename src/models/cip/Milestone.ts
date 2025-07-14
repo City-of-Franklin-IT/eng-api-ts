@@ -8,14 +8,14 @@ export default (sequelize: Sequelize, dataTypes: typeof DataTypes) => {
 
   class Milestone extends Model<MilestoneInterface,MilestoneCreationAttributes> {
     declare milestoneDesc: string
-    declare milestoneEst: Date | null
-    declare milestoneRealized: Date | null
+    declare milestoneEst: string | null
+    declare milestoneRealized: string | null
     declare parentId: string
     declare uuid: string
     declare createdBy: string
-    declare createdAt: Date
+    declare createdAt: string
     declare updatedBy: string
-    declare updatedAt: Date
+    declare updatedAt: string
 
     static associate({ Project }: { Project: ModelStatic<Model<ProjectInterface, ProjectCreationAttributes>> }) {
       this.hasOne(Project, { sourceKey: 'parentId', foreignKey: 'uuid' })

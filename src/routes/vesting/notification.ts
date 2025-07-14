@@ -1,10 +1,10 @@
 import { Router } from 'express'
 import { createNotification, updateNotification, deleteNotification } from '@controllers/vesting/vestingNotification'
-import { protect } from '@middleware/auth'
+import { entra } from '@middleware/auth'
 
 const router = Router()
 
-router.use(protect)
+router.use(entra)
 
 router
   .route('/')

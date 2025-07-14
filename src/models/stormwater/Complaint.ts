@@ -9,15 +9,15 @@ export default (sequelize: Sequelize, dataTypes: typeof DataTypes) => {
 
   class Complaint extends Model<ComplaintInterface, ComplaintCreationAttributes> {
     declare complaintId: string
-    declare date: Date | string
+    declare date: string
     declare siteId: string | null
     declare inspectorId: string | null
     declare name: string | null
     declare address: string | null
     declare phone: string | null
     declare email: string | null
-    declare xCoordinate: string | null
-    declare yCoordinate: string | null
+    declare xCoordinate: number | null
+    declare yCoordinate: number | null
     declare locationDescription: string | null
     declare concern: string
     declare otherConcern: string | null
@@ -28,9 +28,9 @@ export default (sequelize: Sequelize, dataTypes: typeof DataTypes) => {
     declare closed: boolean | null
     declare uuid: string
     declare createdBy: string
-    declare createdAt: Date
+    declare createdAt: string
     declare updatedBy: string
-    declare updatedAt: Date
+    declare updatedAt: string
 
     static associate({ Inspector, FollowUpDate, Site }: { Inspector: ModelStatic<Model<InspectorInterface, InspectorCreationAttributes>>, FollowUpDate: ModelStatic<Model<FollowUpDateInterface, FollowUpDateCreationAttributes>>, Site: ModelStatic<Model<SiteInterface, SiteCreationAttributes>> }) {
       this.belongsTo(Site, { targetKey: 'siteId', foreignKey: 'siteId' })
@@ -75,10 +75,10 @@ export default (sequelize: Sequelize, dataTypes: typeof DataTypes) => {
       type: dataTypes.STRING
     },
     xCoordinate: {
-      type: dataTypes.STRING,
+      type: dataTypes.FLOAT
     },
     yCoordinate: {
-      type: dataTypes.STRING,
+      type: dataTypes.FLOAT
     },
     locationDescription: {
       type: dataTypes.STRING

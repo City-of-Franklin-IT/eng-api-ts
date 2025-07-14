@@ -8,24 +8,24 @@ import { ConstructionViolationInterface, ConstructionViolationCreationAttributes
 export default (sequelize: Sequelize, dataTypes: typeof DataTypes) => {
   class ConstructionViolation extends Model<ConstructionViolationInterface, ConstructionViolationCreationAttributes> {
     declare violationId: string
-    declare date: Date | string
+    declare date: string
     declare siteId: string
     declare details: string
     declare enforcementAction: string | null
-    declare penaltyDate: Date | string | null
+    declare penaltyDate: string | null
     declare penaltyAmount: number | null
-    declare penaltyDueDate: Date | string | null
-    declare paymentReceived: Date | string | null
-    declare swoDate: Date | string | null
-    declare swoLiftedDate: Date | string | null
+    declare penaltyDueDate: string | null
+    declare paymentReceived: string | null
+    declare swoDate: string | null
+    declare swoLiftedDate: string | null
     declare complaintId: string | null
     declare compliance: boolean | null
     declare closed: boolean | null
     declare uuid: string
     declare createdBy: string
-    declare createdAt: Date
+    declare createdAt: string
     declare updatedBy: string
-    declare updatedAt: Date
+    declare updatedAt: string
 
     static associate({ Site, FollowUpDate }: { Site: ModelStatic<Model<SiteInterface, SiteCreationAttributes>>, FollowUpDate: ModelStatic<Model<FollowUpDateInterface, FollowUpDateCreationAttributes>> }) {
       this.belongsTo(Site, { targetKey: 'siteId', foreignKey: 'siteId' })

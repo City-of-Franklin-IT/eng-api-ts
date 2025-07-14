@@ -1,15 +1,13 @@
 import path from 'path'
-import attachments from './attachments'
-import complaints from './complaints'
-import contacts from './contacts'
+import complaints from './complaint'
+import contacts from './contact'
 import followUps from './followup'
-import greenInfrastructure from './greenInfrastructure'
-import illicitDischarges from './illicitDischarges'
-import inspectors from './inspectors'
-import logs from './logs'
-import siteContacts from './siteContacts'
-import sites from './sites'
-import violations from './violations'
+import illicitDischarges from './illicitDischarge'
+import inspectors from './inspector'
+import logs from './log'
+import siteContacts from './siteContact'
+import sites from './site'
+import violations from './violation'
 
 // Types
 import { Express, Router } from 'express'
@@ -21,15 +19,13 @@ export default (app: Express) => {
     return app.use(`${ baseURL }${ path }`, router)
   }
 
-  setURL('/attachments', attachments)
-  setURL('/complaints', complaints)
-  setURL('/contacts', contacts)
+  setURL('/complaint', complaints)
+  setURL('/contact', contacts)
   setURL('/followup', followUps)
-  setURL('/greeninfrastructure', greenInfrastructure)
-  setURL('/illicitdischarges', illicitDischarges)
-  setURL('/inspectors', inspectors)
-  setURL('/logs', logs)
-  setURL('/sitecontacts', siteContacts)
-  setURL('/sites', sites)
-  setURL('/violations', violations)
+  setURL('/illicitdischarge', illicitDischarges)
+  setURL('/inspector', inspectors)
+  setURL('/log', logs)
+  setURL('/sitecontact', siteContacts)
+  setURL('/site', sites)
+  setURL('/violation', violations)
 }

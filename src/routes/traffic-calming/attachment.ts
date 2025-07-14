@@ -1,19 +1,19 @@
 import { Router } from 'express'
 import multer from 'multer'
 import { createAttachment, getAttachment, deleteAttachment } from '@controllers/traffic-calming/attachment'
-import { protect } from '@middleware/auth'
+import { entra } from '@middleware/auth'
 
 const router = Router()
 
-router.use(protect)
+router.use(entra)
 
 router
   .route('/')
-  .post(protect, multer().single('file'), createAttachment)
+  .post(entra, multer().single('file'), createAttachment)
 
 router
   .route('/:uuid')
   .get(getAttachment)
-  .delete(protect, deleteAttachment)
+  .delete(entra, deleteAttachment)
 
 export default router

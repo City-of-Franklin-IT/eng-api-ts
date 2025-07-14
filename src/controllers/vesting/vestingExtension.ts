@@ -1,27 +1,23 @@
 import asyncHandler from '@middleware/async'
 import { ErrorResponse } from '@utils/errorResponse'
+import editorTracking from '@utils/editorTracking'
 import { VestingExtension } from '@models/vesting' 
 
 // Types
 import { Request, Response, NextFunction } from 'express'
-import { Model } from 'sequelize'
 import { ControllerResponse } from '@controllers/types'
-import { CreateVestingExtensionRequest, UpdateVestingExtensionRequest, UpdateVestingExtensionResponse } from './types'
-import { VestingExtensionInterface } from '@models/vesting/types'
+import * as Types from '@models/vesting/types'
 
 //@desc    Create vesting extension
-//@route   POST /api/v1/eng/vesting/vesting-extension
+//@route   POST /api/v2/eng/vesting/vesting-extension
 //@access  Private
-export const createVestingExtension = asyncHandler(async (req: Request<{}, {}, CreateVestingExtensionRequest>, res: Response<ControllerResponse>, next: NextFunction) => {
+export const createVestingExtension = asyncHandler(async (req: Request<{}, {}, Types.VestingExtensionCreationAttributes>, res: Response<ControllerResponse>, next: NextFunction) => {
   const { date, parentId } = req.body
-
-  const email = req.user?.email
 
   const extension = await VestingExtension.create({ // Create vesting extension
     date,
     parentId,
-    createdBy: email,
-    updatedBy: email
+    ...editorTracking(req)
   })
 
   if(!extension) {
@@ -35,40 +31,34 @@ export const createVestingExtension = asyncHandler(async (req: Request<{}, {}, C
 })
 
 //@desc    Update vesting extension
-//@route   PUT /api/v1/eng/vesting/vesting-extension/:uuid
+//@route   PUT /api/v2/eng/vesting/vesting-extension/:uuid
 //@access  Private
-export const updateVestingExtension = asyncHandler(async (req: Request<{ uuid: string }, {}, UpdateVestingExtensionRequest>, res: Response<UpdateVestingExtensionResponse>, next: NextFunction) => {
+export const updateVestingExtension = asyncHandler(async (req: Request<{ uuid: string }, {}, Types.VestingExtensionCreationAttributes>, res: Response<ControllerResponse>, next: NextFunction) => {
   const { date } = req.body
 
-  const email = req.user?.email 
-
-  const extension = await VestingExtension.update({
+  const result = await VestingExtension.update({
     date,
-    updatedBy: email
+    ...editorTracking(req)
   },{
     where: {
       uuid: req.params.uuid
-    },
-    returning: true
+    }
   })
 
-  const [affectedCount, affectedRows] = extension
+  const [affectedCount] = result
 
   if(affectedCount === 0) {
     return next(new ErrorResponse(`Unable to update vesting extension by uuid ${ req.params.uuid }`, 500))
   }
 
-  const data = (affectedRows as (Model<VestingExtensionInterface> & VestingExtensionInterface)[])[0]
-
   res.status(200).json({
     success: true,
-    msg: "Vesting Extension Updated",
-    data
+    msg: "Vesting Extension Updated"
   })
 })
 
 //@desc    Delete vesting extension
-//@route   DELETE /api/v1/eng/vesting/vesting-extension/:uuid
+//@route   DELETE /api/v2/eng/vesting/vesting-extension/:uuid
 //@access  Private
 export const deleteVestingExtension = asyncHandler(async (req: Request<{ uuid: string }>, res: Response<ControllerResponse>, next: NextFunction) => {
   const result = await VestingExtension.destroy({ // Delete vesting extension

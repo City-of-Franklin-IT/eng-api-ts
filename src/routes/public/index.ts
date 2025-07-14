@@ -1,6 +1,6 @@
 import { Router } from 'express'
 import { getProjects } from '@controllers/cip/public'
-import { getActiveSites } from '@controllers/stormwater/sites'
+import { getActiveSites } from '@controllers/stormwater/site'
 
 const router = Router()
 

@@ -4,7 +4,7 @@ import { Inspector } from "@models/stormwater"
 import { InspectorInterface } from "@models/stormwater/types"
 import sendEmail from "./sendEmail"
 
-export const emailInspector = async (email: string | undefined, data: { uuid: string, siteId?: string | null, name?: string, complaintId?: string, greenId?: string, illicitId?: string, details?: string }): Promise<void> => { // Email inspector
+export const emailInspector = async (email: string | undefined, data: { uuid: string, siteId?: string | null, name?: string, complaintId?: string, illicitId?: string, details?: string }): Promise<void> => { // Email inspector
   const obj = setMsg(data)
 
   if(obj) {
@@ -40,7 +40,7 @@ export const inspectorLookup = async (uuid: string, model: ModelStatic<Model>, i
   return null
 }
 
-const setMsg = (data: { siteId?: string | null, name?: string, complaintId?: string, greenId?: string, illicitId?: string, details?: string, uuid: string }): { subject: string, msg: string } | null => {
+const setMsg = (data: { siteId?: string | null, name?: string, complaintId?: string, illicitId?: string, details?: string, uuid: string }): { subject: string, msg: string } | null => {
   if(data.siteId) { // Site
     return {
       subject: "A site has been assigned to you",
@@ -53,13 +53,6 @@ const setMsg = (data: { siteId?: string | null, name?: string, complaintId?: str
       subject: "A complaint has been assigned to you",
       msg: `A complaint has been assigned to you:\n\n"${ data.details }"\n\nPlease visit https://dev.franklintn.gov/stormwater to view.`
     } 
-  }
-  
-  if(data.greenId) { // Green infrastructure violation
-    return {
-      subject: "A green infrastructure violation has been assigned to you",
-      msg: `A green infrastructure violation has been assigned to you:\n\n"${ data.details }"\n\nPlease visit https://dev.franklintn.gov/storwmater to view.`
-    }
   }
   
   if(data.illicitId) { // Illicit discharge violation

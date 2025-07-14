@@ -1,26 +1,24 @@
 import asyncHandler from '@middleware/async'
 import { ErrorResponse } from '@utils/errorResponse'
+import editorTracking from '@utils/editorTracking'
 import { VestingNotification } from '@models/vesting'
 
 // Types
 import { Request, Response, NextFunction } from 'express'
 import { ControllerResponse } from '@controllers/types'
-import { CreateNotificationRequest, UpdateNotificationRequest } from './types'
+import * as Types from '@models/vesting/types'
 
 //@desc    Create notification
-//@route   POST /api/v1/eng/vesting/notification
+//@route   POST /api/v2/eng/vesting/notification
 //@access  Private
-export const createNotification = asyncHandler(async (req: Request<{}, {}, CreateNotificationRequest>, res: Response<ControllerResponse>, next: NextFunction) => {
+export const createNotification = asyncHandler(async (req: Request<{}, {}, Types.VestingNotificationCreationAttributes>, res: Response<ControllerResponse>, next: NextFunction) => {
   const { date, type, parentId } = req.body
-
-  const email = req.user?.email
 
   const notification = await VestingNotification.create({
     date,
     type,
     parentId,
-    createdBy: email,
-    updatedBy: email
+    ...editorTracking(req)
   })
 
   if(!notification) {
@@ -34,26 +32,23 @@ export const createNotification = asyncHandler(async (req: Request<{}, {}, Creat
 })
 
 //@desc    Update notification
-//@route   PUT /api/v1/eng/vesting/notification/:uuid
-//@access  Private
-export const updateNotification = asyncHandler(async (req: Request<{ uuid: string }, {}, UpdateNotificationRequest>, res: Response<ControllerResponse>, next: NextFunction) => {
+//@route   PUT /api/v2/eng/vesting/notification/:uuid
+//@access  
+export const updateNotification = asyncHandler(async (req: Request<{ uuid: string }, {}, Types.VestingNotificationCreationAttributes>, res: Response<ControllerResponse>, next: NextFunction) => {
   const { date } = req.body
 
-  const email = req.user?.email
-
-  const notification = await VestingNotification.update({
-    date,
-    updatedBy: email
+  const result = await VestingNotification.update({
+    date
   },{
     where: {
       uuid: req.params.uuid
     }
   })
 
-  const [affectedCount] = notification
+  const [affectedCount] = result
 
   if(affectedCount === 0) {
-    return next(new ErrorResponse(`Unable to update notification by uuid ${ req.params.uuid }`, 500))
+    return next(new ErrorResponse(`Unable to updated notification by uuid ${ req.params.uuid }`, 500))
   }
 
   res.status(200).json({
@@ -63,7 +58,7 @@ export const updateNotification = asyncHandler(async (req: Request<{ uuid: strin
 })
 
 //@desc    Delete notification
-//@route   DELETE /api/v1/eng/vesting/notification/:uuid
+//@route   DELETE /api/v2/eng/vesting/notification/:uuid
 //@access  Private
 export const deleteNotification = asyncHandler(async (req: Request<{ uuid: string }>, res: Response<ControllerResponse>, next: NextFunction) => {
   const result = await VestingNotification.destroy({

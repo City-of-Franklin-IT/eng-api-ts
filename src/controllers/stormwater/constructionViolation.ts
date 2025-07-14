@@ -1,22 +1,20 @@
 import { v4 as uuidv4 } from 'uuid'
 import asyncHandler from '@middleware/async'
 import { ErrorResponse } from '@utils/errorResponse'
-import { ConstructionViolation, Site, FollowUpDate } from '@models/stormwater'
+import editorTracking from '@utils/editorTracking'
+import { ConstructionViolation, Site, FollowUpDate, SiteContact, Contact } from '@models/stormwater'
 
 // Types
 import { Request, Response, NextFunction } from 'express'
 import { Model } from 'sequelize'
 import { ControllerResponse } from '@controllers/types'
-import { ConstructionViolationInterface } from '@models/stormwater/types'
-import { CreateConstructionViolationRequest, CreateConstructionViolationResponse, GetConstructionViolationsResponse, GetConstructionViolationResponse, UpdateConstructionViolationRequest, UpdateConstructionViolationResponse } from './types'
+import * as Types from '@models/stormwater/types'
 
 // @desc    Create construction violation
-// @route   POST /api/v1/stormwater/violations
+// @route   POST /api/v2/stormwater/violations
 // @access  Private
-export const createViolation = asyncHandler(async (req: Request<{}, {}, CreateConstructionViolationRequest>, res: Response<CreateConstructionViolationResponse>, next: NextFunction) => {
+export const createViolation = asyncHandler(async (req: Request<{}, {}, Types.ConstructionViolationCreationAttributes>, res: Response<ControllerResponse & { data: Types.ConstructionViolationInterface }>, next: NextFunction) => {
   const { date, siteId, details, complaintId } = req.body
-
-  const email = req.user?.email
 
   const violation = await ConstructionViolation.create({
     violationId: `violation-${ uuidv4() }`,
@@ -24,9 +22,8 @@ export const createViolation = asyncHandler(async (req: Request<{}, {}, CreateCo
     siteId,
     details,
     complaintId,
-    createdBy: email,
-    updatedBy: email
-  }) as Model<ConstructionViolationInterface> & ConstructionViolationInterface
+    ...editorTracking(req)
+  }) as Model<Types.ConstructionViolationInterface> & Types.ConstructionViolationInterface
   
   if(!violation) {
     return next(new ErrorResponse("Unable to create construction violation", 500))
@@ -40,17 +37,24 @@ export const createViolation = asyncHandler(async (req: Request<{}, {}, CreateCo
 })
 
 // @desc    Get violations
-// @route   GET /api/v1/stormwater/violations
+// @route   GET /api/v2/stormwater/violations
 // @access  Private
-export const getViolations = asyncHandler(async (req: Request, res: Response<GetConstructionViolationsResponse>, next: NextFunction) => {
-
+export const getViolations = asyncHandler(async (req: Request, res: Response<ControllerResponse & { data: Types.ConstructionViolationInterface[] }>, next: NextFunction) => {
   const violations = await ConstructionViolation.findAll({
-    order: [[Site, 'name', 'asc'], [FollowUpDate, 'followUpDate', 'desc']],
+    order: [['date', 'desc'], [FollowUpDate, 'followUpDate', 'desc']],
     include: [
-      { model: Site }, 
+      { model: Site,
+        include: [
+          { model: SiteContact,
+            include: [
+              { model: Contact }
+            ]
+          }
+        ]
+      }, 
       { model: FollowUpDate }
     ]
-  }) as Model<ConstructionViolationInterface>[] & ConstructionViolationInterface
+  }) as (Model<Types.ConstructionViolationInterface> & Types.ConstructionViolationInterface)[]
 
   res.status(200).json({
     success: true,
@@ -59,16 +63,16 @@ export const getViolations = asyncHandler(async (req: Request, res: Response<Get
 })
 
 // @desc    Get violation
-// @route   GET /api/v1/stormwater/violations/:uuid
+// @route   GET /api/v2/stormwater/violations/:uuid
 // @access  Private
-export const getViolation = asyncHandler(async (req: Request<{ uuid: string }>, res: Response<GetConstructionViolationResponse>, next: NextFunction) => {
+export const getViolation = asyncHandler(async (req: Request<{ uuid: string }>, res: Response<ControllerResponse & { data: Types.ConstructionViolationInterface }>, next: NextFunction) => {
   const violation = await ConstructionViolation.findOne({
     where: {
       uuid: req.params.uuid
     },
     order: [[FollowUpDate, 'followUpDate', 'desc']],
     include: { model: FollowUpDate }
-  }) as Model<ConstructionViolationInterface> & ConstructionViolationInterface
+  }) as Model<Types.ConstructionViolationInterface> & Types.ConstructionViolationInterface
 
   if(!violation) {
     return next(new ErrorResponse(`Unable to return construction violation by uuid ${ req.params.uuid }`, 500))
@@ -81,27 +85,27 @@ export const getViolation = asyncHandler(async (req: Request<{ uuid: string }>, 
 })
 
 // @desc    Update violation
-// @route   PUT /api/v1/stormwater/violations/:uuid
+// @route   PUT /api/v2/stormwater/violation/:uuid
 // @access  Private
-export const updateViolation = asyncHandler(async (req: Request<{ uuid: string }, {}, UpdateConstructionViolationRequest>, res: Response<UpdateConstructionViolationResponse>, next: NextFunction) => {
+export const updateViolation = asyncHandler(async (req: Request<{ uuid: string }, {}, Types.ConstructionViolationCreationAttributes>, res: Response<ControllerResponse & { data: Types.ConstructionViolationInterface }>, next: NextFunction) => {
   const { date, siteId, details, enforcementAction, penaltyDate, penaltyAmount, penaltyDueDate, paymentReceived, swoDate, swoLiftedDate, compliance, closed } = req.body
 
-  const email = req.user?.email
+  console.log(req.body)
 
   const violation = await ConstructionViolation.update({
     date,
     siteId,
     details,
     enforcementAction,
-    penaltyDate: penaltyDate ?? null,
+    penaltyDate: penaltyDate,
     penaltyAmount,
-    penaltyDueDate: penaltyDueDate ?? null,
-    paymentReceived: paymentReceived ?? null,
-    swoDate: swoDate ?? null,
-    swoLiftedDate: swoLiftedDate ?? null,
+    penaltyDueDate: penaltyDueDate,
+    paymentReceived: paymentReceived,
+    swoDate: swoDate,
+    swoLiftedDate: swoLiftedDate,
     compliance,
     closed,
-    updatedBy: email,
+    ...editorTracking(req)
   },
   {
     where: {
@@ -116,7 +120,7 @@ export const updateViolation = asyncHandler(async (req: Request<{ uuid: string }
     return next(new ErrorResponse(`Unable to update construction violation by uuid ${ req.params.uuid }`, 500))
   }
 
-  const data = (affectedRows as (Model<ConstructionViolationInterface> & ConstructionViolationInterface)[])[0]
+  const data = (affectedRows as (Model<Types.ConstructionViolationInterface> & Types.ConstructionViolationInterface)[])[0]
 
   res.status(200).json({
     success: true,
@@ -126,7 +130,7 @@ export const updateViolation = asyncHandler(async (req: Request<{ uuid: string }
 })
 
 // @desc    Delete violation
-// @route   DELETE /api/v1/stormwater/violations/:uuid
+// @route   DELETE /api/v2/stormwater/violations/:uuid
 // @access  Private
 export const deleteViolation = asyncHandler(async (req: Request<{ uuid: string }>, res: Response<ControllerResponse>, next: NextFunction) => {
   const result = await ConstructionViolation.destroy({

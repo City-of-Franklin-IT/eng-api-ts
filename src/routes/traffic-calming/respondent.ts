@@ -1,21 +1,23 @@
 import { Router } from 'express'
 import { createRespondents, updateRespondent, deleteRespondent, getRespondents, verifyRespondent, downloadTemplate, getRespondentsByADDRKEY } from '@controllers/traffic-calming/respondent'
-import { protect } from '@middleware/auth'
+import { entra } from '@middleware/auth'
 
 const router = Router()
 
+router.use(entra)
+
 router
   .route('/')
-  .post(protect, createRespondents)
+  .post(entra, createRespondents)
 
 router
   .route('/:uuid')
   .put(updateRespondent)
-  .delete(protect, deleteRespondent)
+  .delete(entra, deleteRespondent)
 
 router
   .route('/petition/:uuid')
-  .get(protect, getRespondents)
+  .get(entra, getRespondents)
 
 router
   .route('/id/:shortid')
@@ -27,6 +29,6 @@ router
 
 router
   .route('/search')
-  .post(protect, getRespondentsByADDRKEY)
+  .post(entra, getRespondentsByADDRKEY)
 
 export default router
