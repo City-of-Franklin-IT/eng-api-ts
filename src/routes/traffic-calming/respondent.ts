@@ -10,7 +10,7 @@ router
 
 router
   .route('/:uuid')
-  .put(updateRespondent)
+  .put(entra, updateRespondent)
   .delete(entra, deleteRespondent)
 
 router
