@@ -1,4 +1,5 @@
 import fs from 'fs'
+import path from 'path'
 import { Op } from 'sequelize'
 import asyncHandler from '@middleware/async'
 import { ErrorResponse } from '@utils/errorResponse'
@@ -160,8 +161,7 @@ export const verifyRespondent = asyncHandler(async (req: Request<{ shortid: stri
 //@route   POST /api/v2/eng/traffic-calming/respondent/template
 //@access  Private
 export const downloadTemplate = asyncHandler(async (req: Request, res: Response<Promise<void>>, next: NextFunction) => {
-  const fileName = 'TrafficCalmingTemplate.csv'
-  const filePath = `../eng-api-ts/public/files/${ fileName }`
+  const filePath = './public/TrafficCalmingTemplate.csv'
 
   const fileExists = await fs.promises.access(filePath).then(() => true).catch(() => false)
 
