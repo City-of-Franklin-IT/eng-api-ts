@@ -70,6 +70,7 @@ export const getComplaints = asyncHandler(async (req: Request, res: Response<Con
   const complaints = await Complaint.findAll({
     order: [['date', 'desc'], [FollowUpDate, 'followUpDate', 'desc']],
     include: [
+      { model: Inspector },
       { model: FollowUpDate },
       { model: Site,
         include: [
@@ -99,6 +100,7 @@ export const getComplaint = asyncHandler(async (req: Request<{ uuid: string }>, 
     },
     order: [[FollowUpDate, 'followUpDate', 'desc']],
     include: [
+      { model: Inspector },
       { model: Site },
       { model: FollowUpDate}
     ]

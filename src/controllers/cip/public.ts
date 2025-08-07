@@ -16,17 +16,43 @@ export const getProjects = asyncHandler(async (req: Request, res: Response, next
       archived: false
     },
     attributes: ['projectId', 'name', 'projectDescription', 'type', 'manager', 'link', 'approvedBudget', 'xCoordinate', 'yCoordinate', 'uuid'],
-    order: [['name', 'asc'], [Milestone, 'milestoneEst', 'asc'], [Phase, 'createdAt', 'desc'], [Update, 'createdAt', 'desc'], [{ model: Spending, as: 'Spending'}, 'dollarsSpentDate', 'desc']],
+    order: [['name', 'asc'], [Milestone, 'milestoneEst', 'asc'], [Phase, 'createdAt', 'desc'], [Update, 'createdAt', 'desc']],
     include: [
       { model: Milestone, attributes: ['milestoneDesc', 'milestoneEst', 'milestoneRealized', 'parentId', 'uuid'] },
       { model: Phase, attributes: ['phase', 'parentId', 'uuid', 'createdAt']},
-      { model: Update, attributes: ['projectUpdate', 'parentId', 'uuid', 'createdAt']},
-      { model: Spending, as: 'Spending', attributes: ['dollarsSpent', 'dollarsSpentDate', 'uuid', 'createdAt']
-    }]
+      { model: Update, attributes: ['projectUpdate', 'parentId', 'uuid', 'createdAt']}
+    ]
   }) as (Model<ProjectInterface> & ProjectInterface)[]
 
   res.status(200).json({
     success: true,
     data: projects
+  })
+})
+
+//@desc    Get project
+//@route   GET /api/v2/eng/public/cip-projects/:uuid
+//@access  Public
+export const getProject = asyncHandler(async (req: Request<{ uuid: string }>, res: Response<{ success: boolean, data: Model<ProjectInterface> & ProjectInterface }>, next: NextFunction) => {
+  const project = await Project.findOne({
+    where: {
+      uuid: req.params.uuid
+    },
+    attributes: ['projectId', 'name', 'projectDescription', 'type', 'manager', 'link', 'approvedBudget', 'xCoordinate', 'yCoordinate', 'uuid'],
+    order: [['name', 'asc'], [Milestone, 'milestoneEst', 'asc'], [Phase, 'createdAt', 'desc'], [Update, 'createdAt', 'desc']],
+    include: [
+      { model: Milestone, attributes: ['milestoneDesc', 'milestoneEst', 'milestoneRealized', 'parentId', 'uuid'] },
+      { model: Phase, attributes: ['phase', 'parentId', 'uuid', 'createdAt']},
+      { model: Update, attributes: ['projectUpdate', 'parentId', 'uuid', 'createdAt']}
+    ]
+  }) as Model<ProjectInterface> & ProjectInterface
+
+  if(!project) {
+    return next(new ErrorResponse(`Unable to return project by uuid ${ req.params.uuid }`, 500))
+  }
+
+  res.status(200).json({
+    success: true,
+    data: project
   })
 })

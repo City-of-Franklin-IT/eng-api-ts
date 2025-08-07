@@ -19,6 +19,7 @@ export const getProjects = asyncHandler(async (req: Request, res: Response<GetPr
     where: {
       name: { [Op.ne]: '' }
     },
+    order: [['name', 'asc'], [Phase, 'updatedAt', 'desc']],
     include: [
       { model: Phase }
     ]
@@ -46,7 +47,7 @@ export const getProject = asyncHandler(async (req: Request<{ uuid: string }>, re
     order:  [
       ['name', 'asc'], 
       [Milestone, 'milestoneEst', 'asc'], 
-      [Phase, 'createdAt', 'desc'], 
+      [Phase, 'updatedAt', 'desc'], 
       [Update, 'createdAt', 'desc'], 
       [{ model: Spending, as: 'Spending'}, 'createdAt', 'desc']]
   }) as (Model<ProjectInterface> & ProjectInterface)

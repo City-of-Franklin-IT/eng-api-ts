@@ -2,7 +2,7 @@ import { v4 as uuidv4 } from 'uuid'
 import asyncHandler from '@middleware/async'
 import { ErrorResponse } from '@utils/errorResponse'
 import editorTracking from '@utils/editorTracking'
-import { ConstructionViolation, Site, FollowUpDate, SiteContact, Contact } from '@models/stormwater'
+import { ConstructionViolation, Site, FollowUpDate, SiteContact, Contact, Inspector } from '@models/stormwater'
 
 // Types
 import { Request, Response, NextFunction } from 'express'
@@ -45,6 +45,7 @@ export const getViolations = asyncHandler(async (req: Request, res: Response<Con
     include: [
       { model: Site,
         include: [
+          { model: Inspector },
           { model: SiteContact,
             include: [
               { model: Contact }
@@ -71,7 +72,19 @@ export const getViolation = asyncHandler(async (req: Request<{ uuid: string }>, 
       uuid: req.params.uuid
     },
     order: [[FollowUpDate, 'followUpDate', 'desc']],
-    include: { model: FollowUpDate }
+    include: [
+      { model: Site,
+        include: [
+          { model: Inspector },
+          { model: SiteContact,
+            include: [
+              { model: Contact }
+            ]
+          }
+        ]
+      }, 
+      { model: FollowUpDate }
+    ]
   }) as Model<Types.ConstructionViolationInterface> & Types.ConstructionViolationInterface
 
   if(!violation) {
@@ -89,8 +102,6 @@ export const getViolation = asyncHandler(async (req: Request<{ uuid: string }>, 
 // @access  Private
 export const updateViolation = asyncHandler(async (req: Request<{ uuid: string }, {}, Types.ConstructionViolationCreationAttributes>, res: Response<ControllerResponse & { data: Types.ConstructionViolationInterface }>, next: NextFunction) => {
   const { date, siteId, details, enforcementAction, penaltyDate, penaltyAmount, penaltyDueDate, paymentReceived, swoDate, swoLiftedDate, compliance, closed } = req.body
-
-  console.log(req.body)
 
   const violation = await ConstructionViolation.update({
     date,

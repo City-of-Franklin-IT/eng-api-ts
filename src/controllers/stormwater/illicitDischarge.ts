@@ -71,6 +71,7 @@ export const getIllicitDischarges = asyncHandler(async (req: Request, res: Respo
   const illicitDischarges = await IllicitDischarge.findAll({
     order: [['date', 'desc'], [FollowUpDate, 'followUpDate', 'desc']],
     include: [
+      { model: Inspector },
       { model: FollowUpDate },
       { model: Site,
         include: [
@@ -99,9 +100,10 @@ export const getIllicitDischarge = asyncHandler(async (req: Request<{ uuid: stri
       uuid: req.params.uuid
     },
     order: [[FollowUpDate, 'followUpDate', 'desc']],
-    include: {
-      model: FollowUpDate
-    }
+    include: [
+      { model: Inspector },
+      { model: FollowUpDate },
+    ]
   }) as Model<Types.IllicitDischargeInterface> & Types.IllicitDischargeInterface
 
   if(!illicit) {
