@@ -1,6 +1,7 @@
+import { Op } from 'sequelize'
 import asyncHandler from '@middleware/async'
 import { ErrorResponse } from '@utils/errorResponse'
-import { Project, Milestone, Phase, Update, Spending } from "@models/cip"
+import { Project, Milestone, Phase, Update } from "@models/cip"
 
 // Types
 import { Request, Response, NextFunction } from 'express'
@@ -13,7 +14,10 @@ import { ProjectInterface } from '@models/cip/types'
 export const getProjects = asyncHandler(async (req: Request, res: Response, next: NextFunction) => {
   const projects = await Project.findAll({
     where: {
-      archived: false
+      [Op.or]: [
+        { archived: false },
+        { archived: null }
+      ]
     },
     attributes: ['projectId', 'name', 'projectDescription', 'type', 'manager', 'link', 'approvedBudget', 'xCoordinate', 'yCoordinate', 'uuid'],
     order: [['name', 'asc'], [Milestone, 'milestoneEst', 'asc'], [Phase, 'createdAt', 'desc'], [Update, 'createdAt', 'desc']],
