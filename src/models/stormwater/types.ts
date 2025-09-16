@@ -14,7 +14,6 @@ export interface SiteInterface extends BaseInterface {
   cof: string | null
   tnq: string | null
   greenInfrastructure: boolean | null
-  inactive: boolean
   hasOpenViolation?: boolean
   hasOpenComplaint?: boolean
   hasOpenIllicitDischarge?: boolean
@@ -24,11 +23,11 @@ export interface SiteInterface extends BaseInterface {
   IllicitDischarges?: IllicitDischargeInterface[]
   SiteContacts?: SiteContactInterface[]
   Inspector?: InspectorInterface
+  InactiveSite?: InactiveSiteInterface
 }
 
-export interface SiteCreationAttributes extends Omit<SiteInterface, 'siteId' | 'inactive' | 'Logs' | 'ConstructionViolations' | 'Complaints' | 'IllicitDischarges' | 'SiteContacts' | 'Inspector' | 'uuid' | 'createdAt' | 'createdBy' | 'updatedAt' | 'updatedBy'>{
+export interface SiteCreationAttributes extends Omit<SiteInterface, 'siteId' | 'Logs' | 'ConstructionViolations' | 'Complaints' | 'IllicitDischarges' | 'SiteContacts' | 'Inspector' | 'InactiveSite' | 'uuid' | 'createdAt' | 'createdBy' | 'updatedAt' | 'updatedBy'>{
   siteId?: string
-  inactive?: boolean
 }
 
 export interface ComplaintInterface extends BaseInterface {
@@ -169,6 +168,12 @@ export interface SiteContactInterface extends BaseInterface {
 
 export interface SiteContactCreationAttributes extends Optional<SiteContactInterface, 'uuid' | 'createdAt' | 'createdBy' | 'updatedAt' | 'updatedBy'>{}
 
+export interface InactiveSiteInterface extends BaseInterface {
+  siteId: string 
+}
+
+export interface InactiveSiteCreateInterface extends Omit<InactiveSiteInterface, 'uuid' | 'createdAt' | 'createdBy' | 'updatedAt' | 'updatedBy'>{}
+
 export interface DatabaseInterface {
   sequelize: Sequelize
   Complaint: ModelStatic<Model<ComplaintInterface, ComplaintCreationAttributes>>
@@ -180,6 +185,7 @@ export interface DatabaseInterface {
   Log: ModelStatic<Model<LogInterface, LogCreationAttributes>>
   SiteContact: ModelStatic<Model<SiteContactInterface, SiteContactCreationAttributes>>
   Site: ModelStatic<Model<SiteInterface, SiteCreationAttributes>>
+  InactiveSite: ModelStatic<Model<InactiveSiteInterface, InactiveSiteCreateInterface>>
   [key: string]: ModelStatic<Model> | Sequelize
 }
 

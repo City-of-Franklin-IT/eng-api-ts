@@ -8,6 +8,7 @@ import logs from './log'
 import siteContacts from './siteContact'
 import sites from './site'
 import violations from './violation'
+import inactiveSites from './inactiveSite'
 
 // Types
 import { Express, Router } from 'express'
@@ -28,4 +29,5 @@ export default (app: Express) => {
   setURL('/sitecontact', siteContacts)
   setURL('/site', sites)
   setURL('/violation', violations)
+  setURL('/inactive', inactiveSites)
 }

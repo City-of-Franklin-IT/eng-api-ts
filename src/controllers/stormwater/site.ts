@@ -3,7 +3,7 @@ import { Op } from 'sequelize'
 import asyncHandler from '@middleware/async'
 import { ErrorResponse } from '@utils/errorResponse'
 import editorTracking from '@utils/editorTracking'
-import { Inspector, Site, Complaint, SiteContact, Contact, Log, ConstructionViolation, FollowUpDate, IllicitDischarge } from '@models/stormwater'
+import { Inspector, Site, Complaint, SiteContact, Contact, Log, ConstructionViolation, FollowUpDate, IllicitDischarge, InactiveSite } from '@models/stormwater'
 import { emailInspector, inspectorLookup } from '@utils/automatedEmails/emailInspector'
 
 // Types
@@ -74,6 +74,8 @@ export const getSites = asyncHandler(async (req: Request, res: Response<Controll
       },{
         model: IllicitDischarge,
         include: [{ model: FollowUpDate }]
+      },{
+        model: InactiveSite
       }
     ]
   }) as Model<Types.SiteInterface>[] & Types.SiteInterface
@@ -132,6 +134,8 @@ export const getSite = asyncHandler(async (req: Request<{ uuid: string }>, res: 
       },{
         model: IllicitDischarge,
         include: [{ model: FollowUpDate }]
+      },{
+        model: InactiveSite
       }
     ]
   }) as Model<Types.SiteInterface> & Types.SiteInterface
@@ -154,7 +158,7 @@ export const getSite = asyncHandler(async (req: Request<{ uuid: string }>, res: 
 // @route   PUT /api/v2/stormwater/sites/:uuid
 // @access  Private
 export const updateSite = asyncHandler(async (req: Request<{ uuid: string }, {}, Types.SiteCreationAttributes>, res: Response<ControllerResponse & { data: Types.SiteInterface }>, next: NextFunction) => {
-  const { inspectorId, name, location, preconDate, xCoordinate, yCoordinate, permit, cof, tnq, greenInfrastructure, inactive } = req.body
+  const { inspectorId, name, location, preconDate, xCoordinate, yCoordinate, permit, cof, tnq, greenInfrastructure } = req.body
 
   const production = process.env.NODE_ENV === 'production'
 
@@ -171,7 +175,6 @@ export const updateSite = asyncHandler(async (req: Request<{ uuid: string }, {},
     cof,
     tnq,
     greenInfrastructure,
-    inactive,
     ...editorTracking(req)
   },{
     where: {
@@ -223,10 +226,14 @@ export const deleteSite = asyncHandler(async (req: Request<{ uuid: string }>, re
 //@route   GET /api/v2/stormwater/sites/active
 //@access  Private
 export const getActiveSites = asyncHandler(async (req: Request, res: Response<ControllerResponse & { data: Types.SiteInterface[] }>, next: NextFunction) => {
+  const inactiveSites = await InactiveSite.findAll({
+    attributes: ['siteId']
+  }) as (Model<Types.InactiveSiteInterface> & Types.InactiveSiteInterface)[]
+
   const sites = await Site.findAll({
     where: {
-      inactive: {
-        [Op.ne]: true
+      siteId: {
+        [Op.notIn]: inactiveSites.flatMap(site => site.siteId)
       }
     },
     order: [['name', 'asc']],

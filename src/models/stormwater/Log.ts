@@ -16,7 +16,7 @@ export default (sequelize: Sequelize, dataTypes: typeof DataTypes) => {
     declare updatedBy: string
     declare updatedAt: string
 
-    static assosciate({ Site }: { Site: ModelStatic<Model<SiteInterface, SiteCreationAttributes>> }) {
+    static associate({ Site }: { Site: ModelStatic<Model<SiteInterface, SiteCreationAttributes>> }) {
       this.belongsTo(Site, { targetKey: 'siteId', foreignKey: 'siteId' })
     }
 
