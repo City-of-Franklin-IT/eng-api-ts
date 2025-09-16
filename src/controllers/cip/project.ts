@@ -75,7 +75,7 @@ export const createProject = asyncHandler(async (req: Request<{}, {}, CreateProj
     manager,
     managerEmail,
     link,
-    approvedBudget,
+    approvedBudget: 0,
     archived,
     xCoordinate,
     yCoordinate,
