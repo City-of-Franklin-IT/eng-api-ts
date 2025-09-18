@@ -2,7 +2,7 @@ import { v4 as uuidv4 } from 'uuid'
 import asyncHandler from '@middleware/async'
 import { ErrorResponse } from '@utils/errorResponse'
 import editorTracking from '@utils/editorTracking'
-import { Inspector, Site, Complaint, SiteContact, Contact, Log, ConstructionViolation, FollowUpDate, IllicitDischarge } from '@models/stormwater'
+import { Inspector, Site, Complaint, SiteContact, Contact, Log, ConstructionViolation, FollowUpDate, IllicitDischarge, InactiveSite } from '@models/stormwater'
 
 // Types
 import { Request, Response, NextFunction } from 'express'
@@ -95,6 +95,8 @@ export const getInspector = asyncHandler(async (req: Request<{ slug: string }>, 
       },{
         model: IllicitDischarge,
         include: [{ model: FollowUpDate }]
+      },{
+        model: InactiveSite
       }
     ]
   }) as (Model<Types.SiteInterface> & Types.SiteInterface)[]
