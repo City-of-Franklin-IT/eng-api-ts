@@ -49,34 +49,13 @@ export const createSite = asyncHandler(async (req: Request<{}, {}, Types.SiteCre
 // @access  Private
 export const getSites = asyncHandler(async (req: Request, res: Response<ControllerResponse & { data: Types.SiteInterface[] }>, next: NextFunction) => {
   const results = await Site.findAll({
-    order: [
-      ['name', 'asc'], 
-      [Log, 'inspectionDate', 'desc'], 
-      [ConstructionViolation, 'date', 'desc'], 
-      [ConstructionViolation, FollowUpDate, 'followUpDate', 'desc'],
-      [Complaint, 'date', 'desc'],  
-      [Complaint, FollowUpDate, 'followUpDate', 'desc'],
-      [IllicitDischarge, 'date', 'desc'],
-      [IllicitDischarge, FollowUpDate, 'followUpDate', 'desc']
-    ],
+    order: [['name', 'asc']],
     include: [
-      { model: Inspector },
-      { model: SiteContact,
-        include: [{ model: Contact }]
-      },
       { model: Log },
-      { model: ConstructionViolation,
-        include: [{ model: FollowUpDate }]
-      },
-      { model: Complaint,
-        include: 
-          [{ model: FollowUpDate }]
-      },{
-        model: IllicitDischarge,
-        include: [{ model: FollowUpDate }]
-      },{
-        model: InactiveSite
-      }
+      { model: ConstructionViolation, include: [{ model: FollowUpDate }] },
+      { model: Complaint, include: [{ model: FollowUpDate }] },
+      { model: IllicitDischarge, include: [{ model: FollowUpDate }] },
+      { model: InactiveSite }
     ]
   }) as Model<Types.SiteInterface>[] & Types.SiteInterface
 
