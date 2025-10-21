@@ -2,7 +2,7 @@ import { v4 as uuidv4 } from 'uuid'
 import asyncHandler from '@middleware/async'
 import { ErrorResponse } from '@utils/errorResponse'
 import editorTracking from '@utils/editorTracking'
-import { Inspector, Site, Complaint, SiteContact, Contact, Log, ConstructionViolation, FollowUpDate, IllicitDischarge, InactiveSite } from '@models/stormwater'
+import { Inspector, Site, Complaint, Log, ConstructionViolation, FollowUpDate, IllicitDischarge, InactiveSite } from '@models/stormwater'
 
 // Types
 import { Request, Response, NextFunction } from 'express'
@@ -70,34 +70,13 @@ export const getInspector = asyncHandler(async (req: Request<{ slug: string }>, 
     where: {
       inspectorId: inspector.inspectorId
     },
-    order: [
-      ['name', 'asc'], 
-      [Log, 'inspectionDate', 'desc'], 
-      [ConstructionViolation, 'date', 'desc'], 
-      [ConstructionViolation, FollowUpDate, 'followUpDate', 'desc'],
-      [Complaint, 'date', 'desc'],  
-      [Complaint, FollowUpDate, 'followUpDate', 'desc'],
-      [IllicitDischarge, 'date', 'desc'],
-      [IllicitDischarge, FollowUpDate, 'followUpDate', 'desc']
-    ],
+    order: [['name', 'asc']],
     include: [
-      { model: Inspector },
-      { model: SiteContact,
-        include: [{ model: Contact }]
-      },
       { model: Log },
-      { model: ConstructionViolation,
-        include: [{ model: FollowUpDate }]
-      },
-      { model: Complaint,
-        include: 
-          [{ model: FollowUpDate }]
-      },{
-        model: IllicitDischarge,
-        include: [{ model: FollowUpDate }]
-      },{
-        model: InactiveSite
-      }
+      { model: ConstructionViolation, include: [{ model: FollowUpDate }] },
+      { model: Complaint, include: [{ model: FollowUpDate }] },
+      { model: IllicitDischarge, include: [{ model: FollowUpDate }] },
+      { model: InactiveSite }
     ]
   }) as (Model<Types.SiteInterface> & Types.SiteInterface)[]
 

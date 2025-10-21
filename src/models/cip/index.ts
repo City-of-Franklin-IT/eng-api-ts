@@ -2,10 +2,8 @@ import moment from 'moment'
 import dotenv from 'dotenv'
 dotenv.config({ path: 'config/config.env' })
 
-import { ModelStatic, Sequelize } from 'sequelize'
-
 // Types
-import { DataTypes, Model } from 'sequelize'
+import { DataTypes, Model, ModelStatic, Sequelize } from 'sequelize'
 import ProjectModel from './Project'
 import MilestoneModel from './Milestone'
 import PhaseModel from './Phase'
