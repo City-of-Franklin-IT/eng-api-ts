@@ -216,11 +216,32 @@ export const getActiveSites = asyncHandler(async (req: Request, res: Response<Co
       }
     },
     order: [['name', 'asc']],
-    attributes: ['name', 'siteId', 'xCoordinate', 'yCoordinate', 'inspectorId', 'uuid']
+    attributes: ['name', 'siteId', 'permit', 'cof', 'tnq', 'xCoordinate', 'yCoordinate', 'uuid']
   }) as (Model<Types.SiteInterface> & Types.SiteInterface)[]
 
   res.status(200).json({
     success: true,
     data: sites
+  })
+})
+
+//@desc    Get active site
+//@route   GET /api/v2/stormwater/sites/active/:uuid
+//@access  Public
+export const getActiveSite = asyncHandler(async (req: Request<{ uuid: string }>, res: Response<ControllerResponse & { data: Types.SiteInterface }>, next: NextFunction) => {
+  const site = await Site.findOne({
+    where: {
+      uuid: req.params.uuid
+    },
+    attributes: ['name', 'siteId', 'permit', 'cof', 'tnq', 'xCoordinate', 'yCoordinate', 'uuid']
+  }) as (Model<Types.SiteInterface> & Types.SiteInterface)
+
+  if(!site) {
+    return next(new ErrorResponse(`Could not return site by uuid ${ req.params.uuid }`, 500))
+  }
+
+  res.status(200).json({
+    success: true,
+    data: site
   })
 })

@@ -1,6 +1,6 @@
 import { Router } from 'express'
 import { getProjects, getProject } from '@controllers/cip/public'
-import { getActiveSites } from '@controllers/stormwater/site'
+import { getActiveSites, getActiveSite } from '@controllers/stormwater/site'
 
 const router = Router()
 
@@ -15,5 +15,9 @@ router
 router
   .route('/active-sites')
   .get(getActiveSites)
+
+router
+  .route('/active-sites/:uuid')
+  .get(getActiveSite)
 
 export default router
