@@ -2,7 +2,6 @@ import path from 'path'
 import milestone from './milestone'
 import phase from './phase'
 import project from './project'
-import spending from './spending'
 import update from './update'
 import makeDocsRoute from '../makeDocsRoute'
 
@@ -21,7 +20,6 @@ export default (app: Express) => {
   setURL('/milestone', milestone)
   setURL('/phase', phase)
   setURL('/project', project)
-  setURL('/spending', spending)
   setURL('/update', update)
   setURL('/docs', docsRoutes)
 }
