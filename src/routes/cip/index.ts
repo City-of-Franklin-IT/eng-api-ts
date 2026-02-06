@@ -4,15 +4,18 @@ import phase from './phase'
 import project from './project'
 import spending from './spending'
 import update from './update'
+import makeDocsRoute from '../makeDocsRoute'
 
 // Types
 import { Express, Router } from 'express'
 
+const docsRoutes = makeDocsRoute('cip')
+
 export default (app: Express) => {
   const baseURL = `${ process.env.BASE_URL }/${ path.basename(__dirname) }`
 
-  const setURL = (path: string, router: Router) => {
-    return app.use(`${ baseURL }${ path }`, router)
+  const setURL = (urlPath: string, router: Router) => {
+    return app.use(`${ baseURL }${ urlPath }`, router)
   }
 
   setURL('/milestone', milestone)
@@ -20,4 +23,5 @@ export default (app: Express) => {
   setURL('/project', project)
   setURL('/spending', spending)
   setURL('/update', update)
+  setURL('/docs', docsRoutes)
 }

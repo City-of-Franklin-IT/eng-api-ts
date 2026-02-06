@@ -9,15 +9,18 @@ import siteContacts from './siteContact'
 import sites from './site'
 import violations from './violation'
 import inactiveSites from './inactiveSite'
+import makeDocsRoute from '../makeDocsRoute'
 
 // Types
 import { Express, Router } from 'express'
 
+const docsRoutes = makeDocsRoute('stormwater')
+
 export default (app: Express) => {
   const baseURL = `${ process.env.BASE_URL }/${ path.basename(__dirname) }`
 
-  const setURL = (path: string, router: Router) => {
-    return app.use(`${ baseURL }${ path }`, router)
+  const setURL = (urlPath: string, router: Router) => {
+    return app.use(`${ baseURL }${ urlPath }`, router)
   }
 
   setURL('/complaint', complaints)
@@ -30,4 +33,5 @@ export default (app: Express) => {
   setURL('/site', sites)
   setURL('/violation', violations)
   setURL('/inactive', inactiveSites)
+  setURL('/docs', docsRoutes)
 }
