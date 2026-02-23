@@ -3,7 +3,7 @@ import { Op } from 'sequelize'
 import asyncHandler from '@middleware/async'
 import { ErrorResponse } from '@utils/errorResponse'
 import editorTracking from '@utils/editorTracking'
-import { Inspector, Site, Complaint, SiteContact, Contact, Log, ConstructionViolation, FollowUpDate, IllicitDischarge, InactiveSite } from '@models/stormwater'
+import { Inspector, Site, Complaint, SiteContact, Contact, Log, ConstructionViolation, FollowUpDate, IllicitDischarge, InactiveSite, IncompleteSite } from '@models/stormwater'
 import { emailInspector, inspectorLookup } from '@utils/automatedEmails/emailInspector'
 
 // Types
@@ -11,6 +11,9 @@ import { Request, Response, NextFunction } from 'express'
 import { Model } from 'sequelize'
 import { ControllerResponse } from '@controllers/types'
 import * as Types from '@models/stormwater/types'
+
+const excludeEditorFields = ['createdBy', 'updatedBy', 'createdAt', 'updatedAt']
+const excludeEditorFieldsKeepCreatedAt = ['createdBy', 'updatedBy', 'updatedAt']
 
 // @desc    Create site
 // @route   POST /api/v2/stormwater/site
@@ -49,13 +52,23 @@ export const createSite = asyncHandler(async (req: Request<{}, {}, Types.SiteCre
 // @access  Private
 export const getSites = asyncHandler(async (req: Request, res: Response<ControllerResponse & { data: Types.SiteInterface[] }>, next: NextFunction) => {
   const results = await Site.findAll({
-    order: [['name', 'asc']],
+    order: [
+      ['name', 'asc'], 
+      [Log, 'inspectionDate', 'desc'], 
+      [ConstructionViolation, 'date', 'desc'], 
+      [ConstructionViolation, FollowUpDate, 'followUpDate', 'desc'],
+      [Complaint, 'date', 'desc'],  
+      [Complaint, FollowUpDate, 'followUpDate', 'desc'],
+      [IllicitDischarge, 'date', 'desc'],
+      [IllicitDischarge, FollowUpDate, 'followUpDate', 'desc']
+    ],
     include: [
-      { model: Log },
-      { model: ConstructionViolation, include: [{ model: FollowUpDate }] },
-      { model: Complaint, include: [{ model: FollowUpDate }] },
-      { model: IllicitDischarge, include: [{ model: FollowUpDate }] },
-      { model: InactiveSite }
+      { model: Log, attributes: { exclude: excludeEditorFields } },
+      { model: ConstructionViolation, attributes: { exclude: excludeEditorFields }, include: [{ model: FollowUpDate, attributes: { exclude: excludeEditorFields } }] },
+      { model: Complaint, attributes: { exclude: excludeEditorFields }, include: [{ model: FollowUpDate, attributes: { exclude: excludeEditorFields } }] },
+      { model: IllicitDischarge, attributes: { exclude: excludeEditorFields }, include: [{ model: FollowUpDate, attributes: { exclude: excludeEditorFields } }] },
+      { model: InactiveSite, attributes: { exclude: excludeEditorFieldsKeepCreatedAt } },
+      { model: IncompleteSite, attributes: { exclude: excludeEditorFieldsKeepCreatedAt } }
     ]
   }) as Model<Types.SiteInterface>[] & Types.SiteInterface
 
@@ -99,23 +112,22 @@ export const getSite = asyncHandler(async (req: Request<{ uuid: string }>, res: 
       [IllicitDischarge, FollowUpDate, 'followUpDate', 'desc']
     ],
     include: [
-      { model: Inspector },
-      { model: SiteContact,
-        include: [{ model: Contact }]
+      { model: Inspector, attributes: { exclude: excludeEditorFields } },
+      { model: SiteContact, attributes: { exclude: excludeEditorFields },
+        include: [{ model: Contact, attributes: { exclude: excludeEditorFields } }]
       },
-      { model: Log },
-      { model: ConstructionViolation,
-        include: [{ model: FollowUpDate }]
+      { model: Log, attributes: { exclude: excludeEditorFields } },
+      { model: ConstructionViolation, attributes: { exclude: excludeEditorFields },
+        include: [{ model: FollowUpDate, attributes: { exclude: excludeEditorFields } }]
       },
-      { model: Complaint,
-        include: 
-          [{ model: FollowUpDate }]
+      { model: Complaint, attributes: { exclude: excludeEditorFields },
+        include: [{ model: FollowUpDate, attributes: { exclude: excludeEditorFields } }]
       },{
-        model: IllicitDischarge,
-        include: [{ model: FollowUpDate }]
-      },{
-        model: InactiveSite
-      }
+        model: IllicitDischarge, attributes: { exclude: excludeEditorFields },
+        include: [{ model: FollowUpDate, attributes: { exclude: excludeEditorFields } }]
+      },
+      { model: InactiveSite, attributes: { exclude: excludeEditorFieldsKeepCreatedAt } },
+      { model: IncompleteSite, attributes: { exclude: excludeEditorFieldsKeepCreatedAt } }
     ]
   }) as Model<Types.SiteInterface> & Types.SiteInterface
 

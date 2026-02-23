@@ -10,6 +10,8 @@ import { Model } from 'sequelize'
 import { ControllerResponse } from '@controllers/types'
 import * as Types from '../../models/stormwater/types'
 
+const excludeEditorFields = ['createdBy', 'updatedBy', 'createdAt', 'updatedAt']
+
 // @desc    Create contact
 // @route   POST /api/v2/stormwater/contacts
 // @access  Private
@@ -43,8 +45,8 @@ export const getContacts = asyncHandler(async (req: Request, res: Response<Contr
   const contacts = await Contact.findAll({
     order: [['name', 'asc']],
     include: [
-      { model: SiteContact, 
-        include: [{ model: Site }] }]
+      { model: SiteContact, attributes: { exclude: excludeEditorFields },
+        include: [{ model: Site, attributes: { exclude: excludeEditorFields } }] }]
   }) as (Model<Types.ContactInterface> & Types.ContactInterface)[]
 
   res.status(200).json({

@@ -11,6 +11,8 @@ import { Model } from 'sequelize'
 import { ControllerResponse } from '@controllers/types'
 import * as Types from '@models/stormwater/types'
 
+const excludeEditorFields = ['createdBy', 'updatedBy', 'createdAt', 'updatedAt']
+
 // @desc    Create complaint
 // @route   POST /api/v2/stormwater/complaint
 // @access  Private
@@ -70,17 +72,17 @@ export const getComplaints = asyncHandler(async (req: Request, res: Response<Con
   const complaints = await Complaint.findAll({
     order: [['date', 'desc'], [FollowUpDate, 'followUpDate', 'desc']],
     include: [
-      { model: Inspector },
-      { model: FollowUpDate },
-      { model: Site,
+      { model: Inspector, attributes: { exclude: excludeEditorFields } },
+      { model: FollowUpDate, attributes: { exclude: excludeEditorFields } },
+      { model: Site, attributes: { exclude: excludeEditorFields },
         include: [
-          { model: SiteContact,
+          { model: SiteContact, attributes: { exclude: excludeEditorFields },
             include: [
-              { model: Contact }
+              { model: Contact, attributes: { exclude: excludeEditorFields } }
             ]
           }
         ]
-      } 
+      }
     ]
   }) as (Model<Types.ComplaintInterface> & Types.ComplaintInterface)[]
 
@@ -100,9 +102,9 @@ export const getComplaint = asyncHandler(async (req: Request<{ uuid: string }>, 
     },
     order: [[FollowUpDate, 'followUpDate', 'desc']],
     include: [
-      { model: Inspector },
-      { model: Site },
-      { model: FollowUpDate}
+      { model: Inspector, attributes: { exclude: excludeEditorFields } },
+      { model: Site, attributes: { exclude: excludeEditorFields } },
+      { model: FollowUpDate, attributes: { exclude: excludeEditorFields } }
     ]
   }) as Model<Types.ComplaintInterface> & Types.ComplaintInterface
 

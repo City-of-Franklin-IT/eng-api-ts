@@ -16,6 +16,9 @@ import { RespondentInterface } from '@models/traffic-calming/types'
 import { InforAddressInterface } from '@models/infor/types'
 import { CreateRespondentsRequest, UpdateRespondentRequest, VerifyRespondentResponse, GetRespondentsByADDRKEYRequest, GetRespondentsByADDRKEYResponse } from './types'
 
+const excludeEditorFields = ['createdBy', 'updatedBy', 'createdAt', 'updatedAt']
+const excludeEditorFieldsKeepCreatedAt = ['createdBy', 'updatedBy', 'updatedAt']
+
 //@desc    Create petition respondents
 //@route   POST /api/v2/eng/traffic-calming/respondent
 //@access  Private
@@ -105,7 +108,7 @@ export const getRespondents = asyncHandler(async (req: Request<{ uuid: string }>
     where: {
       parentId: req.params.uuid
     },
-    include: { model: PetitionResponse }
+    include: { model: PetitionResponse, attributes: { exclude: excludeEditorFields } }
   }) as (Model<RespondentInterface> & RespondentInterface)[]
 
   res.status(200).json({
@@ -123,13 +126,13 @@ export const verifyRespondent = asyncHandler(async (req: Request<{ shortid: stri
       shortId: req.params.shortid
     },
     include: [
-      { model: Petition, 
+      { model: Petition, attributes: { exclude: excludeEditorFields },
         include: [
           { model: Attachment,
             attributes: ['parentId', 'fileType', 'uuid']
           }
-        ]}, 
-      { model: PetitionResponse }
+        ]},
+      { model: PetitionResponse, attributes: { exclude: excludeEditorFieldsKeepCreatedAt } }
     ]
   }) as Model<RespondentInterface> & RespondentInterface
 

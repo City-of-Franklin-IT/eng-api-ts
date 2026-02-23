@@ -11,6 +11,8 @@ import { Model } from 'sequelize'
 import { ControllerResponse } from '@controllers/types'
 import * as Types from '@models/stormwater/types'
 
+const excludeEditorFields = ['createdBy', 'updatedBy', 'createdAt', 'updatedAt']
+
 // @desc    Create illicit discharge
 // @route   POST /api/v2/stormwater/illicit-discharges/create
 // @access  Private
@@ -71,17 +73,17 @@ export const getIllicitDischarges = asyncHandler(async (req: Request, res: Respo
   const illicitDischarges = await IllicitDischarge.findAll({
     order: [['date', 'desc'], [FollowUpDate, 'followUpDate', 'desc']],
     include: [
-      { model: Inspector },
-      { model: FollowUpDate },
-      { model: Site,
+      { model: Inspector, attributes: { exclude: excludeEditorFields } },
+      { model: FollowUpDate, attributes: { exclude: excludeEditorFields } },
+      { model: Site, attributes: { exclude: excludeEditorFields },
         include: [
-          { model: SiteContact,
+          { model: SiteContact, attributes: { exclude: excludeEditorFields },
             include: [
-              { model: Contact }
+              { model: Contact, attributes: { exclude: excludeEditorFields } }
             ]
           }
         ]
-      } 
+      }
     ]
   }) as (Model<Types.IllicitDischargeInterface> & Types.IllicitDischargeInterface)[]
 
@@ -101,8 +103,8 @@ export const getIllicitDischarge = asyncHandler(async (req: Request<{ uuid: stri
     },
     order: [[FollowUpDate, 'followUpDate', 'desc']],
     include: [
-      { model: Inspector },
-      { model: FollowUpDate },
+      { model: Inspector, attributes: { exclude: excludeEditorFields } },
+      { model: FollowUpDate, attributes: { exclude: excludeEditorFields } },
     ]
   }) as Model<Types.IllicitDischargeInterface> & Types.IllicitDischargeInterface
 

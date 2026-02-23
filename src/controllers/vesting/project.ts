@@ -9,6 +9,8 @@ import { Model } from 'sequelize'
 import { ControllerResponse } from '@controllers/types'
 import * as Types from '@models/vesting/types'
 
+const excludeEditorFields = ['createdBy', 'updatedBy', 'createdAt', 'updatedAt']
+
 //@desc    Get projects
 //@route   GET /api/v2/eng/vesting/project
 //@access  Private
@@ -21,21 +23,21 @@ export const getProjects = asyncHandler(async (req: Request, res: Response<Contr
       [VestingNotification, 'date', 'desc']
     ],
     include: [
-      { model: Approval },
-      { model: Resolution },
-      { model: Milestone,
+      { model: Approval, attributes: { exclude: excludeEditorFields } },
+      { model: Resolution, attributes: { exclude: excludeEditorFields } },
+      { model: Milestone, attributes: { exclude: excludeEditorFields },
           include: [
-            { model: MilestoneExtension },
-            { model: MilestoneStatus }
+            { model: MilestoneExtension, attributes: { exclude: excludeEditorFields } },
+            { model: MilestoneStatus, attributes: { exclude: excludeEditorFields } }
           ]
       },
-      { model: VestingPeriod,
+      { model: VestingPeriod, attributes: { exclude: excludeEditorFields },
           include: [
-            { model: VestingExtension },
-            { model: VestingStatus }
+            { model: VestingExtension, attributes: { exclude: excludeEditorFields } },
+            { model: VestingStatus, attributes: { exclude: excludeEditorFields } }
           ]
       },
-      { model: VestingNotification },
+      { model: VestingNotification, attributes: { exclude: excludeEditorFields } },
     ]
   }) as (Model<Types.ProjectInterface> & Types.ProjectInterface)[]
 
@@ -59,21 +61,21 @@ export const getProject = asyncHandler(async (req: Request<{ uuid: string }>, re
       [VestingNotification, 'date', 'desc']
     ],
     include: [
-      { model: Approval },
-      { model: Resolution },
-      { model: Milestone,
+      { model: Approval, attributes: { exclude: excludeEditorFields } },
+      { model: Resolution, attributes: { exclude: excludeEditorFields } },
+      { model: Milestone, attributes: { exclude: excludeEditorFields },
           include: [
-            { model: MilestoneExtension },
-            { model: MilestoneStatus }
+            { model: MilestoneExtension, attributes: { exclude: excludeEditorFields } },
+            { model: MilestoneStatus, attributes: { exclude: excludeEditorFields } }
           ]
       },
-      { model: VestingPeriod,
+      { model: VestingPeriod, attributes: { exclude: excludeEditorFields },
           include: [
-            { model: VestingExtension },
-            { model: VestingStatus }
+            { model: VestingExtension, attributes: { exclude: excludeEditorFields } },
+            { model: VestingStatus, attributes: { exclude: excludeEditorFields } }
           ]
       },
-      { model: VestingNotification },
+      { model: VestingNotification, attributes: { exclude: excludeEditorFields } },
     ]
   }) as Model<Types.ProjectInterface> & Types.ProjectInterface
 

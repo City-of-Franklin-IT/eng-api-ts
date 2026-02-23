@@ -11,6 +11,8 @@ import { Model } from 'sequelize'
 import { PetitionInterface } from '@models/traffic-calming/types'
 import { GetPetitionsResponse, GetPetitionResponse, CreatePetitionRequest, CreatePetitionResponse, UpdatePetititonRequest } from './types'
 
+const excludeEditorFields = ['createdBy', 'updatedBy', 'createdAt', 'updatedAt']
+
 //@desc    Get petitions
 //@route   GET /api/v2/eng/traffic-calming/petition
 //@access  Public
@@ -18,10 +20,10 @@ export const getPetitions = asyncHandler(async (req: Request, res: Response<GetP
   const petitions = await Petition.findAll({
     order: [['startDate', 'asc']],
     include: [
-      { model: Respondent, 
-        include: [{ model: PetitionResponse }] }
-        , { model: Attachment, 
-          attributes: ['parentId', 'fileType', 'uuid'] }
+      { model: Respondent, attributes: { exclude: excludeEditorFields },
+        include: [{ model: PetitionResponse, attributes: { exclude: excludeEditorFields } }] },
+      { model: Attachment,
+        attributes: ['parentId', 'fileType', 'uuid'] }
     ]
   }) as (Model<PetitionInterface> & PetitionInterface)[]
 

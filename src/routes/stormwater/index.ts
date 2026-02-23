@@ -9,6 +9,7 @@ import siteContacts from './siteContact'
 import sites from './site'
 import violations from './violation'
 import inactiveSites from './inactiveSite'
+import incompleteSites from './incompleteSite'
 import makeDocsRoute from '../makeDocsRoute'
 
 // Types
@@ -33,5 +34,6 @@ export default (app: Express) => {
   setURL('/site', sites)
   setURL('/violation', violations)
   setURL('/inactive', inactiveSites)
+  setURL('/incomplete', incompleteSites)
   setURL('/docs', docsRoutes)
 }

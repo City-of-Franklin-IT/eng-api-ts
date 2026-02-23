@@ -13,6 +13,7 @@ import LogModel from './Log'
 import SiteModel from './Site'
 import SiteContactModel from './SiteContact'
 import InactiveSiteModel from './InactiveSite'
+import IncompleteSiteModel from './IncompleteSite'
 import { ConfigInterface, DBPathInterface } from '@models/types'
 import * as Types from './types'
 
@@ -33,7 +34,8 @@ const db = {
   Log: {} as ModelStatic<Model<Types.LogInterface, Types.LogCreationAttributes>>,
   Site: {} as ModelStatic<Model<Types.SiteInterface, Types.SiteCreationAttributes>>,
   SiteContact: {} as ModelStatic<Model<Types.SiteContactInterface, Types.SiteContactCreationAttributes>>,
-  InactiveSite: {} as ModelStatic<Model<Types.InactiveSiteInterface, Types.InactiveSiteCreateInterface>>
+  InactiveSite: {} as ModelStatic<Model<Types.InactiveSiteInterface, Types.InactiveSiteCreateInterface>>,
+  IncompleteSite: {} as ModelStatic<Model<Types.IncompleteSiteInterface, Types.IncompleteSiteCreateInterface>>
 } as Types.DatabaseInterface
 
 const dbPath: DBPathInterface = cfg[env].databases['stormwater']
@@ -50,6 +52,7 @@ db.Log = LogModel(db.sequelize, DataTypes)
 db.Site = SiteModel(db.sequelize, DataTypes)
 db.SiteContact = SiteContactModel(db.sequelize, DataTypes)
 db.InactiveSite = InactiveSiteModel(db.sequelize, DataTypes)
+db.IncompleteSite = IncompleteSiteModel(db.sequelize, DataTypes)
 
 Object.keys(db).forEach(modelName => {
   if((db[modelName] as Types.ModelWithAssociate).associate) {
@@ -67,3 +70,4 @@ export const Log = db.Log
 export const Site = db.Site
 export const SiteContact = db.SiteContact
 export const InactiveSite = db.InactiveSite
+export const IncompleteSite = db.IncompleteSite

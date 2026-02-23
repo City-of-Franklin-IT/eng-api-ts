@@ -24,9 +24,10 @@ export interface SiteInterface extends BaseInterface {
   SiteContacts?: SiteContactInterface[]
   Inspector?: InspectorInterface
   InactiveSite?: InactiveSiteInterface
+  IncompleteSite?: IncompleteSiteInterface
 }
 
-export interface SiteCreationAttributes extends Omit<SiteInterface, 'siteId' | 'Logs' | 'ConstructionViolations' | 'Complaints' | 'IllicitDischarges' | 'SiteContacts' | 'Inspector' | 'InactiveSite' | 'uuid' | 'createdAt' | 'createdBy' | 'updatedAt' | 'updatedBy'>{
+export interface SiteCreationAttributes extends Optional<SiteInterface, 'siteId' | 'Logs' | 'ConstructionViolations' | 'Complaints' | 'IllicitDischarges' | 'SiteContacts' | 'Inspector' | 'InactiveSite' | 'uuid' | 'createdAt' | 'createdBy' | 'updatedAt' | 'updatedBy'>{
   siteId?: string
 }
 
@@ -53,7 +54,7 @@ export interface ComplaintInterface extends BaseInterface {
   FollowUpDates?: FollowUpDateInterface[]
 }
 
-export interface ComplaintCreationAttributes extends Omit<ComplaintInterface, 'Inspector' | 'FollowUpDates' | 'uuid' | 'createdAt' | 'createdBy' | 'updatedAt' | 'updatedBy'>{}
+export interface ComplaintCreationAttributes extends Optional<ComplaintInterface, 'Inspector' | 'FollowUpDates' | 'uuid' | 'createdAt' | 'createdBy' | 'updatedAt' | 'updatedBy'>{}
 
 export interface ConstructionViolationInterface extends BaseInterface {
   violationId: string
@@ -73,7 +74,7 @@ export interface ConstructionViolationInterface extends BaseInterface {
   FollowUpDates?: FollowUpDateInterface[]
 }
 
-export interface ConstructionViolationCreationAttributes extends Omit<ConstructionViolationInterface, 'FollowUpDates' | 'uuid' | 'createdAt' | 'createdBy' | 'updatedAt' | 'updatedBy'>{}
+export interface ConstructionViolationCreationAttributes extends Optional<ConstructionViolationInterface, 'FollowUpDates' | 'uuid' | 'createdAt' | 'createdBy' | 'updatedAt' | 'updatedBy'>{}
 
 export interface ContactInterface extends BaseInterface {
   contactId: string
@@ -85,7 +86,7 @@ export interface ContactInterface extends BaseInterface {
   SiteContacts?: SiteContactInterface[]
 }
 
-export interface ContactCreationAttributes extends Omit<ContactInterface, 'SiteContacts' | 'inactive' | 'uuid' | 'createdAt' | 'createdBy' | 'updatedAt' | 'updatedBy'>{
+export interface ContactCreationAttributes extends Optional<ContactInterface, 'SiteContacts' | 'inactive' | 'uuid' | 'createdAt' | 'createdBy' | 'updatedAt' | 'updatedBy'>{
   inactive?: boolean
 }
 
@@ -98,7 +99,7 @@ export interface FollowUpDateInterface extends BaseInterface {
   followUpDate: string
 }
 
-export interface FollowUpDateCreationAttributes extends Omit<FollowUpDateInterface, 'followUpId' |'uuid' | 'createdAt' | 'createdBy' | 'updatedAt' | 'updatedBy'>{
+export interface FollowUpDateCreationAttributes extends Optional<FollowUpDateInterface, 'followUpId' |'uuid' | 'createdAt' | 'createdBy' | 'updatedAt' | 'updatedBy'>{
   followUpId?: string
   parentId?: string
 }
@@ -127,7 +128,7 @@ export interface IllicitDischargeInterface extends BaseInterface {
   FollowUpDates?: FollowUpDateInterface[]
 }
 
-export interface IllicitDischargeCreationAttributes extends Omit<IllicitDischargeInterface, 'illicitId' | 'Inspector' | 'FollowUpDates' | 'uuid' | 'createdAt' | 'createdBy' | 'updatedAt' | 'updatedBy'>{
+export interface IllicitDischargeCreationAttributes extends Optional<IllicitDischargeInterface, 'illicitId' | 'Inspector' | 'FollowUpDates' | 'uuid' | 'createdAt' | 'createdBy' | 'updatedAt' | 'updatedBy'>{
   illicitId?: string
 }
 
@@ -142,7 +143,7 @@ export interface InspectorInterface extends BaseInterface {
   IllicitDischarges?: IllicitDischargeInterface[]
 }
 
-export interface InspectorCreationAttributes extends Omit<InspectorInterface, 'inspectorId' | 'slug' | 'inactive' | 'Sites' | 'Complaints' | 'IllicitDischarges' | 'uuid' | 'createdAt' | 'createdBy' | 'updatedAt' | 'updatedBy'>{
+export interface InspectorCreationAttributes extends Optional<InspectorInterface, 'inspectorId' | 'slug' | 'inactive' | 'Sites' | 'Complaints' | 'IllicitDischarges' | 'uuid' | 'createdAt' | 'createdBy' | 'updatedAt' | 'updatedBy'>{
   inspectorId?: string
   slug?: string
   inactive?: boolean
@@ -154,7 +155,7 @@ export interface LogInterface extends BaseInterface {
   inspectionDate: string
 }
 
-export interface LogCreationAttributes extends Omit<LogInterface, 'logId' | 'uuid' | 'createdAt' | 'createdBy' | 'updatedAt' | 'updatedBy'>{
+export interface LogCreationAttributes extends Optional<LogInterface, 'logId' | 'uuid' | 'createdAt' | 'createdBy' | 'updatedAt' | 'updatedBy'>{
   logId?: string
 }
 
@@ -172,7 +173,13 @@ export interface InactiveSiteInterface extends BaseInterface {
   siteId: string 
 }
 
-export interface InactiveSiteCreateInterface extends Omit<InactiveSiteInterface, 'uuid' | 'createdAt' | 'createdBy' | 'updatedAt' | 'updatedBy'>{}
+export interface InactiveSiteCreateInterface extends Optional<InactiveSiteInterface, 'uuid' | 'createdAt' | 'createdBy' | 'updatedAt' | 'updatedBy'>{}
+
+export interface IncompleteSiteInterface extends BaseInterface {
+  siteId: string 
+}
+
+export interface IncompleteSiteCreateInterface extends Optional<InactiveSiteInterface, 'uuid' | 'createdAt' | 'createdBy' | 'updatedAt' | 'updatedBy'>{}
 
 export interface DatabaseInterface {
   sequelize: Sequelize
@@ -186,6 +193,7 @@ export interface DatabaseInterface {
   SiteContact: ModelStatic<Model<SiteContactInterface, SiteContactCreationAttributes>>
   Site: ModelStatic<Model<SiteInterface, SiteCreationAttributes>>
   InactiveSite: ModelStatic<Model<InactiveSiteInterface, InactiveSiteCreateInterface>>
+  IncompleteSite: ModelStatic<Model<IncompleteSiteInterface, IncompleteSiteCreateInterface>>
   [key: string]: ModelStatic<Model> | Sequelize
 }
 

@@ -3,7 +3,7 @@ import moment from "moment"
 
 // Types
 import { Sequelize, Model, DataTypes, ModelStatic } from "sequelize"
-import { SiteInterface, SiteCreationAttributes, LogInterface, LogCreationAttributes, ConstructionViolationInterface, ConstructionViolationCreationAttributes, ComplaintInterface, ComplaintCreationAttributes, IllicitDischargeInterface, IllicitDischargeCreationAttributes, SiteContactInterface, SiteContactCreationAttributes, InspectorInterface, InspectorCreationAttributes, InactiveSiteInterface, InactiveSiteCreateInterface } from './types'
+import { SiteInterface, SiteCreationAttributes, LogInterface, LogCreationAttributes, ConstructionViolationInterface, ConstructionViolationCreationAttributes, ComplaintInterface, ComplaintCreationAttributes, IllicitDischargeInterface, IllicitDischargeCreationAttributes, SiteContactInterface, SiteContactCreationAttributes, InspectorInterface, InspectorCreationAttributes, InactiveSiteInterface, InactiveSiteCreateInterface, IncompleteSiteInterface, IncompleteSiteCreateInterface } from './types'
 
 export default (sequelize: Sequelize, dataTypes: typeof DataTypes) => {
   class Site extends Model<SiteInterface, SiteCreationAttributes>{
@@ -24,7 +24,7 @@ export default (sequelize: Sequelize, dataTypes: typeof DataTypes) => {
     declare updatedBy: string
     declare updatedAt: string
 
-    static associate({ Log, ConstructionViolation, Complaint, IllicitDischarge, SiteContact, Inspector, InactiveSite }: { Log: ModelStatic<Model<LogInterface, LogCreationAttributes>>, ConstructionViolation: ModelStatic<Model<ConstructionViolationInterface, ConstructionViolationCreationAttributes>>, Complaint: ModelStatic<Model<ComplaintInterface, ComplaintCreationAttributes>>, IllicitDischarge: ModelStatic<Model<IllicitDischargeInterface, IllicitDischargeCreationAttributes>>, SiteContact: ModelStatic<Model<SiteContactInterface, SiteContactCreationAttributes>>, Inspector: ModelStatic<Model<InspectorInterface, InspectorCreationAttributes>>, InactiveSite: ModelStatic<Model<InactiveSiteInterface, InactiveSiteCreateInterface>> }) {
+    static associate({ Log, ConstructionViolation, Complaint, IllicitDischarge, SiteContact, Inspector, InactiveSite, IncompleteSite }: { Log: ModelStatic<Model<LogInterface, LogCreationAttributes>>, ConstructionViolation: ModelStatic<Model<ConstructionViolationInterface, ConstructionViolationCreationAttributes>>, Complaint: ModelStatic<Model<ComplaintInterface, ComplaintCreationAttributes>>, IllicitDischarge: ModelStatic<Model<IllicitDischargeInterface, IllicitDischargeCreationAttributes>>, SiteContact: ModelStatic<Model<SiteContactInterface, SiteContactCreationAttributes>>, Inspector: ModelStatic<Model<InspectorInterface, InspectorCreationAttributes>>, InactiveSite: ModelStatic<Model<InactiveSiteInterface, InactiveSiteCreateInterface>>, IncompleteSite: ModelStatic<Model<IncompleteSiteInterface, IncompleteSiteCreateInterface>> }) {
       this.hasMany(Log, { sourceKey: 'siteId', foreignKey: 'siteId' })
       this.hasMany(ConstructionViolation, { sourceKey: 'siteId', foreignKey: 'siteId' })
       this.hasMany(Complaint, { sourceKey: 'siteId', foreignKey: 'siteId' })
@@ -32,6 +32,7 @@ export default (sequelize: Sequelize, dataTypes: typeof DataTypes) => {
       this.hasMany(SiteContact, { sourceKey: 'siteId', foreignKey: 'siteId' })
       this.hasOne(Inspector, { sourceKey: 'inspectorId', foreignKey: 'inspectorId' })
       this.hasOne(InactiveSite, { sourceKey: 'siteId', foreignKey: 'siteId' })
+      this.hasOne(IncompleteSite, { sourceKey: 'siteId', foreignKey: 'siteId' })
     }
 
     toJSON() {

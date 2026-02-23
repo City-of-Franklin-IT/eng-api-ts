@@ -2,13 +2,16 @@ import { v4 as uuidv4 } from 'uuid'
 import asyncHandler from '@middleware/async'
 import { ErrorResponse } from '@utils/errorResponse'
 import editorTracking from '@utils/editorTracking'
-import { Inspector, Site, Complaint, Log, ConstructionViolation, FollowUpDate, IllicitDischarge, InactiveSite } from '@models/stormwater'
+import { Inspector, Site, Complaint, Log, ConstructionViolation, FollowUpDate, IllicitDischarge, InactiveSite, IncompleteSite } from '@models/stormwater'
 
 // Types
 import { Request, Response, NextFunction } from 'express'
 import { Model } from 'sequelize'
 import { ControllerResponse } from '@controllers/types'
 import * as Types from '@models/stormwater/types'
+
+const excludeEditorFields = ['createdBy', 'updatedBy', 'createdAt', 'updatedAt']
+const excludeEditorFieldsKeepCreatedAt = ['createdBy', 'updatedBy', 'updatedAt']
 
 // @desc    Create inspector
 // @route   POST /api/v2/stormwater/inspector
@@ -42,8 +45,8 @@ export const getInspectors = asyncHandler(async (req: Request, res: Response<Con
   const inspectors = await Inspector.findAll({
     order: [['name', 'asc'], [Site, 'name', 'asc'], [Complaint, 'date', 'desc']],
     include: [
-      { model: Site },
-      { model: Complaint }]
+      { model: Site, attributes: { exclude: excludeEditorFields } },
+      { model: Complaint, attributes: { exclude: excludeEditorFields } }]
   }) as (Model<Types.InspectorInterface> & Types.InspectorInterface)[]
 
   res.status(200).json({
@@ -72,11 +75,12 @@ export const getInspector = asyncHandler(async (req: Request<{ slug: string }>, 
     },
     order: [['name', 'asc']],
     include: [
-      { model: Log },
-      { model: ConstructionViolation, include: [{ model: FollowUpDate }] },
-      { model: Complaint, include: [{ model: FollowUpDate }] },
-      { model: IllicitDischarge, include: [{ model: FollowUpDate }] },
-      { model: InactiveSite }
+      { model: Log, attributes: { exclude: excludeEditorFields } },
+      { model: ConstructionViolation, attributes: { exclude: excludeEditorFields }, include: [{ model: FollowUpDate, attributes: { exclude: excludeEditorFields } }] },
+      { model: Complaint, attributes: { exclude: excludeEditorFields }, include: [{ model: FollowUpDate, attributes: { exclude: excludeEditorFields } }] },
+      { model: IllicitDischarge, attributes: { exclude: excludeEditorFields }, include: [{ model: FollowUpDate, attributes: { exclude: excludeEditorFields } }] },
+      { model: InactiveSite, attributes: { exclude: excludeEditorFieldsKeepCreatedAt } },
+      { model: IncompleteSite, attributes: { exclude: excludeEditorFieldsKeepCreatedAt } }
     ]
   }) as (Model<Types.SiteInterface> & Types.SiteInterface)[]
 

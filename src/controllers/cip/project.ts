@@ -11,6 +11,9 @@ import { ControllerResponse } from '@controllers/types'
 import { ProjectInterface } from '@models/cip/types'
 import { GetProjectsResponse, GetProjectResponse, CreateProjectRequest, CreateProjectResponse } from './types'
 
+const excludeEditorFields = ['createdBy', 'updatedBy', 'createdAt', 'updatedAt']
+const excludeEditorFieldsKeepAuthor = ['updatedBy', 'updatedAt']
+
 //@desc    Get projects
 //@route   GET /api/v2/eng/cip/project
 //@access  Public
@@ -21,7 +24,7 @@ export const getProjects = asyncHandler(async (req: Request, res: Response<GetPr
     },
     order: [['name', 'asc'], [Phase, 'updatedAt', 'desc']],
     include: [
-      { model: Phase }
+      { model: Phase, attributes: { exclude: excludeEditorFields } }
     ]
   }) as (Model<ProjectInterface> & ProjectInterface)[]
 
@@ -40,10 +43,10 @@ export const getProject = asyncHandler(async (req: Request<{ uuid: string }>, re
       uuid: req.params.uuid
     },
     include: [
-      { model: Milestone }, 
-      { model: Phase }, 
-      { model: Spending, as: 'Spending' }, 
-      { model: Update }],
+      { model: Milestone, attributes: { exclude: excludeEditorFields } },
+      { model: Phase, attributes: { exclude: excludeEditorFields } },
+      { model: Spending, as: 'Spending', attributes: { exclude: excludeEditorFields } },
+      { model: Update, attributes: { exclude: excludeEditorFieldsKeepAuthor } }],
     order:  [
       ['name', 'asc'], 
       [Milestone, 'milestoneEst', 'asc'], 

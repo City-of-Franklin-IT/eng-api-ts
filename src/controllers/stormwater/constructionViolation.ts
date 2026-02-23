@@ -10,6 +10,8 @@ import { Model } from 'sequelize'
 import { ControllerResponse } from '@controllers/types'
 import * as Types from '@models/stormwater/types'
 
+const excludeEditorFields = ['createdBy', 'updatedBy', 'createdAt', 'updatedAt']
+
 // @desc    Create construction violation
 // @route   POST /api/v2/stormwater/violations
 // @access  Private
@@ -43,17 +45,17 @@ export const getViolations = asyncHandler(async (req: Request, res: Response<Con
   const violations = await ConstructionViolation.findAll({
     order: [['date', 'desc'], [FollowUpDate, 'followUpDate', 'desc']],
     include: [
-      { model: Site,
+      { model: Site, attributes: { exclude: excludeEditorFields },
         include: [
-          { model: Inspector },
-          { model: SiteContact,
+          { model: Inspector, attributes: { exclude: excludeEditorFields } },
+          { model: SiteContact, attributes: { exclude: excludeEditorFields },
             include: [
-              { model: Contact }
+              { model: Contact, attributes: { exclude: excludeEditorFields } }
             ]
           }
         ]
-      }, 
-      { model: FollowUpDate }
+      },
+      { model: FollowUpDate, attributes: { exclude: excludeEditorFields } }
     ]
   }) as (Model<Types.ConstructionViolationInterface> & Types.ConstructionViolationInterface)[]
 
@@ -73,17 +75,17 @@ export const getViolation = asyncHandler(async (req: Request<{ uuid: string }>, 
     },
     order: [[FollowUpDate, 'followUpDate', 'desc']],
     include: [
-      { model: Site,
+      { model: Site, attributes: { exclude: excludeEditorFields },
         include: [
-          { model: Inspector },
-          { model: SiteContact,
+          { model: Inspector, attributes: { exclude: excludeEditorFields } },
+          { model: SiteContact, attributes: { exclude: excludeEditorFields },
             include: [
-              { model: Contact }
+              { model: Contact, attributes: { exclude: excludeEditorFields } }
             ]
           }
         ]
-      }, 
-      { model: FollowUpDate }
+      },
+      { model: FollowUpDate, attributes: { exclude: excludeEditorFields } }
     ]
   }) as Model<Types.ConstructionViolationInterface> & Types.ConstructionViolationInterface
 
