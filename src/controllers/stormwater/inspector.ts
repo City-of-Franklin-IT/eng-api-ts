@@ -73,7 +73,16 @@ export const getInspector = asyncHandler(async (req: Request<{ slug: string }>, 
     where: {
       inspectorId: inspector.inspectorId
     },
-    order: [['name', 'asc']],
+    order: [
+      ['name', 'asc'], 
+      [Log, 'inspectionDate', 'desc'], 
+      [ConstructionViolation, 'date', 'desc'], 
+      [ConstructionViolation, FollowUpDate, 'followUpDate', 'desc'],
+      [Complaint, 'date', 'desc'],  
+      [Complaint, FollowUpDate, 'followUpDate', 'desc'],
+      [IllicitDischarge, 'date', 'desc'],
+      [IllicitDischarge, FollowUpDate, 'followUpDate', 'desc']
+    ],
     include: [
       { model: Log, attributes: { exclude: excludeEditorFields } },
       { model: ConstructionViolation, attributes: { exclude: excludeEditorFields }, include: [{ model: FollowUpDate, attributes: { exclude: excludeEditorFields } }] },
