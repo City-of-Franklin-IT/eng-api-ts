@@ -3,6 +3,7 @@
 // Types
 import { Sequelize, Model, DataTypes, ModelStatic } from "sequelize"
 import { VestingPeriodInterface, VestingPeriodCreationAttributes, ProjectInterface, ProjectCreationAttributes, VestingStatusInterface, VestingStatusCreationAttributes, VestingExtensionInterface, VestingExtensionCreationAttributes } from './types'
+import handleDateOnly from '@utils/handleDateOnly'
 
 export default (sequelize: Sequelize, dataTypes: typeof DataTypes) => {
   class VestingPeriod extends Model<VestingPeriodInterface, VestingPeriodCreationAttributes>{
@@ -31,7 +32,10 @@ export default (sequelize: Sequelize, dataTypes: typeof DataTypes) => {
       type: DataTypes.STRING,
     },
     date: {
-      type: DataTypes.DATEONLY
+      type: DataTypes.DATEONLY,
+      get(this: VestingPeriod) {
+        return handleDateOnly(this.getDataValue('date') as Date | string | null, 'YYYY-MM-DD')
+      }
     },
     parentId: {
       type: DataTypes.UUID

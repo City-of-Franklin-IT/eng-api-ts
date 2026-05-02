@@ -3,6 +3,7 @@
 // Types
 import { Sequelize, Model, ModelStatic, DataTypes } from "sequelize"
 import { MilestoneInterface, MilestoneCreationAttributes, ProjectInterface, ProjectCreationAttributes } from "./types"
+import handleDateOnly from '@utils/handleDateOnly'
 
 export default (sequelize: Sequelize, dataTypes: typeof DataTypes) => {
 
@@ -33,11 +34,17 @@ export default (sequelize: Sequelize, dataTypes: typeof DataTypes) => {
     },
     milestoneEst: {
       type: dataTypes.DATEONLY,
-      allowNull: true
+      allowNull: true,
+      get(this: Milestone) {
+        return handleDateOnly(this.getDataValue('milestoneEst') as Date | string | null, 'YYYY-MM-DD')
+      }
     },
     milestoneRealized: {
       type: dataTypes.DATEONLY,
-      allowNull: true
+      allowNull: true,
+      get(this: Milestone) {
+        return handleDateOnly(this.getDataValue('milestoneRealized') as Date | string | null, 'YYYY-MM-DD')
+      }
     },
     parentId: {
       type: dataTypes.UUID,

@@ -3,6 +3,7 @@
 // Types
 import { Sequelize, Model, DataTypes, ModelStatic } from "sequelize"
 import { ProjectInterface, ProjectCreationAttributes, ApprovalInterface, ApprovalCreationAttributes, MilestoneInterface, MilestoneCreationAttributes, VestingNotificationInterface, VestingNotificationCreationAttributes, ResolutionInterface, ResolutionCreationAttributes, VestingPeriodInterface, VestingPeriodCreationAttributes } from './types'
+import handleDateOnly from '@utils/handleDateOnly'
 
 export default (sequelize: Sequelize, dataTypes: typeof DataTypes) => {
   class Project extends Model<ProjectInterface, ProjectCreationAttributes>{
@@ -44,7 +45,10 @@ export default (sequelize: Sequelize, dataTypes: typeof DataTypes) => {
     },
     ordinance: {
       type: DataTypes.DATEONLY,
-      allowNull: true
+      allowNull: true,
+      get(this: Project) {
+        return handleDateOnly(this.getDataValue('ordinance') as Date | string | null, 'YYYY-MM-DD')
+      }
     },
     expired: {
       type: DataTypes.NUMBER,

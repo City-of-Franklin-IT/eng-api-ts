@@ -1,9 +1,9 @@
 'use strict'
-import moment from "moment"
 
 // Types
 import { Sequelize, Model, DataTypes, ModelStatic } from "sequelize"
 import { LogInterface, LogCreationAttributes, SiteInterface, SiteCreationAttributes } from './types'
+import handleDateOnly from '@utils/handleDateOnly'
 
 export default (sequelize: Sequelize, dataTypes: typeof DataTypes) => {
   class Log extends Model<LogInterface, LogCreationAttributes>{
@@ -37,8 +37,8 @@ export default (sequelize: Sequelize, dataTypes: typeof DataTypes) => {
     inspectionDate: {
       type: dataTypes.DATEONLY,
       allowNull: false,
-      get() {
-        return moment(this.getDataValue('inspectionDate')).format('MM-DD-YYYY')
+      get(this: Log) {
+        return handleDateOnly(this.getDataValue('inspectionDate') as Date | string | null, 'MM-DD-YYYY')
       }
     },
     uuid: {

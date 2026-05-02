@@ -1,9 +1,9 @@
 'use strict';
-import moment from "moment"
 
 // Types
 import { Sequelize, Model, DataTypes, ModelStatic } from "sequelize"
 import { FollowUpDateInterface, FollowUpDateCreationAttributes, ComplaintInterface, ComplaintCreationAttributes, ConstructionViolationInterface, ConstructionViolationCreationAttributes, IllicitDischargeInterface, IllicitDischargeCreationAttributes } from './types'
+import handleDateOnly from '@utils/handleDateOnly'
 
 export default (sequelize: Sequelize, dataTypes: typeof DataTypes) => {
   class FollowUpDate extends Model<FollowUpDateInterface, FollowUpDateCreationAttributes> {
@@ -50,8 +50,8 @@ export default (sequelize: Sequelize, dataTypes: typeof DataTypes) => {
     followUpDate: {
       type: dataTypes.DATEONLY,
       allowNull: false,
-      get() {
-        return moment(this.getDataValue('followUpDate')).format('MM-DD-YYYY')
+      get(this: FollowUpDate) {
+        return handleDateOnly(this.getDataValue('followUpDate') as Date | string | null, 'MM-DD-YYYY')
       }
     },
     uuid: {

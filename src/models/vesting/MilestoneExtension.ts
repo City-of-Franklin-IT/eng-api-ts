@@ -3,6 +3,7 @@
 // Types
 import { Sequelize, Model, DataTypes, ModelStatic } from "sequelize"
 import { MilestoneExtensionInterface, MilestoneExtensionCreationAttributes, MilestoneInterface, MilestoneCreationAttributes, MilestoneStatusInterface, MilestoneStatusCreationAttributes } from './types'
+import handleDateOnly from '@utils/handleDateOnly'
 
 export default (sequelize: Sequelize, dataTypes: typeof DataTypes) => {
   class MilestoneExtension extends Model<MilestoneExtensionInterface, MilestoneExtensionCreationAttributes>{
@@ -26,7 +27,10 @@ export default (sequelize: Sequelize, dataTypes: typeof DataTypes) => {
 
   MilestoneExtension.init({
     date: {
-      type: dataTypes.DATEONLY
+      type: dataTypes.DATEONLY,
+      get(this: MilestoneExtension) {
+        return handleDateOnly(this.getDataValue('date') as Date | string | null, 'YYYY-MM-DD')
+      }
     },
     parentId: {
       type: dataTypes.UUID

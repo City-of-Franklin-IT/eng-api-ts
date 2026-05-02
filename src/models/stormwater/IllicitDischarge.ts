@@ -1,9 +1,9 @@
 'use strict'
-import moment from "moment"
 
 // Types
 import { Sequelize, Model, DataTypes, ModelStatic } from "sequelize"
 import { IllicitDischargeInterface, IllicitDischargeCreationAttributes, FollowUpDateInterface, FollowUpDateCreationAttributes, SiteInterface, SiteCreationAttributes, InspectorInterface } from './types'
+import handleDateOnly from '@utils/handleDateOnly'
 
 export default (sequelize: Sequelize, dataTypes: typeof DataTypes) => {
   class IllicitDischarge extends Model<IllicitDischargeInterface, IllicitDischargeCreationAttributes>{
@@ -57,8 +57,8 @@ export default (sequelize: Sequelize, dataTypes: typeof DataTypes) => {
     date: {
       type: dataTypes.DATEONLY,
       allowNull: false,
-      get() {
-        return moment(this.getDataValue('date')).format('MM-DD-YYYY')
+      get(this: IllicitDischarge) {
+        return handleDateOnly(this.getDataValue('date') as Date | string | null, 'MM-DD-YYYY')
       }
     },
     xCoordinate: {
@@ -91,8 +91,8 @@ export default (sequelize: Sequelize, dataTypes: typeof DataTypes) => {
     },
     penaltyDate: {
       type: dataTypes.DATEONLY,
-      get() {
-        return this.getDataValue('penaltyDate') ? moment(this.getDataValue('penaltyDate')).format('MM-DD-YYYY') : null
+      get(this: IllicitDischarge) {
+        return handleDateOnly(this.getDataValue('penaltyDate') as Date | string | null, 'MM-DD-YYYY')
       }
     },
     penaltyAmount: {
@@ -100,14 +100,14 @@ export default (sequelize: Sequelize, dataTypes: typeof DataTypes) => {
     },
     penaltyDueDate: {
       type: dataTypes.DATEONLY,
-      get() {
-        return this.getDataValue('penaltyDueDate') ? moment(this.getDataValue('penaltyDueDate')).format('MM-DD-YYYY') : null
+      get(this: IllicitDischarge) {
+        return handleDateOnly(this.getDataValue('penaltyDueDate') as Date | string | null, 'MM-DD-YYYY')
       }
     },
     paymentReceived: {
       type: dataTypes.DATEONLY,
-      get() {
-        return this.getDataValue('paymentReceived') ? moment(this.getDataValue('paymentReceived')).format('MM-DD-YYYY') : null
+      get(this: IllicitDischarge) {
+        return handleDateOnly(this.getDataValue('paymentReceived') as Date | string | null, 'MM-DD-YYYY')
       }
     },
     compliance: {

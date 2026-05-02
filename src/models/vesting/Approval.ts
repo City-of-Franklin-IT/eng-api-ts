@@ -3,6 +3,7 @@
 // Types
 import { Sequelize, Model, DataTypes, ModelStatic } from "sequelize"
 import { ApprovalInterface, ApprovalCreationAttributes, ProjectInterface, ProjectCreationAttributes } from './types'
+import handleDateOnly from '@utils/handleDateOnly'
 
 export default (sequelize: Sequelize, dataTypes: typeof DataTypes) => {
   class Approval extends Model<ApprovalInterface, ApprovalCreationAttributes>{
@@ -26,7 +27,10 @@ export default (sequelize: Sequelize, dataTypes: typeof DataTypes) => {
 
   Approval.init({
     date: {
-      type: dataTypes.DATEONLY
+      type: dataTypes.DATEONLY,
+      get(this: Approval) {
+        return handleDateOnly(this.getDataValue('date') as Date | string | null, 'YYYY-MM-DD')
+      }
     },
     approvedBy: {
       type: dataTypes.STRING

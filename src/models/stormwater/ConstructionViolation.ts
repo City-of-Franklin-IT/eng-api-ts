@@ -1,9 +1,9 @@
 'use strict';
-import moment from "moment"
 
 // Types
 import { Sequelize, Model, DataTypes, ModelStatic } from "sequelize"
 import { ConstructionViolationInterface, ConstructionViolationCreationAttributes, SiteInterface, SiteCreationAttributes, FollowUpDateInterface, FollowUpDateCreationAttributes } from './types'
+import handleDateOnly from '@utils/handleDateOnly'
 
 export default (sequelize: Sequelize, dataTypes: typeof DataTypes) => {
   class ConstructionViolation extends Model<ConstructionViolationInterface, ConstructionViolationCreationAttributes> {
@@ -45,8 +45,8 @@ export default (sequelize: Sequelize, dataTypes: typeof DataTypes) => {
     date: {
       type: dataTypes.DATEONLY,
       allowNull: false,
-      get() {
-        return moment(this.getDataValue('date')).format('MM-DD-YYYY')
+      get(this: ConstructionViolation) {
+        return handleDateOnly(this.getDataValue('date') as Date | string | null, 'MM-DD-YYYY')
       }
     },
     siteId: {
@@ -61,8 +61,8 @@ export default (sequelize: Sequelize, dataTypes: typeof DataTypes) => {
     },
     penaltyDate: {
       type: dataTypes.DATEONLY,
-      get() {
-        return this.getDataValue('penaltyDate') ? moment(this.getDataValue('penaltyDate')).format('MM-DD-YYYY') : null
+      get(this: ConstructionViolation) {
+        return handleDateOnly(this.getDataValue('penaltyDate') as Date | string | null, 'MM-DD-YYYY')
       }
     },
     penaltyAmount: {
@@ -70,26 +70,26 @@ export default (sequelize: Sequelize, dataTypes: typeof DataTypes) => {
     },
     penaltyDueDate: {
       type: dataTypes.DATEONLY,
-      get() {
-        return this.getDataValue('penaltyDueDate') ? moment(this.getDataValue('penaltyDueDate')).format('MM-DD-YYYY') : null
+      get(this: ConstructionViolation) {
+        return handleDateOnly(this.getDataValue('penaltyDueDate') as Date | string | null, 'MM-DD-YYYY')
       }
     },
     paymentReceived: {
       type: dataTypes.DATEONLY,
-      get() {
-        return this.getDataValue('paymentReceived') ? moment(this.getDataValue('paymentReceived')).format('MM-DD-YYYY') : null
+      get(this: ConstructionViolation) {
+        return handleDateOnly(this.getDataValue('paymentReceived') as Date | string | null, 'MM-DD-YYYY')
       }
     },
     swoDate: {
       type: dataTypes.DATEONLY,
-      get() {
-        return this.getDataValue('swoDate') ? moment(this.getDataValue('swoDate')).format('MM-DD-YYYY') : null
+      get(this: ConstructionViolation) {
+        return handleDateOnly(this.getDataValue('swoDate') as Date | string | null, 'MM-DD-YYYY')
       }
     },
     swoLiftedDate: {
       type: dataTypes.DATEONLY,
-      get() {
-        return this.getDataValue('swoLiftedDate') ? moment(this.getDataValue('swoLiftedDate')).format('MM-DD-YYYY') : null
+      get(this: ConstructionViolation) {
+        return handleDateOnly(this.getDataValue('swoLiftedDate') as Date | string | null, 'MM-DD-YYYY')
       }
     },
     complaintId: {

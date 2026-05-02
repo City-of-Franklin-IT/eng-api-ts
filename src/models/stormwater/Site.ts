@@ -1,9 +1,9 @@
 'use strict'
-import moment from "moment"
 
 // Types
 import { Sequelize, Model, DataTypes, ModelStatic } from "sequelize"
 import { SiteInterface, SiteCreationAttributes, LogInterface, LogCreationAttributes, ConstructionViolationInterface, ConstructionViolationCreationAttributes, ComplaintInterface, ComplaintCreationAttributes, IllicitDischargeInterface, IllicitDischargeCreationAttributes, SiteContactInterface, SiteContactCreationAttributes, InspectorInterface, InspectorCreationAttributes, InactiveSiteInterface, InactiveSiteCreateInterface, IncompleteSiteInterface, IncompleteSiteCreateInterface } from './types'
+import handleDateOnly from '@utils/handleDateOnly'
 
 export default (sequelize: Sequelize, dataTypes: typeof DataTypes) => {
   class Site extends Model<SiteInterface, SiteCreationAttributes>{
@@ -55,8 +55,8 @@ export default (sequelize: Sequelize, dataTypes: typeof DataTypes) => {
     preconDate: {
       type: DataTypes.DATEONLY,
       allowNull: false,
-      get() {
-        return this.getDataValue('preconDate') ? moment(this.getDataValue('preconDate')).format('MM-DD-YYYY') : null
+      get(this: Site) {
+        return handleDateOnly(this.getDataValue('preconDate') as Date | string | null, 'MM-DD-YYYY')
       }
     },
     location: {

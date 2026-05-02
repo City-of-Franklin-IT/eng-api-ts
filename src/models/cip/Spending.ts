@@ -3,6 +3,7 @@
 // Types
 import { Sequelize, Model, ModelStatic, DataTypes } from "sequelize"
 import { SpendingInterface, SpendingCreationAttributes, ProjectInterface, ProjectCreationAttributes } from './types'
+import handleDateOnly from '@utils/handleDateOnly'
 
 export default (sequelize: Sequelize, dataTypes: typeof DataTypes) => {
 
@@ -32,7 +33,10 @@ export default (sequelize: Sequelize, dataTypes: typeof DataTypes) => {
     },
     dollarsSpentDate: {
       type: dataTypes.DATEONLY,
-      allowNull: false
+      allowNull: false,
+      get(this: Spending) {
+        return handleDateOnly(this.getDataValue('dollarsSpentDate') as Date | string | null, 'YYYY-MM-DD')
+      }
     },
     parentId: {
       type: dataTypes.UUID,

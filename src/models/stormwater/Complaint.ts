@@ -1,9 +1,9 @@
 'use strict';
-import moment from "moment"
 
 // Types
 import { Sequelize, Model, DataTypes, ModelStatic } from "sequelize"
 import { ComplaintInterface, ComplaintCreationAttributes, InspectorInterface, InspectorCreationAttributes, FollowUpDateInterface, FollowUpDateCreationAttributes, SiteInterface, SiteCreationAttributes } from './types'
+import handleDateOnly from '@utils/handleDateOnly'
 
 export default (sequelize: Sequelize, dataTypes: typeof DataTypes) => {
 
@@ -51,9 +51,8 @@ export default (sequelize: Sequelize, dataTypes: typeof DataTypes) => {
     date: {
       type: dataTypes.DATEONLY,
       allowNull: false,
-      get() {
-        const date = this.getDataValue('date') ? moment(this.getDataValue('date')).format('MM-DD-YYYY') : null
-        return date
+      get(this: Complaint) {
+        return handleDateOnly(this.getDataValue('date') as Date | string | null, 'MM-DD-YYYY')
       }
     },
     siteId: {

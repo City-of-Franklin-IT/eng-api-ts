@@ -153,6 +153,7 @@ src/
 └── utils/                # Utility functions
     ├── editorTracking/   # User tracking
     ├── errorResponse/    # Error response helper
+    ├── handleDateOnly/   # DATEONLY field formatting
     ├── processImage/     # Image processing
     └── automatedEmails/  # Email workflows
 ```

@@ -3,6 +3,7 @@
 // Types
 import { Sequelize, Model, DataTypes, ModelStatic } from "sequelize"
 import { VestingNotificationInterface, VestingNotificationCreationAttributes, ProjectInterface, ProjectCreationAttributes } from './types'
+import handleDateOnly from '@utils/handleDateOnly'
 
 export default (sequelize: Sequelize, dataTypes: typeof DataTypes) => {
   class VestingNotifcation extends Model<VestingNotificationInterface, VestingNotificationCreationAttributes>{
@@ -26,7 +27,10 @@ export default (sequelize: Sequelize, dataTypes: typeof DataTypes) => {
 
   VestingNotifcation.init({
     date: {
-      type: DataTypes.DATEONLY
+      type: DataTypes.DATEONLY,
+      get(this: VestingNotifcation) {
+        return handleDateOnly(this.getDataValue('date') as Date | string | null, 'YYYY-MM-DD')
+      }
     },
     type: {
       type: DataTypes.STRING

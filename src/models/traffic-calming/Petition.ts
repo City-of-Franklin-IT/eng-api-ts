@@ -3,6 +3,7 @@
 // Types
 import { Sequelize, Model, DataTypes, ModelStatic } from "sequelize"
 import { PetitionInterface, PetitionCreationAttributes, RespondentInterface, RespondentCreationAttributes, AttachmentInterface, AttachmentCreationAttributes } from './types'
+import handleDateOnly from '@utils/handleDateOnly'
 
 export default (sequelize: Sequelize, dataTypes: typeof DataTypes) => {
   class Petition extends Model<PetitionInterface, PetitionCreationAttributes>{
@@ -35,11 +36,17 @@ export default (sequelize: Sequelize, dataTypes: typeof DataTypes) => {
     },
     startDate: {
       type: DataTypes.DATEONLY,
-      allowNull: true
+      allowNull: true,
+      get(this: Petition) {
+        return handleDateOnly(this.getDataValue('startDate') as Date | string | null, 'YYYY-MM-DD')
+      }
     },
     endDate: {
       type: DataTypes.DATEONLY,
-      allowNull: true
+      allowNull: true,
+      get(this: Petition) {
+        return handleDateOnly(this.getDataValue('endDate') as Date | string | null, 'YYYY-MM-DD')
+      }
     },
     uuid: {
       type: dataTypes.UUID,
