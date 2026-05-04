@@ -1,13 +1,11 @@
 import moment from 'moment'
 
 export default function handleDateOnly(raw: Date | string | null, format: string = 'YYYY-MM-DD'): string | null {
-  if(!raw) return raw
+  if (!raw) return raw
 
-  const date = typeof raw === 'string' ? 
-    new Date(raw) : 
-    new Date(raw)
+  const dateStr = raw instanceof Date ? raw.toISOString().split('T')[0] : raw
+  const date = moment(dateStr, 'YYYY-MM-DD')
+  date.add(1, 'day')
 
-  date.setDate(date.getDate() + 1)
-  
-  return moment(date).format(format)
+  return date.format(format)
 }
