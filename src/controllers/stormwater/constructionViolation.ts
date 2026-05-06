@@ -16,7 +16,7 @@ const excludeEditorFields = ['createdBy', 'updatedBy', 'createdAt', 'updatedAt']
 // @route   POST /api/v2/stormwater/violations
 // @access  Private
 export const createViolation = asyncHandler(async (req: Request<{}, {}, Types.ConstructionViolationCreationAttributes>, res: Response<ControllerResponse & { data: Types.ConstructionViolationInterface }>, next: NextFunction) => {
-  const { date, siteId, details, complaintId } = req.body
+  const { date, siteId, details, complaintId, enforcementAction, penaltyDate, penaltyAmount, penaltyDueDate, paymentReceived, swoDate, swoLiftedDate, compliance, closed } = req.body
 
   const violation = await ConstructionViolation.create({
     violationId: `violation-${ uuidv4() }`,
@@ -24,6 +24,15 @@ export const createViolation = asyncHandler(async (req: Request<{}, {}, Types.Co
     siteId,
     details,
     complaintId,
+    enforcementAction,
+    penaltyDate,
+    penaltyAmount,
+    penaltyDueDate,
+    paymentReceived,
+    swoDate,
+    swoLiftedDate,
+    compliance,
+    closed,
     ...editorTracking(req)
   }) as Model<Types.ConstructionViolationInterface> & Types.ConstructionViolationInterface
   
