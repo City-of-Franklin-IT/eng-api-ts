@@ -13,29 +13,26 @@ import { CreateProjectUpdateRequest, UpdateProjectUpdateRequest } from './types'
 //@desc    Create project update
 //@route   POST /api/v2/eng/cip/update
 //@access  Private
-export const createUpdate = asyncHandler(async (req: Request<{}, {}, CreateProjectUpdateRequest>, res: Response<ControllerResponse>, next: NextFunction) => {
+export const createUpdate = asyncHandler(async (req: Request<{}, {}, CreateProjectUpdateRequest>, res: Response<ControllerResponse & { data: UpdateInterface }>) => {
   const { projectUpdate, parentId } = req.body
 
   const update = await Update.create({
     projectUpdate,
     parentId,
     ...editorTracking(req)
-  }) as Model<UpdateInterface>
-
-  if(!update) {
-    return next(new ErrorResponse('Unable to create project update', 500))
-  }
+  }) as Model<UpdateInterface> & UpdateInterface
 
   res.status(200).json({
     success: true,
-    msg: "Project Update Created"
+    msg: "Project Update Created",
+    data: update
   })
 })
 
 //@desc    Update project update
 //@route   PUT /api/v2/eng/cip/update/:uuid
 //@access  Private
-export const updateUpdate = asyncHandler(async (req: Request<{ uuid: string }, {}, UpdateProjectUpdateRequest>, res: Response<ControllerResponse>, next: NextFunction) => {
+export const updateUpdate = asyncHandler(async (req: Request<{ uuid: string }, {}, UpdateProjectUpdateRequest>, res: Response<ControllerResponse & { data: UpdateInterface }>, next: NextFunction) => {
   const { projectUpdate } = req.body
 
   const update = await Update.update({
@@ -44,16 +41,22 @@ export const updateUpdate = asyncHandler(async (req: Request<{ uuid: string }, {
   },{
     where: {
       uuid: req.params.uuid
-    }
+    },
+    returning: true
   })
 
-  if(!update) {
-    return next(new ErrorResponse(`Unable to update project update by uuid ${ req.params.uuid }`, 500))
+  const [affectedCount, affectedRows] = update
+
+  if(affectedCount === 0) {
+    return next(new ErrorResponse(`Unable to update project update by uuid ${ req.params.uuid }`, 404))
   }
+
+  const data = affectedRows[0] as Model<UpdateInterface> & UpdateInterface
 
   res.status(200).json({
     success: true,
-    msg: "Project Update Updated"
+    msg: "Project Update Updated",
+    data
   })
 })
 
@@ -68,7 +71,7 @@ export const deleteUpdate = asyncHandler(async (req: Request<{ uuid: string }>, 
   })
 
   if(result === 0) {
-    return next(new ErrorResponse(`Unable to delete project update by uuid ${ req.params.uuid }`, 500))
+    return next(new ErrorResponse(`Unable to delete project update by uuid ${ req.params.uuid }`, 404))
   }
 
   res.status(200).json({

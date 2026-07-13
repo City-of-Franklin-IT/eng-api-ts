@@ -37,11 +37,7 @@ export const createResponse = asyncHandler(async (req: Request<{}, {}, CreateRes
   const result = await PetitionResponse.create({
     response,
     parentId
-  }) as Model<ResponseInterface>
-
-  if(!result) {
-    return next(new ErrorResponse("Unable to create petition response", 500))
-  }
+  }) as Model<ResponseInterface> & ResponseInterface
 
   res.status(201).json({
     success: true,

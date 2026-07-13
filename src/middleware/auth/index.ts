@@ -20,16 +20,15 @@ const getKey = (header: any, callback: any) => {
     logger.debug(`[AUTH] getKey called, kid: ${header?.kid}`)
     jwks.getSigningKey(header.kid, (err, key) => {
       if (err) {
-        logger.error(`[AUTH] getSigningKey error: ${err.message}`)
+        logger.error(`[AUTH] getSigningKey error: ${ err.message }`)
         callback(err)
       } else {
-        logger.debug('[AUTH] Signing key found')
         const signingKey = key?.getPublicKey()
         callback(null, signingKey)
       }
     })
   } catch (err) {
-    logger.error(`[AUTH] getKey exception: ${err}`)
+    logger.error(`[AUTH] getKey exception: ${ err }`)
     callback(err)
   }
 }

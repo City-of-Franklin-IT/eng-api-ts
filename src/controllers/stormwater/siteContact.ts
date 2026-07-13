@@ -24,10 +24,6 @@ export const createSiteContact = asyncHandler(async (req: Request<{}, {}, Types.
     ...editorTracking(req)
   }) as Model<Types.SiteContactInterface> & Types.SiteContactInterface
 
-  if(!siteContact) {
-    return next(new ErrorResponse("Unable to create site contact", 500))
-  }
-
   res.status(201).json({
     success: true,
     msg: "Site Contact Created",

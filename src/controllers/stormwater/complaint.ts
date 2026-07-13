@@ -41,10 +41,6 @@ export const createComplaint = asyncHandler(async (req: Request<{}, {}, Types.Co
     ...editorTracking(req)
   }) as Model<Types.ComplaintInterface> & Types.ComplaintInterface
 
-  if(!complaint) {
-    return next(new ErrorResponse("Unable to create complaint", 500))
-  }
-
   if(inspectorId && production) { // If inspector assigned - email inspector
     const inspector = await Inspector.findOne({
       where: {
@@ -109,7 +105,7 @@ export const getComplaint = asyncHandler(async (req: Request<{ uuid: string }>, 
   }) as Model<Types.ComplaintInterface> & Types.ComplaintInterface
 
   if(!complaint) {
-    return next(new ErrorResponse(`Unable to return complaint by uuid ${ req.params.uuid }`, 500))
+    return next(new ErrorResponse(`Unable to return complaint by uuid ${ req.params.uuid }`, 404))
   }
 
   res.status(200).json({
@@ -158,7 +154,7 @@ export const updateComplaint = asyncHandler(async (req: Request<{ uuid: string }
   const [affectedCount, affectedRows] = complaint
 
   if(affectedCount === 0) {
-    return next(new ErrorResponse(`Unable to update complaint by uuid ${ req.params.uuid }`, 500))
+    return next(new ErrorResponse(`Unable to update complaint by uuid ${ req.params.uuid }`, 404))
   }
 
   const data = (affectedRows as (Model<Types.ComplaintInterface> & Types.ComplaintInterface)[])[0]
@@ -186,7 +182,7 @@ export const deleteComplaint = asyncHandler(async (req: Request<{ uuid: string }
   })
 
   if(result === 0) {
-    return next(new ErrorResponse(`Unable to delete complaint by uuid ${ req.params.uuid }`, 500))
+    return next(new ErrorResponse(`Unable to delete complaint by uuid ${ req.params.uuid }`, 404))
   }
 
   res.status(200).json({

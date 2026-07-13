@@ -23,10 +23,6 @@ export const createLog = asyncHandler(async (req: Request<{}, {}, Types.LogCreat
     ...editorTracking(req)
   }) as Model<Types.LogInterface> & Types.LogInterface
 
-  if(!log) {
-    return next(new ErrorResponse("Unable to create new site log", 500))
-  }
-
   res.status(201).json({
     success: true,
     msg: "Site Log Created",
@@ -45,7 +41,7 @@ export const getLog = asyncHandler(async (req: Request<{ uuid: string }>, res: R
   }) as Model<Types.LogInterface> & Types.LogInterface
 
   if(!log) {
-    return next(new ErrorResponse(`Unable to return site log by uuid ${ req.params.uuid }`, 500))
+    return next(new ErrorResponse(`Unable to return site log by uuid ${ req.params.uuid }`, 404))
   }
 
   res.status(200).json({
@@ -73,7 +69,7 @@ export const updateLog = asyncHandler(async (req: Request<{ uuid: string }, {}, 
   const [affectedCount, affectedRows] = log
 
   if(affectedCount === 0) {
-    return next(new ErrorResponse(`Unable to update log by uuid ${ req.params.uuid }`, 500))
+    return next(new ErrorResponse(`Unable to update log by uuid ${ req.params.uuid }`, 404))
   }
 
   const data = (affectedRows as (Model<Types.LogInterface> & Types.LogInterface)[])[0]
@@ -96,7 +92,7 @@ export const deleteLog = asyncHandler(async (req: Request<{ uuid: string }>, res
   })
 
   if(result === 0) {
-    return next(new ErrorResponse(`Unable to delete site log by uuid ${ req.params.uuid }`, 500))
+    return next(new ErrorResponse(`Unable to delete site log by uuid ${ req.params.uuid }`, 404))
   }
 
   res.status(200).json({

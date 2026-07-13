@@ -45,7 +45,7 @@ export const getAttachment = asyncHandler(async (req:Request<{ uuid: string }>, 
   }) as Model<AttachmentInterface> & AttachmentInterface
 
   if(!attachment) {
-    return next(new ErrorResponse(`Unable to download attachment by uuid ${ req.params.uuid }`, 500))
+    return next(new ErrorResponse(`Unable to download attachment by uuid ${ req.params.uuid }`, 404))
   }
 
   return res.status(200).json({
@@ -65,7 +65,7 @@ export const deleteAttachment = asyncHandler(async (req: Request<{ uuid: string 
   })
 
   if(result === 0) {
-    return next(new ErrorResponse(`Could not delete attachment by uuid ${ req.params.uuid }`, 500))
+    return next(new ErrorResponse(`Could not delete attachment by uuid ${ req.params.uuid }`, 404))
   }
 
   res.status(200).json({

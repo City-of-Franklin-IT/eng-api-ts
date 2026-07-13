@@ -50,7 +50,7 @@ export const getPetition = asyncHandler(async (req: Request<{ uuid: string }>, r
   }) as Model<PetitionInterface> & PetitionInterface
 
   if(!petition) {
-    return next(new ErrorResponse(`Unable to return petition by uuid ${ req.params.uuid }`, 500))
+    return next(new ErrorResponse(`Unable to return petition by uuid ${ req.params.uuid }`, 404))
   }
 
   res.status(200).json({
@@ -62,7 +62,7 @@ export const getPetition = asyncHandler(async (req: Request<{ uuid: string }>, r
 //@desc    Create petition
 //@route   POST /api/v2/eng/traffic-calming/petition
 //@access  Private
-export const createPetition = asyncHandler(async (req: Request<{}, {}, CreatePetitionRequest>, res: Response<CreatePetitionResponse>, next: NextFunction) => {
+export const createPetition = asyncHandler(async (req: Request<{}, {}, CreatePetitionRequest>, res: Response<CreatePetitionResponse>) => {
   const { description, startDate, endDate } = req.body
 
   const petition = await Petition.create({
@@ -72,10 +72,6 @@ export const createPetition = asyncHandler(async (req: Request<{}, {}, CreatePet
     endDate,
     ...editorTracking(req)
   }) as Model<PetitionInterface> & PetitionInterface
-
-  if(!petition) {
-    return next(new ErrorResponse("Unable to create new petition", 500))
-  }
 
   res.status(201).json({
     success: true,
@@ -87,7 +83,7 @@ export const createPetition = asyncHandler(async (req: Request<{}, {}, CreatePet
 //@desc    Update petition
 //@route   PUT /api/v2/eng/traffic-calming/petition/:uuid
 //@access  Private
-export const updatePetition = asyncHandler(async (req: Request<{ uuid: string }, {}, UpdatePetititonRequest>, res: Response<ControllerResponse>, next: NextFunction) => {
+export const updatePetition = asyncHandler(async (req: Request<{ uuid: string }, {}, UpdatePetititonRequest>, res: Response<ControllerResponse & { data: PetitionInterface }>, next: NextFunction) => {
   const { description, startDate, endDate } = req.body
 
   const petition = await Petition.update({
@@ -99,17 +95,21 @@ export const updatePetition = asyncHandler(async (req: Request<{ uuid: string },
     where: {
       uuid: req.params.uuid
     },
+    returning: true
   })
 
-  const [affectedCount] = petition
+  const [affectedCount, affectedRows] = petition
 
   if(affectedCount === 0) {
-    return next(new ErrorResponse(`Unable to update petition by uuid ${ req.params.uuid }`, 500))
+    return next(new ErrorResponse(`Unable to update petition by uuid ${ req.params.uuid }`, 404))
   }
+
+  const data = affectedRows[0] as Model<PetitionInterface> & PetitionInterface
 
   res.status(200).json({
     success: true,
-    msg: 'Petition Updated'
+    msg: 'Petition Updated',
+    data
   })
 })
 
@@ -124,7 +124,7 @@ export const deletePetition = asyncHandler(async (req: Request<{ uuid: string }>
   })
 
   if(result === 0) {
-    return next(new ErrorResponse(`Unable to delete petition by uuid ${ req.params.uuid }`, 500))
+    return next(new ErrorResponse(`Unable to delete petition by uuid ${ req.params.uuid }`, 404))
   }
 
   res.status(200).json({

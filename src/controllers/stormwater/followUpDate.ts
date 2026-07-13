@@ -25,10 +25,6 @@ export const createFollowUpDate = asyncHandler(async (req: Request<{}, {}, Types
     ...editorTracking(req)
   }) as Model<Types.FollowUpDateInterface> & Types.FollowUpDateInterface
 
-  if(!date) {
-    return next(new ErrorResponse("Unable to create follow up date", 500))
-  }
-
   res.status(201).json({
     success: true,
     msg: "Follow Up Created",
@@ -55,7 +51,7 @@ export const updateFollowUpDate = asyncHandler(async (req: Request<{ uuid: strin
   const [affectedCount, affectedRows] = date
 
   if(affectedCount === 0) {
-    return next(new ErrorResponse(`Unable to update follow up date by uuid ${ req.params.uuid }`, 500))
+    return next(new ErrorResponse(`Unable to update follow up date by uuid ${ req.params.uuid }`, 404))
   }
 
   const data = (affectedRows as (Model<Types.FollowUpDateInterface> & Types.FollowUpDateInterface)[])[0]
@@ -78,7 +74,7 @@ export const deleteFollowUpDate = asyncHandler(async (req: Request<{ uuid: strin
   })
 
   if(result === 0) {
-    return next(new ErrorResponse(`Unable to delete follow up date by uuid ${ req.params.uuid }`, 500))
+    return next(new ErrorResponse(`Unable to delete follow up date by uuid ${ req.params.uuid }`, 404))
   }
 
   res.status(200).json({

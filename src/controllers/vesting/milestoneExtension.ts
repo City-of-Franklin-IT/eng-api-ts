@@ -5,35 +5,33 @@ import { MilestoneExtension } from '@models/vesting'
 
 // Types
 import { Request, Response, NextFunction } from 'express'
+import { Model } from 'sequelize'
 import { ControllerResponse } from '@controllers/types'
 import * as Types from '@models/vesting/types'
 
 //@desc    Create extension
 //@route   POST /api/v2/eng/vesting/extension
 //@access  Private
-export const createMilestoneExtension = asyncHandler(async (req: Request<{}, {}, Types.MilestoneCreationAttributes>, res: Response, next: NextFunction) => {
+export const createMilestoneExtension = asyncHandler(async (req: Request<{}, {}, Types.MilestoneCreationAttributes>, res: Response<ControllerResponse & { data: Types.MilestoneExtensionInterface }>) => {
   const { date, parentId } = req.body
 
   const extension = await MilestoneExtension.create({ // Create milestone extension
     date,
     parentId,
     ...editorTracking(req)
-  })
-
-  if(!extension) {
-    return next(new ErrorResponse('Could not create milestone extension', 500))
-  }
+  }) as Model<Types.MilestoneExtensionInterface> & Types.MilestoneExtensionInterface
 
   res.status(201).json({
     success: true,
-    msg: 'Milestone Extension Created'
+    msg: 'Milestone Extension Created',
+    data: extension
   })
 })
 
 //@desc    Update milestone extension
 //@route   PUT /api/v2/eng/vesting/extension/:uuid
 //@access  Private
-export const updateMilestoneExtension = asyncHandler(async (req: Request<{ uuid: string }, {}, Types.MilestoneExtensionCreationAttributes>, res:Response<ControllerResponse>, next: NextFunction) => {
+export const updateMilestoneExtension = asyncHandler(async (req: Request<{ uuid: string }, {}, Types.MilestoneExtensionCreationAttributes>, res:Response<ControllerResponse & { data: Types.MilestoneExtensionInterface }>, next: NextFunction) => {
   const { date } = req.body
 
   const result = await MilestoneExtension.update({
@@ -42,18 +40,22 @@ export const updateMilestoneExtension = asyncHandler(async (req: Request<{ uuid:
   },{
     where: {
       uuid: req.params.uuid
-    }
+    },
+    returning: true
   })
 
-  const [affectedCount] = result
+  const [affectedCount, affectedRows] = result
 
   if(affectedCount === 0) {
-    return next(new ErrorResponse(`Unable to update milestone extension by uuid ${ req.params.uuid }`, 500))
+    return next(new ErrorResponse(`Unable to update milestone extension by uuid ${ req.params.uuid }`, 404))
   }
+
+  const data = affectedRows[0] as Model<Types.MilestoneExtensionInterface> & Types.MilestoneExtensionInterface
 
   res.status(200).json({
     success: true,
-    msg: "Milestone Extension Updated"
+    msg: "Milestone Extension Updated",
+    data
   })
 })
 
@@ -68,7 +70,7 @@ export const deleteMilestoneExtension = asyncHandler(async (req: Request<{ uuid:
   })
 
   if(result === 0) {
-    return next(new ErrorResponse(`Unable to delete milestone extension by uuid ${ req.params.uuid }`, 500))
+    return next(new ErrorResponse(`Unable to delete milestone extension by uuid ${ req.params.uuid }`, 404))
   }
 
   res.status(200).json({

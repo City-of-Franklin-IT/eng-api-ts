@@ -41,10 +41,6 @@ export const createIllicitDischarge = asyncHandler(async (req: Request<{}, {}, T
     paymentReceived,
     ...editorTracking(req)
   }) as unknown as Model<Types.IllicitDischargeInterface> & Types.IllicitDischargeInterface
-    
-  if(!illicit) {
-    return next(new ErrorResponse("Unable to create illicit discharge", 500))
-  }
 
   if(inspectorId && production) { // If inspector assigned - email inspector
     const inspector = await Inspector.findOne({
@@ -109,7 +105,7 @@ export const getIllicitDischarge = asyncHandler(async (req: Request<{ uuid: stri
   }) as Model<Types.IllicitDischargeInterface> & Types.IllicitDischargeInterface
 
   if(!illicit) {
-    return next(new ErrorResponse(`Unable to return illicit discharge by uuid ${ req.params.uuid }`, 500))
+    return next(new ErrorResponse(`Unable to return illicit discharge by uuid ${ req.params.uuid }`, 404))
   }
 
   res.status(200).json({
@@ -157,7 +153,7 @@ export const updateIllicitDischarge = asyncHandler(async (req: Request<{ uuid: s
   const [affectedCount, affectedRows] = illicit
 
   if(affectedCount === 0) {
-    return next(new ErrorResponse(`Unable to update illicit discharge by uuid ${ req.params.uuid }`, 500))
+    return next(new ErrorResponse(`Unable to update illicit discharge by uuid ${ req.params.uuid }`, 404))
   }
 
   const data = (affectedRows as (Model<Types.IllicitDischargeInterface> & Types.IllicitDischargeInterface)[])[0]
@@ -184,7 +180,7 @@ export const deleteIllicitDischarge = asyncHandler(async (req: Request<{ uuid: s
   })
 
   if(result === 0) {
-    return next(new ErrorResponse(`Unable to delete illicit discharge by uuid ${ req.params.uuid }`, 500))
+    return next(new ErrorResponse(`Unable to delete illicit discharge by uuid ${ req.params.uuid }`, 404))
   }
 
   res.status(200).json({

@@ -11,7 +11,7 @@ import { ProjectInterface } from '@models/cip/types'
 //@desc    Get CIP projects
 //@route   GET /api/v2/eng/public/cip-projects
 //@access  Public
-export const getProjects = asyncHandler(async (req: Request, res: Response, next: NextFunction) => {
+export const getProjects = asyncHandler(async (res: Response) => {
   const projects = await Project.findAll({
     where: {
       [Op.or]: [
@@ -52,7 +52,7 @@ export const getProject = asyncHandler(async (req: Request<{ uuid: string }>, re
   }) as Model<ProjectInterface> & ProjectInterface
 
   if(!project) {
-    return next(new ErrorResponse(`Unable to return project by uuid ${ req.params.uuid }`, 500))
+    return next(new ErrorResponse(`Unable to return project by uuid ${ req.params.uuid }`, 404))
   }
 
   res.status(200).json({

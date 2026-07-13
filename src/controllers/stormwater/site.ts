@@ -36,10 +36,6 @@ export const createSite = asyncHandler(async (req: Request<{}, {}, Types.SiteCre
     ...editorTracking(req)
   }) as Model<Types.SiteInterface> & Types.SiteInterface
 
-  if(!site) {
-    return next(new ErrorResponse("Unable to create site", 500))
-  }
-
   res.status(201).json({
     success: true,
     msg: "Site Created",
@@ -132,7 +128,7 @@ export const getSite = asyncHandler(async (req: Request<{ uuid: string }>, res: 
   }) as Model<Types.SiteInterface> & Types.SiteInterface
 
   if(!site) {
-    return next(new ErrorResponse(`Unable to return site by uuid ${ req.params.uuid }`, 500))
+    return next(new ErrorResponse(`Unable to return site by uuid ${ req.params.uuid }`, 404))
   }
 
   site.hasOpenViolation = !!site.ConstructionViolations?.some(violation => !violation.closed)
@@ -177,7 +173,7 @@ export const updateSite = asyncHandler(async (req: Request<{ uuid: string }, {},
   const [affectedRows, updatedRecords] = site
 
   if(affectedRows === 0) {
-    return next(new ErrorResponse(`Unable to update site by uuid ${ req.params.uuid }`, 500))
+    return next(new ErrorResponse(`Unable to update site by uuid ${ req.params.uuid }`, 404))
   }
 
   const data = (updatedRecords as (Model<Types.SiteInterface> & Types.SiteInterface)[])[0]
@@ -204,7 +200,7 @@ export const deleteSite = asyncHandler(async (req: Request<{ uuid: string }>, re
   })
 
   if(result === 0) {
-    return next(new ErrorResponse(`Unable to delete site by uuid ${ req.params.uuid }`, 500)) 
+    return next(new ErrorResponse(`Unable to delete site by uuid ${ req.params.uuid }`, 404))
   }
 
   res.status(200).json({
@@ -249,7 +245,7 @@ export const getActiveSite = asyncHandler(async (req: Request<{ uuid: string }>,
   }) as (Model<Types.SiteInterface> & Types.SiteInterface)
 
   if(!site) {
-    return next(new ErrorResponse(`Could not return site by uuid ${ req.params.uuid }`, 500))
+    return next(new ErrorResponse(`Could not return site by uuid ${ req.params.uuid }`, 404))
   }
 
   res.status(200).json({
