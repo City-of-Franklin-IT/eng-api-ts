@@ -1,53 +1,75 @@
 import asyncHandler from '../async'
 import { ErrorResponse } from '../../utils/errorResponse'
+import jwksClient from 'jwks-rsa'
+import jwt from 'jsonwebtoken'
+import logger from '../../utils/logger'
 
 // Types
 import { Request, Response, NextFunction } from 'express'
-import { EntraUserInterface } from "./types"
+import { UserInterface, EntraUserInterface } from "./types"
 
-export const entra = asyncHandler(async (req: Request, res: Response, next: NextFunction) => { // Validate token from Entra
+const jwks = jwksClient({
+  jwksUri: `https://login.microsoftonline.com/${ process.env.ENTRA_TENANT_ID }/discovery/v2.0/keys`,
+  cache: true,
+  cacheMaxEntries: 10,
+  cacheMaxAge: 600000
+})
+
+const getKey = (header: any, callback: any) => {
+  try {
+    logger.debug(`[AUTH] getKey called, kid: ${header?.kid}`)
+    jwks.getSigningKey(header.kid, (err, key) => {
+      if (err) {
+        logger.error(`[AUTH] getSigningKey error: ${err.message}`)
+        callback(err)
+      } else {
+        logger.debug('[AUTH] Signing key found')
+        const signingKey = key?.getPublicKey()
+        callback(null, signingKey)
+      }
+    })
+  } catch (err) {
+    logger.error(`[AUTH] getKey exception: ${err}`)
+    callback(err)
+  }
+}
+
+export const entra = asyncHandler(async (req: Request, _res: Response, next: NextFunction) => {
   const env = process.env.NODE_ENV
 
-  if(env === 'development') { // Development
-    const user: EntraUserInterface = {
-      aud: '',
-      exp: 0,
-      iat: 0,
-      iss: '',
-      name: '',
-      nbf: 0,
-      nonce: '',
-      oid: '',
-      preferred_username: 'test.o365-3@franklintn.gov',
-      rh: '',
-      roles: [],
-      sid: '',
-      sub: '',
-      tid: '',
-      uti: '',
-      ver: ''
+  if(env === 'development') {
+    const today = new Date()
+
+    const user: UserInterface = {
+      role: 'Super User',
+      department: 'IT',
+      email: 'test.o365-3@franklintn.gov',
+      iat: Math.floor(today.getTime() / 1000),
+      exp: Math.floor(today.getTime() / 1000) + (30 * 24 * 60 * 60)
     }
 
-    req.entra = user
+    req.user = user
 
     return next()
   }
 
-  if(req.headers.authorization) {
-    const headers = new Headers()
+  if(!req.headers.authorization?.startsWith('Bearer ')) {
+    return next(new ErrorResponse('Authorization header required', 401))
+  }
 
-    headers.append('Authorization', req.headers.authorization)
+  const token = req.headers.authorization.slice('Bearer '.length)
 
-    const result = await fetch(`${ process.env.ENTRA_URL }`, { headers })
-
-    if(result.status !== 200) {
+  jwt.verify(token, getKey, {
+    audience: process.env.ENTRA_CLIENT_ID,
+    issuer: `https://login.microsoftonline.com/${ process.env.ENTRA_TENANT_ID }/v2.0`
+  }, (err, decoded) => {
+    if(err) {
+      logger.error(`[AUTH] token verification error: ${err.message}`)
       return next(new ErrorResponse('Not authorized to access this route', 401))
     }
-    
-    const data = await result.json()
 
-    req.entra = data.data
+    req.entra = decoded as EntraUserInterface
 
     return next()
-  } else return next(new ErrorResponse('Not authorized to access this route', 401))
+  })
 })
