@@ -63,7 +63,7 @@ export const entra = asyncHandler(async (req: Request, _res: Response, next: Nex
     issuer: `https://login.microsoftonline.com/${ process.env.ENTRA_TENANT_ID }/v2.0`
   }, (err, decoded) => {
     if(err) {
-      logger.error(`[AUTH] token verification error: ${err.message}`)
+      logger.error(`[AUTH] token verification error: ${ err.message }`)
       return next(new ErrorResponse('Not authorized to access this route', 401))
     }
 
