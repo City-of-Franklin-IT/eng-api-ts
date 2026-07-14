@@ -48,7 +48,8 @@ export const entra = asyncHandler(async (req: Request, _res: Response, next: Nex
 
   jwt.verify(token, getKey, {
     audience: process.env.ENTRA_CLIENT_ID,
-    issuer: `https://login.microsoftonline.com/${ process.env.ENTRA_TENANT_ID }/v2.0`
+    issuer: `https://login.microsoftonline.com/${ process.env.ENTRA_TENANT_ID }/v2.0`,
+    algorithms: ['RS256']
   }, (err, decoded) => {
     if(err) {
       logger.error(`[AUTH] token verification error: ${ err.message }`)
@@ -70,6 +71,10 @@ const jwks = jwksClient({
 
 const getKey = (header: any, callback: any) => {
   try {
+    if(header?.alg !== 'RS256') {
+      return callback(new Error('Unsupported token algorithm'))
+    }
+
     logger.debug(`[AUTH] getKey called, kid: ${header?.kid}`)
     jwks.getSigningKey(header.kid, (err, key) => {
       if (err) {
