@@ -6,7 +6,60 @@ import logger from '../../utils/logger'
 
 // Types
 import { Request, Response, NextFunction } from 'express'
-import { UserInterface, EntraUserInterface } from "./types"
+import { EntraUserInterface } from "./types"
+
+export const entra = asyncHandler(async (req: Request, _res: Response, next: NextFunction) => {
+  const env = process.env.NODE_ENV
+
+  if(env === 'development') {
+    const today = new Date()
+    const iat = Math.floor(today.getTime() / 1000)
+    const exp = iat + (30 * 24 * 60 * 60)
+
+    const entra: EntraUserInterface = {
+      aud: '',
+      exp,
+      iat,
+      iss: '',
+      name: '',
+      nbf: iat,
+      nonce: '',
+      oid: '',
+      preferred_username: 'test.o365-3@franklintn.gov',
+      rh: '',
+      roles: ['task.sudo', 'task.admin', 'task.write'],
+      sid: '',
+      sub: '',
+      tid: '',
+      uti: '',
+      ver: ''
+    }
+
+    req.entra = entra
+
+    return next()
+  }
+
+  if(!req.headers.authorization?.startsWith('Bearer ')) {
+    return next(new ErrorResponse('Authorization header required', 401))
+  }
+
+  const token = req.headers.authorization.slice('Bearer '.length)
+
+  jwt.verify(token, getKey, {
+    audience: process.env.ENTRA_CLIENT_ID,
+    issuer: `https://login.microsoftonline.com/${ process.env.ENTRA_TENANT_ID }/v2.0`
+  }, (err, decoded) => {
+    if(err) {
+      logger.error(`[AUTH] token verification error: ${ err.message }`)
+      return next(new ErrorResponse('Not authorized to access this route', 401))
+    }
+
+    req.entra = decoded as EntraUserInterface
+
+    return next()
+  })
+})
 
 const jwks = jwksClient({
   jwksUri: `https://login.microsoftonline.com/${ process.env.ENTRA_TENANT_ID }/discovery/v2.0/keys`,
@@ -32,43 +85,3 @@ const getKey = (header: any, callback: any) => {
     callback(err)
   }
 }
-
-export const entra = asyncHandler(async (req: Request, _res: Response, next: NextFunction) => {
-  const env = process.env.NODE_ENV
-
-  if(env === 'development') {
-    const today = new Date()
-
-    const user: UserInterface = {
-      role: 'Super User',
-      department: 'IT',
-      email: 'test.o365-3@franklintn.gov',
-      iat: Math.floor(today.getTime() / 1000),
-      exp: Math.floor(today.getTime() / 1000) + (30 * 24 * 60 * 60)
-    }
-
-    req.user = user
-
-    return next()
-  }
-
-  if(!req.headers.authorization?.startsWith('Bearer ')) {
-    return next(new ErrorResponse('Authorization header required', 401))
-  }
-
-  const token = req.headers.authorization.slice('Bearer '.length)
-
-  jwt.verify(token, getKey, {
-    audience: process.env.ENTRA_CLIENT_ID,
-    issuer: `https://login.microsoftonline.com/${ process.env.ENTRA_TENANT_ID }/v2.0`
-  }, (err, decoded) => {
-    if(err) {
-      logger.error(`[AUTH] token verification error: ${ err.message }`)
-      return next(new ErrorResponse('Not authorized to access this route', 401))
-    }
-
-    req.entra = decoded as EntraUserInterface
-
-    return next()
-  })
-})
