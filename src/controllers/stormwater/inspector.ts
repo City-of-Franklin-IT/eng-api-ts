@@ -152,6 +152,14 @@ export const updateInspector = asyncHandler(async (req: Request<{ inspectorid: s
 // @route   DELETE /api/v2/stormwater/inspector/:inspectorid
 // @access  Private
 export const deleteInspector = asyncHandler(async (req:  Request<{ inspectorid: string }>, res: Response<ControllerResponse>, next: NextFunction) => {
+  await Site.update({
+    inspectorId: null
+  }, {
+    where: {
+      inspectorId: req.params.inspectorid
+    }
+  })
+
   const result = await Inspector.destroy({
     where: {
       inspectorId: req.params.inspectorid
