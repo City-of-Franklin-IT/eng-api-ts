@@ -160,6 +160,22 @@ export const deleteInspector = asyncHandler(async (req:  Request<{ inspectorid: 
     }
   })
 
+  await Complaint.update({
+    inspectorId: null
+  },{
+    where: {
+      inspectorId: req.params.inspectorid
+    }
+  })
+
+  await IllicitDischarge.update({
+  inspectorId: null
+  },{
+    where: {
+      inspectorId: req.params.inspectorid
+    }
+  })
+
   const result = await Inspector.destroy({
     where: {
       inspectorId: req.params.inspectorid
