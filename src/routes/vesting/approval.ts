@@ -1,10 +1,11 @@
 import { Router } from 'express'
 import { createApproval, updateApproval } from '@controllers/vesting/approval'
 import { entra } from '@middleware/auth'
+import { requireWrite } from '@utils/requireRole'
 
 const router = Router()
 
-router.use(entra)
+router.use(entra, requireWrite("vesting"))
 
 router
   .route('/')

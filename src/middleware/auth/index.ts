@@ -2,7 +2,7 @@ import asyncHandler from '../async'
 import { ErrorResponse } from '../../utils/errorResponse'
 import jwksClient from 'jwks-rsa'
 import jwt from 'jsonwebtoken'
-import logger from '../../utils/logger'
+import logger from '@utils/logger'
 
 // Types
 import { Request, Response, NextFunction } from 'express'
@@ -23,15 +23,12 @@ export const entra = asyncHandler(async (req: Request, _res: Response, next: Nex
       iss: '',
       name: '',
       nbf: iat,
-      nonce: '',
       oid: '',
       preferred_username: 'test.o365-3@franklintn.gov',
-      rh: '',
-      roles: ['task.sudo', 'task.admin', 'task.write'],
+      roles: ["cip.write", "stormwater.write", "vesting.write", "traffic-calming.write"],
       sid: '',
       sub: '',
       tid: '',
-      uti: '',
       ver: ''
     }
 
@@ -69,24 +66,21 @@ const jwks = jwksClient({
   cacheMaxAge: 600000
 })
 
-const getKey = (header: any, callback: any) => {
+const getKey = (header: jwt.JwtHeader, callback: jwt.SigningKeyCallback) => {
   try {
-    if(header?.alg !== 'RS256') {
-      return callback(new Error('Unsupported token algorithm'))
-    }
-
     logger.debug(`[AUTH] getKey called, kid: ${header?.kid}`)
     jwks.getSigningKey(header.kid, (err, key) => {
       if (err) {
-        logger.error(`[AUTH] getSigningKey error: ${ err.message }`)
+        logger.error(`[AUTH] getSigningKey error: ${err.message}`)
         callback(err)
       } else {
+        logger.debug('[AUTH] Signing key found')
         const signingKey = key?.getPublicKey()
         callback(null, signingKey)
       }
     })
   } catch (err) {
-    logger.error(`[AUTH] getKey exception: ${ err }`)
-    callback(err)
+    logger.error(`[AUTH] getKey exception: ${err}`)
+    callback(err instanceof Error ? err : new Error(String(err)))
   }
 }
