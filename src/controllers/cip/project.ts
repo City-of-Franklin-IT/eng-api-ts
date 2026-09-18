@@ -17,7 +17,7 @@ const excludeEditorFieldsKeepAuthor = ['updatedBy', 'updatedAt']
 //@desc    Get projects
 //@route   GET /api/v2/eng/cip/project
 //@access  Public
-export const getProjects = asyncHandler(async (res: Response<GetProjectsResponse>) => {
+export const getProjects = asyncHandler(async (req: Request, res: Response<GetProjectsResponse>) => {
   const projects = await Project.findAll({
     where: {
       name: { [Op.ne]: '' }

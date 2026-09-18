@@ -11,7 +11,7 @@ import { ProjectInterface } from '@models/cip/types'
 //@desc    Get CIP projects
 //@route   GET /api/v2/eng/public/cip-projects
 //@access  Public
-export const getProjects = asyncHandler(async (res: Response) => {
+export const getProjects = asyncHandler(async (req: Request, res: Response) => {
   const projects = await Project.findAll({
     where: {
       [Op.or]: [
