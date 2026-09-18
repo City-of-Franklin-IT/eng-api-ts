@@ -80,7 +80,7 @@ export const getProject = asyncHandler(async (req: Request<{ uuid: string }>, re
   }) as Model<Types.ProjectInterface> & Types.ProjectInterface
 
   if(!project) {
-    return next(new ErrorResponse(`Unable to return project by uuid ${ req.params.uuid }`, 500))
+    return next(new ErrorResponse(`Unable to return project by uuid ${ req.params.uuid }`, 404))
   }
 
   res.status(200).json({
@@ -92,7 +92,7 @@ export const getProject = asyncHandler(async (req: Request<{ uuid: string }>, re
 //@desc    Create project
 //@route   POST /api/v2/eng/vesting/project
 //@access  Private
-export const createProject = asyncHandler(async (req: Request<{}, {}, Types.ProjectCreationAttributes>, res: Response<ControllerResponse & { data: Types.ProjectInterface }>, next: NextFunction) => {
+export const createProject = asyncHandler(async (req: Request<{}, {}, Types.ProjectCreationAttributes>, res: Response<ControllerResponse & { data: Types.ProjectInterface }>) => {
   const { type, name, cof, ordinance, notes } = req.body
 
   const project = await Project.create({
@@ -104,10 +104,6 @@ export const createProject = asyncHandler(async (req: Request<{}, {}, Types.Proj
     ...editorTracking(req)
   }) as Model<Types.ProjectInterface> & Types.ProjectInterface
 
-  if(!project) {
-    return next(new ErrorResponse('Unable to create new project', 500))
-  }
-
   res.status(201).json({
     success: true,
     msg: 'Project Created',
@@ -118,7 +114,7 @@ export const createProject = asyncHandler(async (req: Request<{}, {}, Types.Proj
 //@desc    Update project
 //@route   PUT /api/v2/eng/vesting/project/:uuid
 //@access  Private
-export const updateProject = asyncHandler(async (req: Request<{ uuid: string }, {}, Types.ProjectCreationAttributes>, res: Response<ControllerResponse>, next: NextFunction) => {
+export const updateProject = asyncHandler(async (req: Request<{ uuid: string }, {}, Types.ProjectCreationAttributes>, res: Response<ControllerResponse & { data: Types.ProjectInterface }>, next: NextFunction) => {
   const { name, cof, ordinance, expired, notes } = req.body
 
   const project = await Project.update({
@@ -131,18 +127,22 @@ export const updateProject = asyncHandler(async (req: Request<{ uuid: string }, 
   },{
     where: {
       uuid: req.params.uuid
-    }
+    },
+    returning: true
   })
 
-  const [affectedCount] = project
+  const [affectedCount, affectedRows] = project
 
   if(affectedCount === 0) {
-    return next(new ErrorResponse(`Unable to update project by uuid ${ req.params.uuid }`, 500))
+    return next(new ErrorResponse(`Unable to update project by uuid ${ req.params.uuid }`, 404))
   }
+
+  const data = affectedRows[0] as Model<Types.ProjectInterface> & Types.ProjectInterface
 
   res.status(200).json({
     success: true,
-    msg: 'Project Updated'
+    msg: 'Project Updated',
+    data
   })
 })
 
@@ -157,7 +157,7 @@ export const deleteProject = asyncHandler(async (req: Request<{ uuid: string }>,
   })
 
   if(result === 0) {
-    return next(new ErrorResponse(`Unable to delete project by uuid ${ req.params.uuid }`, 500))
+    return next(new ErrorResponse(`Unable to delete project by uuid ${ req.params.uuid }`, 404))
   }
 
   res.status(200).json({

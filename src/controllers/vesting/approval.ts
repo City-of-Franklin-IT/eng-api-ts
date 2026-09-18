@@ -5,13 +5,14 @@ import { Approval } from '@models/vesting'
 
 // Types
 import { Request, Response, NextFunction } from 'express'
+import { Model } from 'sequelize'
 import { ControllerResponse } from '@controllers/types'
 import * as Types from '@models/vesting/types'
 
 //@desc    Create project approval
 //@route   POST /api/v2/eng/vesting/approval
 //@access  Private
-export const createApproval = asyncHandler(async (req: Request<{}, {}, Types.ApprovalCreationAttributes>, res: Response<ControllerResponse>, next: NextFunction) => {
+export const createApproval = asyncHandler(async (req: Request<{}, {}, Types.ApprovalCreationAttributes>, res: Response<ControllerResponse & { data: Types.ApprovalInterface }>) => {
   const { date, approvedBy, parentId } = req.body
 
   const approval = await Approval.create({
@@ -19,22 +20,19 @@ export const createApproval = asyncHandler(async (req: Request<{}, {}, Types.App
     approvedBy,
     parentId,
     ...editorTracking(req)
-  })
-
-  if(!approval) {
-    return next(new ErrorResponse(`Could not create new project approval`, 500))
-  }
+  }) as Model<Types.ApprovalInterface> & Types.ApprovalInterface
 
   res.status(201).json({
     success: true,
-    msg: "Project Approval Created"
+    msg: "Project Approval Created",
+    data: approval
   })
 })
 
 //@desc    Update project approval
 //@route   PUT /api/v2/eng/vesting/approval/:uuid
 //@access  Private
-export const updateApproval = asyncHandler(async (req: Request<{ uuid: string }, {}, Types.ApprovalCreationAttributes>, res: Response<ControllerResponse>, next: NextFunction) => {
+export const updateApproval = asyncHandler(async (req: Request<{ uuid: string }, {}, Types.ApprovalCreationAttributes>, res: Response<ControllerResponse & { data: Types.ApprovalInterface }>, next: NextFunction) => {
   const { date, approvedBy } = req.body
 
   const result = await Approval.update({
@@ -44,17 +42,21 @@ export const updateApproval = asyncHandler(async (req: Request<{ uuid: string },
   },{
     where: {
       uuid: req.params.uuid
-    }
+    },
+    returning: true
   })
 
-  const [affectedCount] = result
+  const [affectedCount, affectedRows] = result
 
   if(affectedCount === 0) {
-    return next(new ErrorResponse(`Unable to updated project approval by uuid ${ req.params.uuid }`, 500))
+    return next(new ErrorResponse(`Unable to updated project approval by uuid ${ req.params.uuid }`, 404))
   }
+
+  const data = affectedRows[0] as Model<Types.ApprovalInterface> & Types.ApprovalInterface
 
   res.status(200).json({
     success: true,
-    msg: "Project Approval Updated"
+    msg: "Project Approval Updated",
+    data
   })
 })

@@ -5,13 +5,15 @@ import editorTracking from '@utils/editorTracking'
 
 // Types
 import { Request, Response, NextFunction } from 'express'
+import { Model } from 'sequelize'
 import { ControllerResponse } from '@controllers/types'
 import { CreateMilestoneRequest, UpdateProjectMilestoneRequest } from './types'
+import { MilestoneInterface } from '@models/cip/types'
 
 //@desc    Create new project milestone
 //@route   POST /api/v2/eng/cip/milestone
 //@access  Private
-export const createMilestone = asyncHandler(async (req: Request<{}, {}, CreateMilestoneRequest>, res: Response<ControllerResponse>, next: NextFunction) => {
+export const createMilestone = asyncHandler(async (req: Request<{}, {}, CreateMilestoneRequest>, res: Response<ControllerResponse & { data: MilestoneInterface }>) => {
   const { milestoneDesc, milestoneEst, milestoneRealized, parentId } = req.body
 
   const milestone = await Milestone.create({
@@ -20,22 +22,19 @@ export const createMilestone = asyncHandler(async (req: Request<{}, {}, CreateMi
     milestoneRealized: milestoneRealized,
     parentId,
     ...editorTracking(req)
-  })
-
-  if(!milestone) {
-    return next(new ErrorResponse('Unable to create new milestone', 500))
-  }
+  }) as Model<MilestoneInterface> & MilestoneInterface
 
   res.status(201).json({
     success: true,
-    msg: "Milestone Created"
+    msg: "Milestone Created",
+    data: milestone
   })
 })
 
 //@desc    Update project milestone
 //@route   PUT /api/v2/eng/cip/milestone/:uuid
 //@access  Private
-export const updateMilestone = asyncHandler(async (req: Request<{ uuid: string }, {}, UpdateProjectMilestoneRequest>, res: Response<ControllerResponse>, next: NextFunction) => {
+export const updateMilestone = asyncHandler(async (req: Request<{ uuid: string }, {}, UpdateProjectMilestoneRequest>, res: Response<ControllerResponse & { data: MilestoneInterface }>, next: NextFunction) => {
   const { milestoneDesc, milestoneEst, milestoneRealized } = req.body
 
   const milestone = await Milestone.update({
@@ -46,16 +45,22 @@ export const updateMilestone = asyncHandler(async (req: Request<{ uuid: string }
   },{
     where: {
       uuid: req.params.uuid
-    }
+    },
+    returning: true
   })
 
-  if(!milestone) {
-    return next(new ErrorResponse(`Unable to update milestone with uuid ${ req.params.uuid }`, 500))
+  const [affectedCount, affectedRows] = milestone
+
+  if(affectedCount === 0) {
+    return next(new ErrorResponse(`Unable to update milestone with uuid ${ req.params.uuid }`, 404))
   }
+
+  const data = affectedRows[0] as Model<MilestoneInterface> & MilestoneInterface
 
   res.status(200).json({
     success: true,
-    msg: "Milestone Updated"
+    msg: "Milestone Updated",
+    data
   })
 })
 
@@ -70,7 +75,7 @@ export const deleteMilestone = asyncHandler(async (req: Request<{ uuid: string }
   })
 
   if(result === 0) {
-    return next(new ErrorResponse(`Unable to delete project milestone by uuid ${ req.params.uuid }`, 500))
+    return next(new ErrorResponse(`Unable to delete project milestone by uuid ${ req.params.uuid }`, 404))
   }
 
   res.status(200).json({

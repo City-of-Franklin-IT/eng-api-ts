@@ -12,7 +12,7 @@ import * as Types from '@models/vesting/types'
 //@desc    Create milestone
 //@route   POST /api/v2/eng/vesting/milestone
 //@access  Private
-export const createMilestone = asyncHandler(async (req: Request<{}, {}, Types.MilestoneCreationAttributes>, res: Response<ControllerResponse>, next: NextFunction) => {
+export const createMilestone = asyncHandler(async (req: Request<{}, {}, Types.MilestoneCreationAttributes>, res: Response<ControllerResponse & { data: Types.MilestoneInterface }>) => {
   const { number, date, parentId } = req.body
 
   const milestone = await Milestone.create({
@@ -21,10 +21,6 @@ export const createMilestone = asyncHandler(async (req: Request<{}, {}, Types.Mi
     parentId,
     ...editorTracking(req)
   }) as Model<Types.MilestoneInterface> & Types.MilestoneInterface
-
-  if(!milestone) {
-    return next(new ErrorResponse('Could not create new milestone', 500))
-  }
 
   const { uuid } = milestone
 
@@ -35,14 +31,15 @@ export const createMilestone = asyncHandler(async (req: Request<{}, {}, Types.Mi
 
   res.status(201).json({
     success: true,
-    msg: 'Milestone Created'
+    msg: 'Milestone Created',
+    data: milestone
   })
 })
 
 //@desc    Update milestone
 //@route   PUT /api/v2/eng/vesting/milestone/:uuid
 //@access  Private
-export const updateMilestone = asyncHandler(async (req: Request<{ uuid: string }, {}, Types.MilestoneCreationAttributes>, res: Response<ControllerResponse>, next: NextFunction) => {
+export const updateMilestone = asyncHandler(async (req: Request<{ uuid: string }, {}, Types.MilestoneCreationAttributes>, res: Response<ControllerResponse & { data: Types.MilestoneInterface }>, next: NextFunction) => {
   const { date } = req.body
 
   const result = await Milestone.update({
@@ -51,25 +48,29 @@ export const updateMilestone = asyncHandler(async (req: Request<{ uuid: string }
   },{
     where: {
       uuid: req.params.uuid
-    }
+    },
+    returning: true
   })
 
-  const [affectedCount] = result
+  const [affectedCount, affectedRows] = result
 
   if(affectedCount === 0) {
-    return next(new ErrorResponse(`Unable to update milestone by status ${ req.params.uuid }`, 500))
+    return next(new ErrorResponse(`Unable to update milestone by status ${ req.params.uuid }`, 404))
   }
+
+  const data = affectedRows[0] as Model<Types.MilestoneInterface> & Types.MilestoneInterface
 
   res.status(200).json({
     success: true,
-    msg: "Milestone Updated"
+    msg: "Milestone Updated",
+    data
   })
 })
 
 //@desc    Update milestone status
 //@route   PUT /api/v2/eng/vesting/milestone/status/:uuid
 //@access  Private
-export const updateMilestoneStatus = asyncHandler(async (req: Request<{ uuid: string }, {}, Types.MilestoneStatusCreationAttributes>, res: Response<ControllerResponse>, next: NextFunction) => {
+export const updateMilestoneStatus = asyncHandler(async (req: Request<{ uuid: string }, {}, Types.MilestoneStatusCreationAttributes>, res: Response<ControllerResponse & { data: Types.MilestoneStatusInterface }>, next: NextFunction) => {
   const { achieved, expired } = req.body
 
   const status = await MilestoneStatus.update({
@@ -79,17 +80,21 @@ export const updateMilestoneStatus = asyncHandler(async (req: Request<{ uuid: st
   },{
     where: {
       uuid: req.params.uuid
-    }
+    },
+    returning: true
   })
 
-  const [affectedCount] = status
+  const [affectedCount, affectedRows] = status
 
   if(affectedCount === 0) {
-    return next(new ErrorResponse(`Unable to update milestone status by uuid ${ req.params.uuid }`, 500))
+    return next(new ErrorResponse(`Unable to update milestone status by uuid ${ req.params.uuid }`, 404))
   }
+
+  const data = affectedRows[0] as Model<Types.MilestoneStatusInterface> & Types.MilestoneStatusInterface
 
   res.status(200).json({
     success: true,
-    msg: "Milestone Status Updated"
+    msg: "Milestone Status Updated",
+    data
   })
 })

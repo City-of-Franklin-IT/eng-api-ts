@@ -27,10 +27,6 @@ export const createInspector = asyncHandler(async (req: Request<{}, {}, Types.In
     ...editorTracking(req)
   }) as Model<Types.InspectorInterface> & Types.InspectorInterface
 
-  if(!inspector) {
-    return next(new ErrorResponse("Unable to create inspector", 500))
-  }
-
   res.status(201).json({
     success: true,
     msg: "Inspector Created",
@@ -66,7 +62,7 @@ export const getInspector = asyncHandler(async (req: Request<{ slug: string }>, 
   }) as Model<Types.InspectorInterface> & Types.InspectorInterface
 
   if(!inspector) {
-    return next(new ErrorResponse(`Unable to return inspector by slug ${ req.params.slug }`, 500))
+    return next(new ErrorResponse(`Unable to return inspector by slug ${ req.params.slug }`, 404))
   }
 
   const results = await Site.findAll({
@@ -136,7 +132,7 @@ export const updateInspector = asyncHandler(async (req: Request<{ inspectorid: s
   const [affectedCount, affectedRows] = inspector
 
   if(affectedCount === 0) {
-    return next(new ErrorResponse(`Unable to update inspector by inspectorId ${ req.params.inspectorid }`, 500))
+    return next(new ErrorResponse(`Unable to update inspector by inspectorId ${ req.params.inspectorid }`, 404))
   }
 
   const data = (affectedRows as (Model<Types.InspectorInterface> & Types.InspectorInterface)[])[0]
@@ -183,7 +179,7 @@ export const deleteInspector = asyncHandler(async (req:  Request<{ inspectorid: 
   })
 
   if(result === 0) {
-    return next(new ErrorResponse(`Unable to delete inspector by inspectorId ${ req.params.inspectorid }`, 500))
+    return next(new ErrorResponse(`Unable to delete inspector by inspectorId ${ req.params.inspectorid }`, 404))
   }
 
   res.status(200).json({

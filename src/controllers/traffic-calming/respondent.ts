@@ -51,7 +51,7 @@ export const createRespondents = asyncHandler(async (req: Request<{}, {}, Create
 //@desc    Update petition respondent
 //@route   PUT /api/v2/eng/traffic-calming/respondent/:uuid
 //@access  Private
-export const updateRespondent = asyncHandler(async (req: Request<{ uuid: string }, {}, UpdateRespondentRequest>, res: Response<ControllerResponse>, next: NextFunction) => {
+export const updateRespondent = asyncHandler(async (req: Request<{ uuid: string }, {}, UpdateRespondentRequest>, res: Response<ControllerResponse & { data: RespondentInterface }>, next: NextFunction) => {
   const { name, address, ownerAddress, ownerCity, ownerState, ownerZIP } = req.body
 
   const respondent = await Respondent.update({
@@ -65,18 +65,22 @@ export const updateRespondent = asyncHandler(async (req: Request<{ uuid: string 
   },{
     where: {
       uuid: req.params.uuid
-    }
+    },
+    returning: true
   })
 
-  const [affectedCount] = respondent
+  const [affectedCount, affectedRows] = respondent
 
   if(affectedCount === 0) {
-    return next(new ErrorResponse(`Unable to update petition respondent by uuid ${ req.params.uuid }`, 500))
+    return next(new ErrorResponse(`Unable to update petition respondent by uuid ${ req.params.uuid }`, 404))
   }
+
+  const data = affectedRows[0] as Model<RespondentInterface> & RespondentInterface
 
   res.status(200).json({
     success: true,
-    msg: 'Petition Respondent Updated'
+    msg: 'Petition Respondent Updated',
+    data
   })
 })
 
@@ -91,7 +95,7 @@ export const deleteRespondent = asyncHandler(async (req: Request<{ uuid: string 
   })
 
   if(result === 0) {
-    return next(new ErrorResponse(`Unable to delete respondent by uuid ${ req.params.uuid }`, 500))
+    return next(new ErrorResponse(`Unable to delete respondent by uuid ${ req.params.uuid }`, 404))
   }
 
   res.status(200).json({

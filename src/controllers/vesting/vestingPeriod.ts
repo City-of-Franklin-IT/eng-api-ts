@@ -12,7 +12,7 @@ import * as Types from '@models/vesting/types'
 //@desc    Create vesting period
 //@route   POST /api/v2/eng/vesting/period
 //@access  Private
-export const createVestingPeriod = asyncHandler(async (req: Request<{}, {}, Types.VestingPeriodCreationAttributes>, res: Response<ControllerResponse>, next: NextFunction) => {
+export const createVestingPeriod = asyncHandler(async (req: Request<{}, {}, Types.VestingPeriodCreationAttributes>, res: Response<ControllerResponse & { data: Types.VestingPeriodInterface }>) => {
   const { type, date, parentId } = req.body
 
   const result = await VestingPeriod.create({
@@ -22,31 +22,24 @@ export const createVestingPeriod = asyncHandler(async (req: Request<{}, {}, Type
     ...editorTracking(req)
   }) as Model<Types.VestingPeriodInterface> & Types.VestingPeriodInterface
 
-  if(!result) {
-    return next(new ErrorResponse('Unable to create new vesting period', 500))
-  }
-
   const { uuid } = result
 
-  const newStatus = await VestingStatus.create({ // Create empty vesting status entry
+  await VestingStatus.create({ // Create empty vesting status entry
     parentId: uuid,
     ...editorTracking(req)
   })
 
-  if(!newStatus) {
-    return next(new ErrorResponse('Unable to create new vesting status', 500))
-  }
-
   res.status(201).json({
     success: true,
-    msg: "Vesting Period Created"
+    msg: "Vesting Period Created",
+    data: result
   })
 })
 
 //@desc    Update vesting period
 //@route   PUT /api/v2/eng/vesting/period/:uuid
 //@access  Private
-export const updateVestingPeriod = asyncHandler(async (req: Request<{ uuid: string }, {}, Types.VestingPeriodCreationAttributes>, res: Response<ControllerResponse>, next: NextFunction) => {
+export const updateVestingPeriod = asyncHandler(async (req: Request<{ uuid: string }, {}, Types.VestingPeriodCreationAttributes>, res: Response<ControllerResponse & { data: Types.VestingPeriodInterface }>, next: NextFunction) => {
   const { date } = req.body
 
   const result = await VestingPeriod.update({
@@ -56,18 +49,22 @@ export const updateVestingPeriod = asyncHandler(async (req: Request<{ uuid: stri
   {
     where: {
       uuid: req.params.uuid
-    }
+    },
+    returning: true
   })
 
-  const [affectedCount] = result
+  const [affectedCount, affectedRows] = result
 
   if(affectedCount === 0) {
-    return next(new ErrorResponse(`Unable to update vesting period by uuid ${ req.params.uuid }`, 500))
+    return next(new ErrorResponse(`Unable to update vesting period by uuid ${ req.params.uuid }`, 404))
   }
+
+  const data = affectedRows[0] as Model<Types.VestingPeriodInterface> & Types.VestingPeriodInterface
 
   res.status(200).json({
     success: true,
-    msg: "Vesting Period Updated"
+    msg: "Vesting Period Updated",
+    data
   })
 })
 
@@ -82,7 +79,7 @@ export const deleteVestingPeriod = asyncHandler(async (req: Request<{ uuid: stri
   })
 
   if(result === 0) {
-    return next(new ErrorResponse(`Unable to delete vesting period by uuid ${ req.params.uuid }`, 500))
+    return next(new ErrorResponse(`Unable to delete vesting period by uuid ${ req.params.uuid }`, 404))
   }
 
   res.status(200).json({
@@ -94,7 +91,7 @@ export const deleteVestingPeriod = asyncHandler(async (req: Request<{ uuid: stri
 //@desc    Update vesting status
 //@route   PUT /api/v2/eng/vesting/period/status/:uuid
 //@access  Private
-export const updateVestingStatus = asyncHandler(async (req: Request<{ uuid: string }, {}, Types.VestingStatusCreationAttributes>, res: Response<ControllerResponse>, next: NextFunction) => {
+export const updateVestingStatus = asyncHandler(async (req: Request<{ uuid: string }, {}, Types.VestingStatusCreationAttributes>, res: Response<ControllerResponse & { data: Types.VestingStatusInterface }>, next: NextFunction) => {
   const { achieved, expired } = req.body
 
   const status = await VestingStatus.update({
@@ -104,17 +101,21 @@ export const updateVestingStatus = asyncHandler(async (req: Request<{ uuid: stri
   },{
     where: {
       uuid: req.params.uuid
-    }
+    },
+    returning: true
   })
 
-  const [affectedCount] = status
+  const [affectedCount, affectedRows] = status
 
   if(affectedCount === 0) {
-    return next(new ErrorResponse(`Unable to update project vesting status by uuid ${ req.params.uuid }`, 500))
+    return next(new ErrorResponse(`Unable to update project vesting status by uuid ${ req.params.uuid }`, 404))
   }
+
+  const data = affectedRows[0] as Model<Types.VestingStatusInterface> & Types.VestingStatusInterface
 
   res.status(200).json({
     success: true,
-    msg: "Vesting Status Updated"
+    msg: "Vesting Status Updated",
+    data
   })
 })

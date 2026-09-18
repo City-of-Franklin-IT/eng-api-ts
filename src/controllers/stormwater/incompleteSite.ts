@@ -19,10 +19,6 @@ export const createIncompleteSite = asyncHandler(async (req: Request<{}, {}, { s
     ...editorTracking(req)
   }) as Model<Types.IncompleteSiteInterface> & Types.IncompleteSiteInterface
 
-  if(!result) {
-    return next(new ErrorResponse("Unable to create incomplete site", 500))
-  }
-
   res.status(201).json({
     success: true,
     msg: "Incomplete Site Created",
@@ -41,7 +37,7 @@ export const deleteIncompleteSite = asyncHandler(async (req: Request<{ uuid: str
   })
 
   if(result === 0) {
-    return next(new ErrorResponse(`Unable to delete incomplete site by uuid ${ req.params.uuid }`, 500))
+    return next(new ErrorResponse(`Unable to delete incomplete site by uuid ${ req.params.uuid }`, 404))
   }
 
   res.status(200).json({

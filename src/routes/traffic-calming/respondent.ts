@@ -1,17 +1,18 @@
 import { Router } from 'express'
 import { createRespondents, updateRespondent, deleteRespondent, getRespondents, verifyRespondent, downloadTemplate, getRespondentsByADDRKEY } from '@controllers/traffic-calming/respondent'
 import { entra } from '@middleware/auth'
+import { requireWrite } from '@utils/requireRole'
 
 const router = Router()
 
 router
   .route('/')
-  .post(entra, createRespondents)
+  .post(entra, requireWrite("traffic-calming"), createRespondents)
 
 router
   .route('/:uuid')
-  .put(entra, updateRespondent)
-  .delete(entra, deleteRespondent)
+  .put(entra, requireWrite("traffic-calming"), updateRespondent)
+  .delete(entra, requireWrite("traffic-calming"), deleteRespondent)
 
 router
   .route('/petition/:uuid')

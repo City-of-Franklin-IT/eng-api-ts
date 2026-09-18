@@ -27,10 +27,6 @@ export const createContact = asyncHandler(async (req: Request<{}, {}, Types.Cont
     ...editorTracking(req)
   }) as Model<Types.ContactInterface> & Types.ContactInterface
 
-  if(!contact) {
-    return next(new ErrorResponse("Unable to create contact", 500))
-  }
-
   res.status(201).json({
     success: true,
     msg: "Contact Created",
@@ -70,7 +66,7 @@ export const getContact = asyncHandler(async (req: Request<{ uuid: string }>, re
   }) as Model<Types.ContactInterface> & Types.ContactInterface
 
   if(!contact) {
-    return next(new ErrorResponse(`Unable to return contact by uuid ${ req.params.uuid }`, 500))
+    return next(new ErrorResponse(`Unable to return contact by uuid ${ req.params.uuid }`, 404))
   }
 
   res.status(200).json({
@@ -102,7 +98,7 @@ export const updateContact = asyncHandler(async (req: Request<{ uuid: string }, 
   const [affectedCount, affectedRows] = contact
 
   if(affectedCount === 0) {
-    return next(new ErrorResponse(`Unable to update contact by uuid ${ req.params.uuid }`, 500))
+    return next(new ErrorResponse(`Unable to update contact by uuid ${ req.params.uuid }`, 404))
   }
 
   const data = (affectedRows as (Model<Types.ContactInterface> & Types.ContactInterface)[])[0]
@@ -125,7 +121,7 @@ export const deleteContact = asyncHandler(async (req: Request<{ uuid: string }>,
   })
 
   if(result === 0) {
-    return next(new ErrorResponse(`Unable to delete contact by uuid ${ req.params.uuid }`, 500))
+    return next(new ErrorResponse(`Unable to delete contact by uuid ${ req.params.uuid }`, 404))
   }
 
   res.status(200).json({

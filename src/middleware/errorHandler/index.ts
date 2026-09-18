@@ -16,6 +16,8 @@ export default (err: ErrorWithStatus | SequelizeErrorWithStatus, req: Request, r
     error = new ErrorResponse(err.message, (err as any).statusCode || 500)
   }
 
+  req.log.error({ err }, error.message || 'Server Error')
+
   res.status(error.statusCode || 500).json({
     success: false,
     error: error.message || 'Server Error'

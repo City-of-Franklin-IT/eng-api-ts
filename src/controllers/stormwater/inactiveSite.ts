@@ -19,10 +19,6 @@ export const createInactiveSite = asyncHandler(async (req: Request<{}, {}, { sit
     ...editorTracking(req)
   }) as Model<Types.InactiveSiteInterface> & Types.InactiveSiteInterface
 
-  if(!result) {
-    return next(new ErrorResponse("Unable to create inactive site", 500))
-  }
-
   res.status(201).json({
     success: true,
     msg: "Inactive Site Created",
@@ -41,7 +37,7 @@ export const deleteInactiveSite = asyncHandler(async (req: Request<{ uuid: strin
   })
 
   if(result === 0) {
-    return next(new ErrorResponse(`Unable to delete inactive site by uuid ${ req.params.uuid }`, 500))
+    return next(new ErrorResponse(`Unable to delete inactive site by uuid ${ req.params.uuid }`, 404))
   }
 
   res.status(200).json({

@@ -35,10 +35,6 @@ export const createViolation = asyncHandler(async (req: Request<{}, {}, Types.Co
     closed,
     ...editorTracking(req)
   }) as Model<Types.ConstructionViolationInterface> & Types.ConstructionViolationInterface
-  
-  if(!violation) {
-    return next(new ErrorResponse("Unable to create construction violation", 500))
-  }
 
   res.status(201).json({
     success: true,
@@ -99,7 +95,7 @@ export const getViolation = asyncHandler(async (req: Request<{ uuid: string }>, 
   }) as Model<Types.ConstructionViolationInterface> & Types.ConstructionViolationInterface
 
   if(!violation) {
-    return next(new ErrorResponse(`Unable to return construction violation by uuid ${ req.params.uuid }`, 500))
+    return next(new ErrorResponse(`Unable to return construction violation by uuid ${ req.params.uuid }`, 404))
   }
 
   res.status(200).json({
@@ -139,7 +135,7 @@ export const updateViolation = asyncHandler(async (req: Request<{ uuid: string }
   const [affectedCount, affectedRows] = violation
   
   if(affectedCount === 0) {
-    return next(new ErrorResponse(`Unable to update construction violation by uuid ${ req.params.uuid }`, 500))
+    return next(new ErrorResponse(`Unable to update construction violation by uuid ${ req.params.uuid }`, 404))
   }
 
   const data = (affectedRows as (Model<Types.ConstructionViolationInterface> & Types.ConstructionViolationInterface)[])[0]
@@ -162,7 +158,7 @@ export const deleteViolation = asyncHandler(async (req: Request<{ uuid: string }
   })
 
   if(result === 0) {
-    return next(new ErrorResponse(`Unable to delete violation by uuid ${ req.params.uuid }`, 500))
+    return next(new ErrorResponse(`Unable to delete violation by uuid ${ req.params.uuid }`, 404))
   }
 
   res.status(200).json({
