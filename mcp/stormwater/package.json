@@ -1,0 +1,34 @@
+{
+  "name": "stormwater-mcp-server-ts",
+  "version": "1.0.0",
+  "main": "app.js",
+  "scripts": {
+    "build": "tsc && tsc-alias",
+    "dev": "nodemon --exec tsx app.ts",
+    "start": "npx tsx dist/app.js --port 7003",
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "deploy": "rsync -av --delete dist/ andrew@cofasv30:/opt/builds/stormwater-mcp-server-ts/dist/ && rsync -av package.json package-lock.json .env andrew@cofasv30:/opt/builds/stormwater-mcp-server-ts/ && ssh andrew@cofasv30 'pm2 restart stormwater-mcp-server-ts'"
+  },
+  "keywords": [],
+  "author": "Andrew Southern",
+  "license": "ISC",
+  "description": "MCP server exposing read-only stormwater domain data (sites, violations, complaints, illicit discharges, inspectors) via the claude schema views on the stormwater DB",
+  "dependencies": {
+    "@modelcontextprotocol/sdk": "^1.29.0",
+    "cors": "^2.8.6",
+    "dotenv": "^17.4.1",
+    "express": "^5.2.1",
+    "tedious": "^19.2.1",
+    "zod": "^4.3.6"
+  },
+  "devDependencies": {
+    "@types/cors": "^2.8.19",
+    "@types/express": "^5.0.6",
+    "@types/node": "^25.5.2",
+    "@types/tedious": "^4.0.14",
+    "nodemon": "^3.1.14",
+    "tsc-alias": "^1.8.16",
+    "tsx": "^4.21.0",
+    "typescript": "^6.0.2"
+  }
+}

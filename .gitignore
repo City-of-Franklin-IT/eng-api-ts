@@ -4,3 +4,11 @@
 .env
 .env.development
 .env.production
+
+# mcp/<domain>/ subprojects (e.g. mcp/stormwater) -- each has its own
+# independent package.json/build/.env, globbed so future domains are
+# covered automatically. Note: the top-level `.env` rule above already
+# matches mcp/<domain>/.env too (gitignore patterns with no leading
+# slash match at any depth), so only node_modules/dist need repeating here.
+mcp/*/node_modules
+mcp/*/dist
