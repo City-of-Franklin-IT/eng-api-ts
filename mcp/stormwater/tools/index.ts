@@ -9,6 +9,7 @@ export {
   getInspectorWorkloadTool,
   listActiveSitesTool,
   summarizeIncidentsTool,
+  listFollowUpDatesTool,
 } from "./stormwater"
 
 // Default export with all tools as array
@@ -23,6 +24,7 @@ import {
   getInspectorWorkloadTool,
   listActiveSitesTool,
   summarizeIncidentsTool,
+  listFollowUpDatesTool,
 } from "./stormwater"
 
 export default [
@@ -36,4 +38,5 @@ export default [
   getInspectorWorkloadTool,
   listActiveSitesTool,
   summarizeIncidentsTool,
+  listFollowUpDatesTool,
 ]

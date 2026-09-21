@@ -12,6 +12,6 @@
     "resolveJsonModule": true,
     "moduleResolution": "node16"
   },
-  "include": ["app.ts", "tools/**/*.ts", "routes/**/*.ts", "utils/**/*.ts"],
+  "include": ["app.ts", "tools/**/*.ts", "routes/**/*.ts", "utils/**/*.ts", "middleware/**/*.ts"],
   "exclude": ["node_modules", "dist"]
 }

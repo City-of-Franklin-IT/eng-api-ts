@@ -8,8 +8,10 @@ dotenv.config({ path: join(process.cwd(), ".env"), quiet: true })
 
 import { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js"
 import express from "express"
+import cors from "cors"
 import tools from "./tools"
 import { setupMcpRoutes } from "./routes/mcp"
+import { setupChatRoutes } from "./routes/chat"
 import { registerAllTools } from "./utils/registerTools"
 
 const app = express()
@@ -19,6 +21,18 @@ let EXTERNAL_URL = process.env.MCP_HOST || `http://0.0.0.0:${ PORT }`
 
 EXTERNAL_URL = new URL(EXTERNAL_URL).toString()
 
+// Same whitelist as eng-api-ts's own `app.use(cors(...))` — only the browser
+// chat panel (dev.franklintn.gov / apps.franklintn.gov) needs this; the raw
+// MCP endpoint below is used by non-browser MCP clients, which aren't
+// subject to CORS.
+const ALLOWED_ORIGINS = [
+  "https://dev.franklintn.gov",
+  "https://apps.franklintn.gov",
+  "https://cofasv38.franklin-gov.com",
+  "https://istest.franklintn.gov",
+]
+
+app.use(cors({ origin: ALLOWED_ORIGINS }))
 app.use(express.json())
 
 // Setup MCP routes
@@ -29,6 +43,10 @@ setupMcpRoutes(app, transports, () => {
   registerAllTools(mcpServer, tools)
   return mcpServer
 })
+
+// Entra-gated chat endpoint for the AI chat panel — runs Claude against the
+// same tools above directly in-process, no MCP JSON-RPC transport involved.
+setupChatRoutes(app, tools)
 
 // Start HTTP server
 const server = app.listen(PORT, LISTEN_HOST, () => {

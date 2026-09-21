@@ -62,10 +62,46 @@ npm start       # run compiled server from dist/
 npm run deploy  # rsync build + .env to production host and restart via pm2
 ```
 
+`npm run deploy`'s `pm2 restart` only works once the process already exists in
+pm2's runtime list. A brand-new server (or one added to
+`/opt/builds/ecosystem.config.js` but never started) needs, once, on the
+host: `npm install --omit=dev` in its deployed directory, then
+`pm2 start /opt/builds/ecosystem.config.js --only <name>` followed by
+`pm2 save`. Already done for `stormwater-mcp-ts`.
+
 The server listens on `MCP_PORT` (default `7003`) and exposes:
 
 - `GET /stormwater/health` — health check
-- `POST /stormwater` — MCP streamable HTTP endpoint
+- `POST /stormwater` — MCP streamable HTTP endpoint, for MCP clients (Claude Desktop/Code, etc.) — unauthenticated; the `claude` SQL login's read-only grant is its entire security boundary
+- `POST /stormwater/chat` — Entra-gated REST chat endpoint for the browser AI chat panel (see below)
+- `DELETE /stormwater/chat/:sessionId` — resets a chat session's history
+
+## Chat endpoint
+
+`POST /stormwater/chat` runs a bounded Claude tool-use loop server-side against
+the same tools listed below, and returns one finished reply — no
+streaming/SSE. It requires the same Entra bearer token `eng-api-ts` itself
+validates (same `ENTRA_CLIENT_ID`/`ENTRA_TENANT_ID`, no separate app
+registration), enforced by `middleware/entra.ts`, which mirrors
+`eng-api-ts`'s own `@middleware/auth/entra` — including its `NODE_ENV=development`
+mock-user bypass (set via `npm run dev`, never via `.env`, since `.env` is
+what `npm run deploy` ships to prod as-is).
+
+Request:
+```json
+{ "sessionId": "<uuid, omit on first turn>", "message": "..." }
+```
+Response:
+```json
+{ "sessionId": "<uuid>", "reply": "..." }
+```
+
+Conversation history is held in-memory per `sessionId` (`utils/chatSessions.ts`),
+trimmed to the last ~20 messages, and lost on restart/redeploy — callers only
+ever send the latest `message`, never full history. CORS
+(`app.ts`) allows the same origins as `eng-api-ts`'s own whitelist:
+`dev.franklintn.gov`, `apps.franklintn.gov`, `cofasv38.franklin-gov.com`,
+`istest.franklintn.gov`.
 
 ## Project Structure
 
@@ -99,6 +135,7 @@ All read-only.
 | `stormwater_get_inspector_workload` | `claude.inspectors` + `claude.sites`, by `slug` | `limit`/`offset` — per-site open-status rollup (slim field set) for everything assigned to an inspector |
 | `stormwater_list_active_sites` | `claude.active_sites` | `limit`/`offset` — slim, map-friendly field set |
 | `stormwater_summarize_incidents` | `claude.violations` + `claude.complaints` + `claude.illicit_discharges` | `siteId`, `dateFrom`/`dateTo` — counts only, one call instead of three |
+| `stormwater_list_follow_up_dates` | `claude.follow_up_dates` + `claude.violations`/`complaints`/`illicit_discharges` | `limit`/`offset`, `siteId`, `inspectorSlug`, `dateFrom`/`dateTo`, `overdue`, `closed` — resolves each follow-up's site/inspector/open-status via its parent record |
 
 Tools are aggregated in `tools/index.ts` and registered on the `McpServer` in
 `app.ts` via `registerAllTools`.
@@ -114,6 +151,11 @@ Tools are aggregated in `tools/index.ts` and registered on the `McpServer` in
   callers are never string-interpolated into SQL.
 - List tools cap page size (`limit`, max 100–200 depending on the tool) and
   always return pagination metadata so callers know if more data exists.
+- `/stormwater/chat` (and its `DELETE`) are the only Entra-gated routes —
+  the raw MCP endpoint (`POST /stormwater`) has no bearer-token check, by
+  design, for MCP clients that can't do an OAuth/MSAL flow. Don't assume
+  opening this server up publicly for the chat panel also locks down the MCP
+  endpoint; that's a separate decision.
 
 ## Error Handling
 
