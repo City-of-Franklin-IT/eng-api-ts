@@ -7,7 +7,7 @@
     "dev": "NODE_ENV=development nodemon --exec tsx app.ts",
     "start": "npx tsx dist/app.js --port 7003",
     "test": "echo \"Error: no test specified\" && exit 1",
-    "deploy": "rsync -av --delete dist/ andrew@cofasv30:/opt/builds/eng-api-ts/mcp/dist/ && rsync -av package.json package-lock.json .env andrew@cofasv30:/opt/builds/eng-api-ts/mcp/ && ssh andrew@cofasv30 'pm2 restart stormwater-mcp-ts'"
+    "deploy": "rsync -av --delete dist/ andrew@cofasv30:/opt/builds/eng-api-ts/mcp/stormwater/dist/ && rsync -av package.json package-lock.json .env andrew@cofasv30:/opt/builds/eng-api-ts/mcp/stormwater && ssh andrew@cofasv30 'pm2 restart stormwater-mcp-ts'"
   },
   "keywords": [],
   "author": "Andrew Southern",
@@ -21,6 +21,7 @@
     "express": "^5.2.1",
     "jsonwebtoken": "^9.0.3",
     "jwks-rsa": "^4.1.0",
+    "pino": "^9.4.0",
     "tedious": "^19.2.1",
     "zod": "^4.3.6"
   },
@@ -31,6 +32,7 @@
     "@types/node": "^25.5.2",
     "@types/tedious": "^4.0.14",
     "nodemon": "^3.1.14",
+    "pino-pretty": "^11.2.2",
     "tsc-alias": "^1.8.16",
     "tsx": "^4.21.0",
     "typescript": "^6.0.2"

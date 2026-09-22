@@ -2,9 +2,11 @@ import { Express, Request, Response } from "express"
 import { StreamableHTTPServerTransport } from "@modelcontextprotocol/sdk/server/streamableHttp.js"
 import { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js"
 import { randomUUID } from "crypto"
+import { mcpKey } from "../middleware/mcpKey"
+import logger from "../utils/logger"
 
 export const setupMcpRoutes = (app: Express, transports: Map<string, StreamableHTTPServerTransport>, createMcpServer: () => McpServer) => {
-  // --- Health check endpoint ---
+  // --- Health check endpoint --- (no key required, so uptime checks/load balancers can hit it)
   app.get("/stormwater/health", (req: Request, res: Response) => {
     res.json({ status: "ok", mcp: "connected", timestamp: new Date().toISOString() })
   })
@@ -19,7 +21,9 @@ export const setupMcpRoutes = (app: Express, transports: Map<string, StreamableH
   })
 
   // --- Single MCP endpoint ---
-  app.post("/stormwater", async (req: Request, res: Response) => {
+  // mcpKey is scoped to these exact-path handlers, not a blanket app.use("/stormwater", ...) --
+  // that would also match /stormwater/chat by prefix and block the Entra-gated chat endpoint too.
+  app.post("/stormwater", mcpKey, async (req: Request, res: Response) => {
     try {
       const sessionId = req.headers["mcp-session-id"] as string | undefined
 
@@ -43,13 +47,13 @@ export const setupMcpRoutes = (app: Express, transports: Map<string, StreamableH
 
       await transport.handleRequest(req, res, req.body)
     } catch (error) {
-      console.error("MCP POST error:", error)
+      logger.error(`MCP POST error: ${ error }`)
       res.status(500).json({ error: String(error) })
     }
   })
 
   // --- Optional: handle GET for server-initiated SSE streams ---
-  app.get("/stormwater", async (req: Request, res: Response) => {
+  app.get("/stormwater", mcpKey, async (req: Request, res: Response) => {
     const sessionId = req.headers["mcp-session-id"] as string | undefined
     const transport = sessionId ? transports.get(sessionId) : undefined
 
@@ -62,7 +66,7 @@ export const setupMcpRoutes = (app: Express, transports: Map<string, StreamableH
   })
 
   // --- Optional: handle DELETE for explicit session termination ---
-  app.delete("/stormwater", async (req: Request, res: Response) => {
+  app.delete("/stormwater", mcpKey, async (req: Request, res: Response) => {
     const sessionId = req.headers["mcp-session-id"] as string | undefined
     const transport = sessionId ? transports.get(sessionId) : undefined
 

@@ -2,6 +2,7 @@ import Anthropic from "@anthropic-ai/sdk"
 import { getHistory, saveHistory } from "./chatSessions"
 import { toAnthropicTools, callTool } from "./anthropicTools"
 import { formatLocalDate } from "./filters"
+import logger from "./logger"
 
 // Built lazily (not at module load) because TypeScript hoists all
 // import/require calls above app.ts's dotenv.config() call — an eager
@@ -44,7 +45,7 @@ Build tables (and every other answer) only from the fields the tool you already 
 // (possibly by thinking tokens alone eating the whole budget -- see MAX_TOKENS).
 const logCallTiming = (callIndex: number, startedAt: number, response: Anthropic.Messages.Message) => {
   const flag = response.stop_reason === "max_tokens" ? " -- TRUNCATED, ran out of max_tokens" : ""
-  console.log(`[timing] claude call ${ callIndex } -- ${ Date.now() - startedAt }ms, stop_reason=${ response.stop_reason }, output_tokens=${ response.usage.output_tokens }, thinking_tokens=${ response.usage.output_tokens_details?.thinking_tokens ?? 0 }${ flag }`)
+  logger.info(`[timing] claude call ${ callIndex } -- ${ Date.now() - startedAt }ms, stop_reason=${ response.stop_reason }, output_tokens=${ response.usage.output_tokens }, thinking_tokens=${ response.usage.output_tokens_details?.thinking_tokens ?? 0 }${ flag }`)
 }
 
 export const runChatTurn = async (tools: any[], sessionId: string, userMessage: string): Promise<string> => {
@@ -79,7 +80,7 @@ export const runChatTurn = async (tools: any[], sessionId: string, userMessage: 
       if(block.type === "tool_use") {
         const toolStart = Date.now()
         const text = await callTool(tools, block.name, block.input)
-        console.log(`[timing] tool ${ block.name } -- ${ Date.now() - toolStart }ms`)
+        logger.info(`[timing] tool ${ block.name } -- ${ Date.now() - toolStart }ms`)
         toolResults.push({ type: "tool_result", tool_use_id: block.id, content: text })
       }
     }
@@ -97,7 +98,7 @@ export const runChatTurn = async (tools: any[], sessionId: string, userMessage: 
     logCallTiming(iterations, callStart, response)
   }
 
-  console.log(`[timing] TOTAL turn -- ${ Date.now() - turnStart }ms across ${ iterations } tool iteration(s)`)
+  logger.info(`[timing] TOTAL turn -- ${ Date.now() - turnStart }ms across ${ iterations } tool iteration(s)`)
 
   messages.push({ role: "assistant", content: response.content })
   saveHistory(sessionId, messages)

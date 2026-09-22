@@ -3,6 +3,7 @@ import { randomUUID } from "crypto"
 import { entra } from "../middleware/entra"
 import { runChatTurn } from "../utils/agentLoop"
 import { clearHistory } from "../utils/chatSessions"
+import logger from "../utils/logger"
 
 export const setupChatRoutes = (app: Express, tools: any[]) => {
   // --- Chat turn: { sessionId?, message } -> { sessionId, reply } ---
@@ -20,7 +21,7 @@ export const setupChatRoutes = (app: Express, tools: any[]) => {
       const reply = await runChatTurn(tools, activeSessionId, message.trim())
       res.json({ sessionId: activeSessionId, reply })
     } catch(error) {
-      console.error("Chat turn error:", error)
+      logger.error(`Chat turn error: ${ error }`)
       res.status(500).json({ error: "Failed to generate a response" })
     }
   })

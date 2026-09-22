@@ -13,6 +13,7 @@ import tools from "./tools"
 import { setupMcpRoutes } from "./routes/mcp"
 import { setupChatRoutes } from "./routes/chat"
 import { registerAllTools } from "./utils/registerTools"
+import logger from "./utils/logger"
 
 const app = express()
 const PORT = parseInt(process.env.MCP_PORT || "7003", 10)
@@ -50,10 +51,10 @@ setupChatRoutes(app, tools)
 
 // Start HTTP server
 const server = app.listen(PORT, LISTEN_HOST, () => {
-  console.log(`MCP server listening on ${ EXTERNAL_URL }`)
+  logger.info(`MCP server listening on ${ EXTERNAL_URL }`)
 })
 
 server.on('error', (err) => {
-  console.error(`Server error on port ${ PORT }:`, err.message)
+  logger.error(`Server error on port ${ PORT }: ${ err.message }`)
   process.exit(1)
 })

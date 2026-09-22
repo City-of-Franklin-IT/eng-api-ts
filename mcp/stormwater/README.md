@@ -71,8 +71,8 @@ host: `npm install --omit=dev` in its deployed directory, then
 
 The server listens on `MCP_PORT` (default `7003`) and exposes:
 
-- `GET /stormwater/health` — health check
-- `POST /stormwater` — MCP streamable HTTP endpoint, for MCP clients (Claude Desktop/Code, etc.) — unauthenticated; the `claude` SQL login's read-only grant is its entire security boundary
+- `GET /stormwater/health` — health check, no key required
+- `POST /stormwater` — MCP streamable HTTP endpoint, for MCP clients (Claude Desktop/Code, etc.) — requires the `X-MCP-Key` shared-secret header (see below)
 - `POST /stormwater/chat` — Entra-gated REST chat endpoint for the browser AI chat panel (see below)
 - `DELETE /stormwater/chat/:sessionId` — resets a chat session's history
 
@@ -190,11 +190,21 @@ throwing past the caller.
   callers are never string-interpolated into SQL.
 - List tools cap page size (`limit`, max 100–200 depending on the tool) and
   always return pagination metadata so callers know if more data exists.
-- `/stormwater/chat` (and its `DELETE`) are the only Entra-gated routes —
-  the raw MCP endpoint (`POST /stormwater`) has no bearer-token check, by
-  design, for MCP clients that can't do an OAuth/MSAL flow. Don't assume
-  opening this server up publicly for the chat panel also locks down the MCP
-  endpoint; that's a separate decision.
+- `/stormwater/chat` (and its `DELETE`) are Entra-gated. The raw MCP endpoint
+  (`POST`/`GET`/`DELETE /stormwater`) can't use that same flow — MCP clients
+  have no OAuth/MSAL exchange to acquire a bearer token — so it's gated
+  instead by a static shared secret, `MCP_API_KEY`, checked by
+  `middleware/mcpKey.ts` against an `X-MCP-Key` header on every request.
+  Configure it once in each MCP client's config (e.g. a `headers` block in
+  Claude Desktop's/Code's `mcpServers` entry). `GET /stormwater/health` does
+  not require the key. A Referer/Origin check was considered instead and
+  rejected — both are client-supplied and trivially spoofed by a non-browser
+  HTTP client, so they add no real restriction over what CORS already doesn't
+  provide for this endpoint.
+- Don't assume opening this server up publicly for the chat panel also locks
+  down the MCP endpoint's network exposure; `MCP_API_KEY` stops callers
+  without the secret, but where `/stormwater` is reachable from at all is
+  still a separate deployment decision.
 
 ## Error Handling
 
