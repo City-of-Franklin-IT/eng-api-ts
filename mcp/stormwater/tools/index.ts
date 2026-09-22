@@ -7,9 +7,15 @@ export {
   listIllicitDischargesTool,
   listInspectorsTool,
   getInspectorWorkloadTool,
+  getInspectorActivityTool,
   listActiveSitesTool,
   summarizeIncidentsTool,
+  summarizeTrendsTool,
   listFollowUpDatesTool,
+  listEnforcementDeadlinesTool,
+  listContactsTool,
+  getContactSitesTool,
+  getContactActivityTool,
 } from "./stormwater"
 
 // Default export with all tools as array
@@ -22,9 +28,15 @@ import {
   listIllicitDischargesTool,
   listInspectorsTool,
   getInspectorWorkloadTool,
+  getInspectorActivityTool,
   listActiveSitesTool,
   summarizeIncidentsTool,
+  summarizeTrendsTool,
   listFollowUpDatesTool,
+  listEnforcementDeadlinesTool,
+  listContactsTool,
+  getContactSitesTool,
+  getContactActivityTool,
 } from "./stormwater"
 
 export default [
@@ -36,7 +48,13 @@ export default [
   listIllicitDischargesTool,
   listInspectorsTool,
   getInspectorWorkloadTool,
+  getInspectorActivityTool,
   listActiveSitesTool,
   summarizeIncidentsTool,
+  summarizeTrendsTool,
   listFollowUpDatesTool,
+  listEnforcementDeadlinesTool,
+  listContactsTool,
+  getContactSitesTool,
+  getContactActivityTool,
 ]

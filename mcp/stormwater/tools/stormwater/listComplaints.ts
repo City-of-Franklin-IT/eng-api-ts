@@ -12,20 +12,24 @@ export const listComplaintsTool = {
     limit: z.number().int().min(1).max(100).optional().describe("Max rows to return (default 25, max 100)"),
     offset: z.number().int().min(0).optional().describe("Rows to skip (default 0)"),
     siteId: z.string().optional().describe("Only complaints for this site (matches sites.siteId, not uuid)"),
+    inspectorSlug: z.string().optional().describe("Only complaints logged against this inspector (matches inspectors.slug)"),
     closed: z.boolean().optional().describe("Filter to closed (true) or open (false) complaints"),
+    fiscalYear: z.string().optional().describe("Only complaints in this fiscal year, e.g. \"2025\" for 2024-07-01 through 2025-06-30. Takes precedence over dateFrom/dateTo if both given."),
     dateFrom: z.string().optional().describe("Only complaints on/after this date (YYYY-MM-DD)"),
     dateTo: z.string().optional().describe("Only complaints on/before this date (YYYY-MM-DD)"),
   }),
-  handler: (async ({ limit = 25, offset = 0, siteId, closed, dateFrom, dateTo }: {
+  handler: (async ({ limit = 25, offset = 0, siteId, inspectorSlug, closed, fiscalYear, dateFrom, dateTo }: {
     limit?: number
     offset?: number
     siteId?: string
+    inspectorSlug?: string
     closed?: boolean
+    fiscalYear?: string
     dateFrom?: string
     dateTo?: string
   }) => {
     try {
-      const { conditions, params } = buildClosedSiteDateFilter({ siteId, closed, dateFrom, dateTo })
+      const { conditions, params } = buildClosedSiteDateFilter({ siteId, inspectorSlug, closed, fiscalYear, dateFrom, dateTo })
       const whereClause = conditions.length > 0 ? `WHERE ${ conditions.join(" AND ") }` : ""
 
       const countResult = await executeQuery(`SELECT COUNT(*) AS total FROM complaints ${ whereClause }`, params)

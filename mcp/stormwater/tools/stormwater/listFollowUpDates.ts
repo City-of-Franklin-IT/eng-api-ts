@@ -2,7 +2,7 @@ import { TYPES } from "tedious"
 import { executeQuery, QueryParam } from "../mssql/connection"
 import { describeError } from "../../utils/errors"
 import { paginate } from "../../utils/pagination"
-import { parseLocalDate } from "../../utils/filters"
+import { parseLocalDate, resolveDateRange } from "../../utils/filters"
 import { z } from "zod"
 
 // follow_up_dates ties to exactly one of violationId/complaintId/illicitId
@@ -26,22 +26,26 @@ export const listFollowUpDatesTool = {
     offset: z.number().int().min(0).optional().describe("Rows to skip (default 0)"),
     siteId: z.string().optional().describe("Only follow-ups for this site (matches sites.siteId, not uuid)"),
     inspectorSlug: z.string().optional().describe("Only follow-ups whose parent record's assigned inspector matches this slug, as returned by stormwater_list_inspectors"),
+    fiscalYear: z.string().optional().describe("Only follow-ups in this fiscal year, e.g. \"2025\" for 2024-07-01 through 2025-06-30. Takes precedence over dateFrom/dateTo if both given."),
     dateFrom: z.string().optional().describe("Only follow-ups on/after this date (YYYY-MM-DD)"),
     dateTo: z.string().optional().describe("Only follow-ups on/before this date (YYYY-MM-DD)"),
     overdue: z.boolean().optional().describe("Only follow-ups whose date has already passed (as of the server's current date)"),
     closed: z.boolean().optional().describe("Filter by whether the parent violation/complaint/illicit discharge is closed (true) or still open (false)"),
   }),
-  handler: (async ({ limit = 25, offset = 0, siteId, inspectorSlug, dateFrom, dateTo, overdue, closed }: {
+  handler: (async ({ limit = 25, offset = 0, siteId, inspectorSlug, fiscalYear, dateFrom, dateTo, overdue, closed }: {
     limit?: number
     offset?: number
     siteId?: string
     inspectorSlug?: string
+    fiscalYear?: string
     dateFrom?: string
     dateTo?: string
     overdue?: boolean
     closed?: boolean
   }) => {
     try {
+      ({ dateFrom, dateTo } = resolveDateRange({ fiscalYear, dateFrom, dateTo }))
+
       if(inspectorSlug !== undefined) {
         const inspectorResult = await executeQuery(
           "SELECT inspectorId FROM inspectors WHERE slug = @slug",

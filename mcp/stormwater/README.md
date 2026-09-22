@@ -114,7 +114,7 @@ tools/
 utils/
   registerTools.ts    Registers all tools with the MCP server
   errors.ts           describeError() — unwraps tedious AggregateError into a readable message
-  filters.ts          Shared siteId/closed/date-range filter builder for the violation/complaint/illicit-discharge list tools
+  filters.ts          Shared siteId/inspectorSlug/closed/date-range filter builder (plus fiscalYear resolution) for the violation/complaint/illicit-discharge/incident/trend tools
   pagination.ts       Shared { data, pagination } response envelope
 .env                  Environment configuration (not committed; see .env.example)
 ```
@@ -127,18 +127,57 @@ All read-only.
 |---|---|---|
 | `stormwater_list_sites` | `claude.sites` | `limit`/`offset`, `inspectorSlug`, `hasOpenViolation`/`hasOpenComplaint`/`hasOpenIllicitDischarge`, `activeOnly` |
 | `stormwater_get_site` | `claude.sites` + related views, by `uuid` | `uuid` — full nested detail (violations, complaints, illicit discharges, logs, site contacts, follow-up dates) |
-| `stormwater_list_violations` | `claude.violations` | `limit`/`offset`, `siteId`, `closed`, `dateFrom`/`dateTo` |
-| `stormwater_list_complaints` | `claude.complaints` | `limit`/`offset`, `siteId`, `closed`, `dateFrom`/`dateTo` |
-| `stormwater_list_inspections` | `claude.logs` | `limit`/`offset`, `siteId`, `dateFrom`/`dateTo`; response includes `distinctSiteCount` (distinct sites inspected in range) |
-| `stormwater_list_illicit_discharges` | `claude.illicit_discharges` | `limit`/`offset`, `siteId`, `closed`, `dateFrom`/`dateTo` |
+| `stormwater_list_violations` | `claude.violations` | `limit`/`offset`, `siteId`, `inspectorSlug`, `closed`, `dateFrom`/`dateTo` |
+| `stormwater_list_complaints` | `claude.complaints` | `limit`/`offset`, `siteId`, `inspectorSlug`, `closed`, `dateFrom`/`dateTo` |
+| `stormwater_list_inspections` | `claude.logs` | `limit`/`offset`, `siteId`, `inspectorSlug` (joins to `sites`, since `logs` has no inspector column of its own), `dateFrom`/`dateTo`; response includes `distinctSiteCount` |
+| `stormwater_list_illicit_discharges` | `claude.illicit_discharges` | `limit`/`offset`, `siteId`, `inspectorSlug`, `closed`, `dateFrom`/`dateTo` |
 | `stormwater_list_inspectors` | `claude.inspectors` | `limit`/`offset`, `activeOnly` |
-| `stormwater_get_inspector_workload` | `claude.inspectors` + `claude.sites`, by `slug` | `limit`/`offset` — per-site open-status rollup (slim field set) for everything assigned to an inspector |
+| `stormwater_get_inspector_workload` | `claude.inspectors` + `claude.sites`, by `slug` | `limit`/`offset` — per-site *current open-status* rollup (slim field set) for everything assigned to an inspector |
+| `stormwater_get_inspector_activity` | `claude.inspectors` + `claude.logs`/`sites`/`violations`/`complaints`/`illicit_discharges`, by `slug` | `dateFrom`/`dateTo` — *historical* rollup: inspections + distinct sites visited, plus violations/complaints/illicit-discharge counts, in one call |
 | `stormwater_list_active_sites` | `claude.active_sites` | `limit`/`offset` — slim, map-friendly field set |
-| `stormwater_summarize_incidents` | `claude.violations` + `claude.complaints` + `claude.illicit_discharges` | `siteId`, `dateFrom`/`dateTo` — counts only, one call instead of three |
+| `stormwater_summarize_incidents` | `claude.violations` + `claude.complaints` + `claude.illicit_discharges` | `siteId`, `inspectorSlug`, `dateFrom`/`dateTo` — counts only, one call instead of three |
+| `stormwater_summarize_trends` | same three + `claude.logs` | `fiscalYear` or `dateFrom`+`dateTo` (one is required), `siteId`, `inspectorSlug` — monthly counts of all four, one row per calendar month even if 0 |
 | `stormwater_list_follow_up_dates` | `claude.follow_up_dates` + `claude.violations`/`complaints`/`illicit_discharges` | `limit`/`offset`, `siteId`, `inspectorSlug`, `dateFrom`/`dateTo`, `overdue`, `closed` — resolves each follow-up's site/inspector/open-status via its parent record |
+| `stormwater_list_enforcement_deadlines` | `claude.follow_up_dates` + `claude.violations`/`illicit_discharges` (`penaltyDueDate`/`swoDate`), merged via `UNION ALL` | `limit`/`offset`, `type` (`follow_up`/`payment_due`/`stop_work_order`), `siteId`, `inspectorSlug`, `dateFrom`/`dateTo`, `overdue`, `resolved` — one chronological feed instead of piecing together follow-ups and the penalty/SWO columns yourself |
+| `stormwater_list_contacts` | `claude.contacts` | `limit`/`offset`, `search` (name or company substring), `activeOnly` — resolve a name to a `contactId` before the two tools below |
+| `stormwater_get_contact_sites` | `claude.site_contacts` + `claude.sites`, by `contactId` | `limit`/`offset` — every site the contact is linked to (primary/contractor/inspector role flags) plus each site's open-status flags |
+| `stormwater_get_contact_activity` | `claude.contacts` + `claude.violations`/`complaints`/`illicit_discharges`, by `contactId` | `dateFrom`/`dateTo` — violation/complaint/illicit-discharge counts across every site that contact is linked to |
 
 Tools are aggregated in `tools/index.ts` and registered on the `McpServer` in
 `app.ts` via `registerAllTools`.
+
+`inspectorSlug` on `violations`/`complaints`/`illicit_discharges` (and the
+tools built on them) filters via a subquery against `inspectors.slug`, since
+those views already denormalize `inspectorId` directly. `logs` (inspections)
+has no inspector column at all — its `inspectorSlug` filter, and
+`stormwater_get_inspector_activity`'s inspection count, join to
+`sites.inspectorSlug` instead. That's a deliberate stand-in for "inspector
+performed this inspection": a site keeps the same assigned inspector for its
+whole lifespan, so joining through the site's current assignment is accurate
+here, not just a convenient approximation.
+
+Both app servers (this Node process and the SQL Server host) run in
+`America/Chicago`, which makes plain `Date`/string conversions easy to get
+backwards by a day in either direction: `new Date("YYYY-MM-DD")` parses as
+UTC midnight, then reading it back with local getters can land on the
+previous day; conversely, `date.toISOString()` always converts to UTC first,
+so reading "today" that way can report tomorrow's date for several hours
+every evening (CDT is UTC-5, so anything after ~7pm local is already past
+midnight UTC). `utils/filters.ts` has one fix for each direction —
+`parseLocalDate()` for turning a `dateFrom`/`dateTo` string into a `Date` to
+send to tedious, and `formatLocalDate()` for turning a `Date` (e.g. "now")
+back into the server's actual local `YYYY-MM-DD`, used for the chat agent's
+"today's date" context. Any new code touching dates should go through one of
+these rather than `new Date(str)` or `.toISOString()` directly.
+
+Every tool that takes `dateFrom`/`dateTo` also accepts a `fiscalYear` string
+(e.g. `"2025"`) as a shortcut, resolved by `utils/filters.ts`'s
+`resolveDateRange()`. City of Franklin's fiscal year runs July 1 – June 30,
+named for the calendar year it ends in, so `fiscalYear: "2025"` means
+`2024-07-01`–`2025-06-30`. If both are given, `fiscalYear` wins outright
+(`dateFrom`/`dateTo` are ignored, not intersected). A malformed `fiscalYear`
+(anything without a 4-digit year) returns a normal tool error rather than
+throwing past the caller.
 
 ## Security
 
