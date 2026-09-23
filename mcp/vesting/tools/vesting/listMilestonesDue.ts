@@ -32,7 +32,7 @@ const MILESTONES_DUE_CTE = `
 
 export const listMilestonesDueTool = {
   name: "vesting_list_milestones_due",
-  description: "List milestones by their EFFECTIVE due date -- an extension's date if one exists on that milestone, otherwise the milestone's own date. This is the correct way to answer \"what's due/was due between X and Y\"; the base milestone date alone ignores extensions and can give wrong answers. Supports filtering and pagination.",
+  description: "List milestones by their EFFECTIVE due date -- an extension's date if one exists on that milestone, otherwise the milestone's own date. This is the correct way to answer \"what's due/was due between X and Y\"; the base milestone date alone ignores extensions and can give wrong answers. Also use this (with extended: true) to answer \"which milestones/projects have been extended\". Supports filtering and pagination.",
   inputSchema: z.object({
     limit: z.number().int().min(1).max(200).optional().describe("Max rows to return (default 50, max 200)"),
     offset: z.number().int().min(0).optional().describe("Rows to skip (default 0)"),
@@ -41,9 +41,10 @@ export const listMilestonesDueTool = {
     dateTo: z.string().optional().describe("Only milestones with effective date on/before this date (YYYY-MM-DD)"),
     achieved: z.boolean().optional().describe("Filter to achieved (true) or not-yet-achieved (false) milestones"),
     expired: z.boolean().optional().describe("Filter to expired (true) or not-expired (false) milestones"),
+    extended: z.boolean().optional().describe("Filter to milestones that currently have a recorded extension (true) or don't (false). Use this to answer 'which milestones/projects have been extended'."),
     projectType: z.enum(["Development Plan", "Preliminary Plat", "Site Plan"]).optional().describe("Filter to milestones on projects of this type"),
   }),
-  handler: (async ({ limit = 50, offset = 0, projectUuid, dateFrom, dateTo, achieved, expired, projectType }: {
+  handler: (async ({ limit = 50, offset = 0, projectUuid, dateFrom, dateTo, achieved, expired, extended, projectType }: {
     limit?: number
     offset?: number
     projectUuid?: string
@@ -51,6 +52,7 @@ export const listMilestonesDueTool = {
     dateTo?: string
     achieved?: boolean
     expired?: boolean
+    extended?: boolean
     projectType?: string
   }) => {
     try {
@@ -76,6 +78,9 @@ export const listMilestonesDueTool = {
       if(expired !== undefined) {
         conditions.push("expired = @expired")
         params.push({ name: "expired", type: TYPES.Bit, value: expired })
+      }
+      if(extended !== undefined) {
+        conditions.push(extended ? "extensionDate IS NOT NULL" : "extensionDate IS NULL")
       }
       if(projectType !== undefined) {
         conditions.push("projectType = @projectType")

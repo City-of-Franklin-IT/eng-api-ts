@@ -26,7 +26,7 @@ const VESTING_PERIODS_CTE = `
 
 export const listVestingPeriodsTool = {
   name: "vesting_list_vesting_periods",
-  description: "List vesting periods (10Y / 15Y) by their EFFECTIVE date -- a vesting extension's date if one exists, otherwise the period's own date. Use this, not vesting_list_milestones_due, for the 10-year/15-year vesting expiration dates themselves. Supports filtering and pagination.",
+  description: "List vesting periods (10Y / 15Y) by their EFFECTIVE date -- a vesting extension's date if one exists, otherwise the period's own date. Use this, not vesting_list_milestones_due, for the 10-year/15-year vesting expiration dates themselves. Also use this (with extended: true) to answer \"which vesting periods/projects have been extended\". Supports filtering and pagination.",
   inputSchema: z.object({
     limit: z.number().int().min(1).max(200).optional().describe("Max rows to return (default 50, max 200)"),
     offset: z.number().int().min(0).optional().describe("Rows to skip (default 0)"),
@@ -36,9 +36,10 @@ export const listVestingPeriodsTool = {
     dateTo: z.string().optional().describe("Only periods with effective date on/before this date (YYYY-MM-DD)"),
     achieved: z.boolean().optional().describe("Filter to achieved (true) or not-yet-achieved (false) periods"),
     expired: z.boolean().optional().describe("Filter to expired (true) or not-expired (false) periods"),
+    extended: z.boolean().optional().describe("Filter to vesting periods that currently have a recorded extension (true) or don't (false). Use this to answer 'which vesting periods/projects have been extended'."),
     projectType: z.enum(["Development Plan", "Preliminary Plat", "Site Plan"]).optional().describe("Filter to periods on projects of this type"),
   }),
-  handler: (async ({ limit = 50, offset = 0, projectUuid, type, dateFrom, dateTo, achieved, expired, projectType }: {
+  handler: (async ({ limit = 50, offset = 0, projectUuid, type, dateFrom, dateTo, achieved, expired, extended, projectType }: {
     limit?: number
     offset?: number
     projectUuid?: string
@@ -47,6 +48,7 @@ export const listVestingPeriodsTool = {
     dateTo?: string
     achieved?: boolean
     expired?: boolean
+    extended?: boolean
     projectType?: string
   }) => {
     try {
@@ -76,6 +78,9 @@ export const listVestingPeriodsTool = {
       if(expired !== undefined) {
         conditions.push("expired = @expired")
         params.push({ name: "expired", type: TYPES.Bit, value: expired })
+      }
+      if(extended !== undefined) {
+        conditions.push(extended ? "extensionDate IS NOT NULL" : "extensionDate IS NULL")
       }
       if(projectType !== undefined) {
         conditions.push("projectType = @projectType")
