@@ -7,7 +7,7 @@
     "dev": "NODE_ENV=development nodemon --exec tsx app.ts",
     "start": "npx tsx dist/app.js --port 7003",
     "test": "echo \"Error: no test specified\" && exit 1",
-    "deploy": "rsync -av --delete dist/ andrew@cofasv30:/opt/builds/eng-api-ts/mcp/stormwater/dist/ && rsync -av package.json package-lock.json .env andrew@cofasv30:/opt/builds/eng-api-ts/mcp/stormwater && ssh andrew@cofasv30 'pm2 restart stormwater-mcp-ts'"
+    "deploy": "scp deploy/docker-compose.yml deploy/.env $USER@cofasv30:/opt/containers/stormwater-mcp"
   },
   "keywords": [],
   "author": "Andrew Southern",

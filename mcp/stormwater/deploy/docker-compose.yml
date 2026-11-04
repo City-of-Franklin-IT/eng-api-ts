@@ -1,0 +1,9 @@
+services:
+  stormwater-mcp:
+    image: ghcr.io/city-of-franklin-it/stormwater-mcp:1.0.0
+    restart: unless-stopped
+    env_file:
+      - .env
+    ports:
+      - "127.0.0.1:7003:7003"
+    user: "1001:1001"
