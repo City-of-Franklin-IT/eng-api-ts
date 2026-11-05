@@ -7,7 +7,7 @@
     "dev": "NODE_ENV=development nodemon --exec tsx app.ts",
     "start": "npx tsx dist/app.js --port 7003",
     "test": "echo \"Error: no test specified\" && exit 1",
-    "deploy": "scp deploy/docker-compose.yml deploy/.env $USER@cofasv30:/opt/containers/stormwater-mcp"
+    "deploy": "scp deploy/docker-compose.yml .env $USER@cofasv30:/opt/containers/mcp/stormwater"
   },
   "keywords": [],
   "author": "Andrew Southern",
