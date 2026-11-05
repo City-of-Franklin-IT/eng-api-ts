@@ -1,0 +1,9 @@
+services:
+  vesting-mcp:
+    image: ghcr.io/city-of-franklin-it/vesting-mcp:1.0.0
+    restart: unless-stopped
+    env_file:
+      - .env
+    ports:
+      - "127.0.0.1:7004:7004"
+    user: "1001:1001"

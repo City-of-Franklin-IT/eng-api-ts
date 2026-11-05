@@ -7,7 +7,7 @@
     "dev": "NODE_ENV=development nodemon --exec tsx app.ts",
     "start": "npx tsx dist/app.js --port 7004",
     "test": "echo \"Error: no test specified\" && exit 1",
-    "deploy": "rsync -av --delete dist/ andrew@cofasv30:/opt/builds/eng-api-ts/mcp/vesting/dist && rsync -av package.json package-lock.json .env andrew@cofasv30:/opt/builds/eng-api-ts/mcp/vesting/ && ssh andrew@cofasv30 'pm2 restart vesting-mcp-ts'"
+    "deploy": "scp deploy/docker-compose.yml .env $USER@cofasv30:/opt/containers/mcp/vesting"
   },
   "keywords": [],
   "author": "Andrew Southern",
