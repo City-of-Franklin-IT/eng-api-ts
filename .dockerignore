@@ -1,0 +1,29 @@
+# Dependencies and build output (rebuilt inside the image)
+node_modules
+dist
+mcp/*/node_modules
+mcp/*/dist
+
+# Secrets / environment files (supply at runtime instead)
+.env
+.env.*
+!.env.example
+!.env.development.example
+src/config/config.env
+
+# VCS and editor/tooling
+.git
+.gitignore
+.vscode
+.claude
+CLAUDE.md
+
+# Container and deploy files
+Dockerfile
+.dockerignore
+deploy
+
+# Logs and misc
+*.log
+npm-debug.log*
+README.md
