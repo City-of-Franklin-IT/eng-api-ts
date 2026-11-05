@@ -14,5 +14,5 @@ COPY package*.json ./
 RUN npm ci --omit=dev && npm cache clean --force
 COPY --from=build /app/dist ./dist
 USER node
-EXPOSE 6008
+EXPOSE 6004
 CMD ["node", "dist/app.js", "--port", "6004"]
