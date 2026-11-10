@@ -17,13 +17,13 @@ services:
       - ENTRA_CLIENT_ID=${ENTRA_CLIENT_ID}
 
       - ANTHROPIC_API_KEY=${ANTHROPIC_API_KEY}
-      - ANTHROPIC_MODEL=${ANTHROPIC_MODEL:-claude-sonnet-5}
+      - ANTHROPIC_MODEL=${ANTHROPIC_MODEL}
 
-      - CIVICCLERK_BASE_URL=${CIVICCLERK_BASE_URL:-https://franklintn.v8.civicclerk.com}
+      - CIVICCLERK_BASE_URL=${CIVICCLERK_BASE_URL}
 
       - LOG_LEVEL=${LOG_LEVEL:-info}
     env_file:
       - .env
     ports:
-      - "127.0.0.1:7004:7004"
+      - "127.0.0.1:${MCP_PORT}:${MCP_PORT}"
     user: "1001:1001"
