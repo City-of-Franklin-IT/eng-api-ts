@@ -108,7 +108,6 @@ Create `src/config/config.env` with required variables:
   - `CALMING_DB_HOST`, `CALMING_DB_DATABASE`
   - `INFOR_DB_HOST`, `INFOR_DB_DATABASE`
 - `ENTRA_URL` - Azure AD token validation endpoint
-- `API_DOCUMENTATION_URL` - Postman documentation URL
 
 ## Common Patterns
 

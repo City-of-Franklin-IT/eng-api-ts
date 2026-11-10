@@ -68,7 +68,6 @@ Create `src/config/config.env` with the following environment variables:
 | `INFOR_DB_HOST` | Infor integration database host | `localhost` |
 | `INFOR_DB_DATABASE` | Infor database name | `Infor` |
 | `ENTRA_URL` | Azure AD token validation endpoint | `https://login.microsoftonline.com/...` |
-| `API_DOCUMENTATION_URL` | Postman docs URL | `https://documenter.getpostman.com/...` |
 
 ### Example .env File
 
@@ -93,7 +92,6 @@ INFOR_DB_HOST=localhost
 INFOR_DB_DATABASE=Infor
 
 ENTRA_URL=https://your-tenant.microsoftonline.com/validate
-API_DOCUMENTATION_URL=https://documenter.getpostman.com/view/6104227/2sAYdeLBHg
 ```
 
 ## Usage
