@@ -22,8 +22,6 @@ services:
       - CIVICCLERK_BASE_URL=${CIVICCLERK_BASE_URL}
 
       - LOG_LEVEL=${LOG_LEVEL:-info}
-    env_file:
-      - .env
     ports:
       - "127.0.0.1:${MCP_PORT}:${MCP_PORT}"
     user: "1001:1001"

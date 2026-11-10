@@ -20,8 +20,6 @@ services:
       - ANTHROPIC_MODEL=${ANTHROPIC_MODEL:-claude-sonnet-5}
 
       - LOG_LEVEL=${LOG_LEVEL:-info}
-    env_file:
-      - .env
     ports:
       - "127.0.0.1:${MCP_PORT}:${MCP_PORT}"
     user: "1001:1001"
