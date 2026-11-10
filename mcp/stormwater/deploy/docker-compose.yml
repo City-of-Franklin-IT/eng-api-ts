@@ -2,6 +2,24 @@ services:
   stormwater-mcp:
     image: ghcr.io/city-of-franklin-it/stormwater-mcp:1.0.0
     restart: unless-stopped
+    environment:
+      - MCP_HOST=${MCP_HOST}
+      - MCP_PORT=${MCP_PORT}
+
+      - MCP_API_KEY=${MCP_API_KEY}
+
+      - STORMWATER_DB_SERVER=${STORMWATER_DB_SERVER}
+      - STORMWATER_DB_DATABASE=${STORMWATER_DB_DATABASE}
+      - STORMWATER_DB_USER=${STORMWATER_DB_USER}
+      - STORMWATER_DB_PASSWORD=${STORMWATER_DB_PASSWORD}
+
+      - ENTRA_TENANT_ID=${ENTRA_TENANT_ID}
+      - ENTRA_CLIENT_ID=${ENTRA_CLIENT_ID}
+
+      - ANTHROPIC_API_KEY=${ANTHROPIC_API_KEY}
+      - ANTHROPIC_MODEL=${ANTHROPIC_MODEL:-claude-sonnet-5}
+
+      - LOG_LEVEL=${LOG_LEVEL:-info}
     env_file:
       - .env
     ports:

@@ -2,6 +2,26 @@ services:
   vesting-mcp:
     image: ghcr.io/city-of-franklin-it/vesting-mcp:1.0.0
     restart: unless-stopped
+    environment:
+      - MCP_HOST=${MCP_HOST}
+      - MCP_PORT=${MCP_PORT}
+
+      - MCP_API_KEY=${MCP_API_KEY}
+
+      - VESTING_DB_SERVER=${VESTING_DB_SERVER}
+      - VESTING_DB_DATABASE=${VESTING_DB_DATABASE}
+      - VESTING_DB_USER=${VESTING_DB_USER}
+      - VESTING_DB_PASSWORD=${VESTING_DB_PASSWORD}
+
+      - ENTRA_TENANT_ID=${ENTRA_TENANT_ID}
+      - ENTRA_CLIENT_ID=${ENTRA_CLIENT_ID}
+
+      - ANTHROPIC_API_KEY=${ANTHROPIC_API_KEY}
+      - ANTHROPIC_MODEL=${ANTHROPIC_MODEL:-claude-sonnet-5}
+
+      - CIVICCLERK_BASE_URL=${CIVICCLERK_BASE_URL:-https://franklintn.v8.civicclerk.com}
+
+      - LOG_LEVEL=${LOG_LEVEL:-info}
     env_file:
       - .env
     ports:
