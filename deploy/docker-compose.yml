@@ -1,6 +1,6 @@
 services:
   eng-api-ts:
-    image: ghcr.io/city-of-franklin-it/eng-api-ts:1.0.1
+    image: ghcr.io/city-of-franklin-it/eng-api-ts:1.0.2
     restart: unless-stopped
     environment:
       - BASE_URL=${BASE_URL}
