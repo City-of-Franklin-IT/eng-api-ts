@@ -2,10 +2,43 @@ services:
   eng-api-ts:
     image: ghcr.io/city-of-franklin-it/eng-api-ts:1.0.1
     restart: unless-stopped
-    env_file:
-      - .env
+    environment:
+      - BASE_URL=${BASE_URL}
+
+      - HOST=${HOST}
+      - PORT=${PORT}
+
+      - DB_USERNAME=${DB_USERNAME}
+      - DB_PASSWORD=${DB_PASSWORD}
+
+      - CIP_DB_HOST=${CIP_DB_HOST}
+      - CIP_DB_DATABASE=${CIP_DB_DATABASE}
+
+      - STORMWATER_DB_HOST=${STORMWATER_DB_HOST}
+      - STORMWATER_DB_DATABASE=${STORMWATER_DB_DATABASE}
+
+      - VESTING_DB_HOST=${VESTING_DB_HOST}
+      - VESTING_DB_DATABASE=${VESTING_DB_DATABASE}
+
+      - CALMING_DB_HOST=${CALMING_DB_HOST}
+      - CALMING_DB_DATABASE=${CALMING_DB_DATABASE}
+
+      - INFOR_DB_HOST=${INFOR_DB_HOST}
+      - INFOR_DB_DATABASE=${INFOR_DB_DATABASE}
+
+      - SMTP_HOST=${SMTP_HOST}
+      - SMTP_PORT=${SMTP_PORT}
+      - SMTP_EMAIL=${SMTP_EMAIL}
+      - SMTP_PASSWORD=${SMTP_PASSWORD}
+      - FROM_EMAIL=${FROM_EMAIL}
+      - FROM_NAME=${FROM_NAME}
+
+      - ENTRA_TENANT_ID=${ENTRA_TENANT_ID}
+      - ENTRA_CLIENT_ID=${ENTRA_CLIENT_ID}
+
+      - LOG_LEVEL=${LOG_LEVEL}
     ports:
-      - "127.0.0.1:6004:6004"
+      - "127.0.0.1:${PORT}:${PORT}"
     user: "1001:1001"
     volumes:
       - /opt/builds/logs:/logs
