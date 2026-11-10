@@ -23,5 +23,5 @@ services:
     env_file:
       - .env
     ports:
-      - "127.0.0.1:7003:7003"
+      - "127.0.0.1:${MCP_PORT}:${MCP_PORT}"
     user: "1001:1001"
