@@ -15,4 +15,4 @@ RUN npm ci --omit=dev && npm cache clean --force
 COPY --from=build /app/dist ./dist
 USER 1001
 EXPOSE 6004
-CMD ["sh", "-c", "exec node dist/app.js --port 6004 >> /logs/eng-api-ts-out.log 2>> /logs/eng-api-ts-error.log"]
+CMD ["sh", "-c", "exec node dist/app.js --port 6004"]
