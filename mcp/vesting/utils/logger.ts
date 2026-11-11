@@ -1,12 +1,9 @@
 import pino from "pino"
 
-// Mirrors eng-api-ts's own src/utils/logger.ts and mcp/stormwater's copy --
-// duplicated rather than imported since this is a standalone process with
-// its own dependency tree (see mcp/vesting/README.md).
 process.env.TZ = "America/Chicago"
 
 const logger = pino({
-  level: process.env.LOG_LEVEL || "info",
+  level: "info",
   transport: process.env.NODE_ENV === "development"
     ? {
         target: "pino-pretty",

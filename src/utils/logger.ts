@@ -4,7 +4,7 @@ import pino from 'pino'
 process.env.TZ = 'America/Chicago'
 
 const logger = pino({
-  level: process.env.LOG_LEVEL || 'info',
+  level: 'info',
   transport: process.env.NODE_ENV === 'development'
     ? {
         target: 'pino-pretty',
