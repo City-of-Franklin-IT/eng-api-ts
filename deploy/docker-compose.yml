@@ -38,3 +38,4 @@ services:
     ports:
       - "127.0.0.1:${PORT}:${PORT}"
     user: "1001:1001"
+    container_name: eng-api
