@@ -26,6 +26,10 @@ import inputSanitation from './middleware/inputSanitation'
 
 const app = express()
 
+// Health check (mounted before logging/security middleware to keep probes quiet)
+import healthRoutes from '@routes/health'
+app.use('/health', healthRoutes)
+
 app.use(pinoHttp({
   logger,
   customLogLevel: (_req, res) => {
