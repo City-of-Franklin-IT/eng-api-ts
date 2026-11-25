@@ -23,7 +23,7 @@ const getServerConfig = (serverKey: ServerKey): ServerConfig => {
   switch(serverKey) {
     case "vesting":
       return {
-        server: process.env.VESTING_DB_SERVER as string,
+        server: process.env.VESTING_DB_HOST as string,
         database: process.env.VESTING_DB_DATABASE as string,
         userName: process.env.VESTING_DB_USER,
         password: process.env.VESTING_DB_PASSWORD,

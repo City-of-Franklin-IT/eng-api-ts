@@ -6,7 +6,7 @@ import { timingSafeEqual } from "crypto"
 // README.md's Security section. A static shared secret both this server and
 // each MCP client config hold, sent as `X-MCP-Key`.
 export const mcpKey = (req: Request, res: Response, next: NextFunction) => {
-  const expected = process.env.MCP_API_KEY
+  const expected = process.env.STORMWATER_MCP_API_KEY
   const provided = req.headers["x-mcp-key"]
 
   // Plain !== leaks how many leading characters matched via response timing

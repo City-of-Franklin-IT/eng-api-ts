@@ -69,7 +69,7 @@ host: `npm install --omit=dev` in its deployed directory, then
 `pm2 start /opt/builds/ecosystem.config.js --only <name>` followed by
 `pm2 save`. Already done for `stormwater-mcp-ts`.
 
-The server listens on `MCP_PORT` (default `7003`) and exposes:
+The server listens on `STORMWATER_MCP_PORT` (default `7003`) and exposes:
 
 - `GET /stormwater/health` — health check, no key required
 - `POST /stormwater` — MCP streamable HTTP endpoint, for MCP clients (Claude Desktop/Code, etc.) — requires the `X-MCP-Key` shared-secret header (see below)
@@ -193,7 +193,7 @@ throwing past the caller.
 - `/stormwater/chat` (and its `DELETE`) are Entra-gated. The raw MCP endpoint
   (`POST`/`GET`/`DELETE /stormwater`) can't use that same flow — MCP clients
   have no OAuth/MSAL exchange to acquire a bearer token — so it's gated
-  instead by a static shared secret, `MCP_API_KEY`, checked by
+  instead by a static shared secret, `STORMWATER_MCP_API_KEY`, checked by
   `middleware/mcpKey.ts` against an `X-MCP-Key` header on every request.
   Configure it once in each MCP client's config (e.g. a `headers` block in
   Claude Desktop's/Code's `mcpServers` entry). `GET /stormwater/health` does
@@ -202,7 +202,7 @@ throwing past the caller.
   HTTP client, so they add no real restriction over what CORS already doesn't
   provide for this endpoint.
 - Don't assume opening this server up publicly for the chat panel also locks
-  down the MCP endpoint's network exposure; `MCP_API_KEY` stops callers
+  down the MCP endpoint's network exposure; `STORMWATER_MCP_API_KEY` stops callers
   without the secret, but where `/stormwater` is reachable from at all is
   still a separate deployment decision.
 

@@ -44,12 +44,12 @@ services:
     image: ghcr.io/city-of-franklin-it/stormwater-mcp:1.0.0
     restart: unless-stopped
     environment:
-      - MCP_HOST=${STORMWATER_MCP_HOST}
-      - MCP_PORT=${STORMWATER_MCP_PORT}
+      - HOST=${HOST}
+      - STORMWATER_MCP_PORT=${STORMWATER_MCP_PORT}
 
-      - MCP_API_KEY=${STORMWATER_MCP_API_KEY}
+      - STORMWATER_MCP_API_KEY=${STORMWATER_MCP_API_KEY}
 
-      - STORMWATER_DB_SERVER=${STORMWATER_DB_HOST}
+      - STORMWATER_DB_HOST=${STORMWATER_DB_HOST}
       - STORMWATER_DB_DATABASE=${STORMWATER_DB_DATABASE}
       - STORMWATER_DB_USER=${STORMWATER_DB_USER}
       - STORMWATER_DB_PASSWORD=${STORMWATER_DB_PASSWORD}
@@ -68,12 +68,12 @@ services:
     image: ghcr.io/city-of-franklin-it/vesting-mcp:1.0.0
     restart: unless-stopped
     environment:
-      - MCP_HOST=${VESTING_MCP_HOST}
-      - MCP_PORT=${VESTING_MCP_PORT}
+      - HOST=${HOST}
+      - VESTING_MCP_PORT=${VESTING_MCP_PORT}
 
-      - MCP_API_KEY=${VESTING_MCP_API_KEY}
+      - VESTING_MCP_API_KEY=${VESTING_MCP_API_KEY}
 
-      - VESTING_DB_SERVER=${VESTING_DB_HOST}
+      - VESTING_DB_HOST=${VESTING_DB_HOST}
       - VESTING_DB_DATABASE=${VESTING_DB_DATABASE}
       - VESTING_DB_USER=${VESTING_DB_USER}
       - VESTING_DB_PASSWORD=${VESTING_DB_PASSWORD}
@@ -83,8 +83,6 @@ services:
 
       - ANTHROPIC_API_KEY=${ANTHROPIC_API_KEY}
       - ANTHROPIC_MODEL=${ANTHROPIC_MODEL}
-
-      - CIVICCLERK_BASE_URL=${CIVICCLERK_BASE_URL}
 
       - LOG_LEVEL=${LOG_LEVEL:-info}
     ports:

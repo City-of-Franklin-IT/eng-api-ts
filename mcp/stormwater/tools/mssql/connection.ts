@@ -23,7 +23,7 @@ const getServerConfig = (serverKey: ServerKey): ServerConfig => {
   switch(serverKey) {
     case "stormwater":
       return {
-        server: process.env.STORMWATER_DB_SERVER as string,
+        server: process.env.STORMWATER_DB_HOST as string,
         database: process.env.STORMWATER_DB_DATABASE as string,
         userName: process.env.STORMWATER_DB_USER,
         password: process.env.STORMWATER_DB_PASSWORD,

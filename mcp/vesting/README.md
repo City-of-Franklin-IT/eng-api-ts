@@ -77,7 +77,7 @@ while `SELECT * FROM dbo.project` fails.
 ```bash
 npm install
 cp .env.example .env
-# edit .env with real VESTING_DB_* / ENTRA_* / ANTHROPIC_API_KEY values
+# edit .env with the real VESTING_* values; DB host/database, ENTRA_* and ANTHROPIC_* come from the root .env
 ```
 
 ## Development
@@ -89,7 +89,7 @@ npm start       # run compiled server from dist/
 npm run deploy  # rsync build + .env to production host and restart via pm2
 ```
 
-The server listens on `MCP_PORT` (default `7004` — distinct from
+The server listens on `VESTING_MCP_PORT` (default `7004` — distinct from
 stormwater's `7003`) and exposes:
 
 - `GET /vesting/health` — health check, no key required
@@ -274,7 +274,7 @@ motivated its design.
 - `/vesting/chat` (and its `DELETE`) are Entra-gated. The raw MCP endpoint
   (`POST`/`GET`/`DELETE /vesting`) can't use that same flow — MCP clients
   have no OAuth/MSAL exchange to acquire a bearer token — so it's gated
-  instead by a static shared secret, `MCP_API_KEY`, checked by
+  instead by a static shared secret, `VESTING_MCP_API_KEY`, checked by
   `middleware/mcpKey.ts` against an `X-MCP-Key` header on every request.
   Configure it once in each MCP client's config (e.g. a `headers` block in
   Claude Desktop's/Code's `mcpServers` entry). `GET /vesting/health` does not
@@ -282,7 +282,7 @@ motivated its design.
   see that module's README for why a Referer/Origin check was considered and
   rejected instead.
 - Don't assume opening this server up publicly for the chat panel also locks
-  down the MCP endpoint's network exposure; `MCP_API_KEY` stops callers
+  down the MCP endpoint's network exposure; `VESTING_MCP_API_KEY` stops callers
   without the secret, but where `/vesting` is reachable from at all is still
   a separate deployment decision.
 

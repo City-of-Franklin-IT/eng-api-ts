@@ -5,6 +5,10 @@ import { join } from "path"
 // rather than __dirname, so it resolves the same way whether run via `tsx app.ts` (dev)
 // or `tsx dist/app.js` (prod), as long as the process is started from this project's root.
 dotenv.config({ path: join(process.cwd(), ".env"), quiet: true })
+// Shared values (DB host/database, Entra, ANTHROPIC_MODEL, HOST) live in eng-api-ts's root .env.
+// dotenv never overrides an already-set variable, so this MCP's own .env wins. In the container the
+// file doesn't exist and everything comes from the compose environment.
+dotenv.config({ path: join(process.cwd(), "..", "..", ".env"), quiet: true })
 
 import { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js"
 import express from "express"
@@ -16,9 +20,9 @@ import { registerAllTools } from "./utils/registerTools"
 import logger from "./utils/logger"
 
 const app = express()
-const PORT = parseInt(process.env.MCP_PORT || "7004", 10)
+const PORT = parseInt(process.env.VESTING_MCP_PORT || "7004", 10)
 const LISTEN_HOST = "0.0.0.0"
-let EXTERNAL_URL = process.env.MCP_HOST || `http://0.0.0.0:${ PORT }`
+let EXTERNAL_URL = process.env.HOST || `http://0.0.0.0:${ PORT }`
 
 EXTERNAL_URL = new URL(EXTERNAL_URL).toString()
 

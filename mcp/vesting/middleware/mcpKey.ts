@@ -7,7 +7,7 @@ import { timingSafeEqual } from "crypto"
 // each MCP client config hold, sent as `X-MCP-Key`. Mirrors
 // mcp/stormwater/middleware/mcpKey.ts.
 export const mcpKey = (req: Request, res: Response, next: NextFunction) => {
-  const expected = process.env.MCP_API_KEY
+  const expected = process.env.VESTING_MCP_API_KEY
   const provided = req.headers["x-mcp-key"]
 
   // Plain !== leaks how many leading characters matched via response timing
